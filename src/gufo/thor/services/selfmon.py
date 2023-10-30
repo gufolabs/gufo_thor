@@ -1,0 +1,15 @@
+# ---------------------------------------------------------------------
+# Gufo Thor: selfmon service
+# ---------------------------------------------------------------------
+# Copyright (C) 2023, Gufo Labs
+# ---------------------------------------------------------------------
+
+# Gufo Thor modules
+from .noc import NocService
+
+
+class SelfmonService(NocService):
+    name = "selfmon"
+
+
+selfmon = SelfmonService()

@@ -1,0 +1,9 @@
+# Gufo Thor configuration
+version: "1.0"
+noc:
+  tag: master
+  installation_name: Unconfigured Installation
+expose:
+  domain_name: demo.getnoc.com
+  port: 32777
+services: [web, card, discovery, activator, classifier, correlator, ping]

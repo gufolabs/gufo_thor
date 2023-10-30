@@ -1,0 +1,16 @@
+syntax: glob
+.*
+!.coveragerc
+!.gitignore
+!.gitkeep
+!.devcontainer/
+!.github/
+!.requirements/
+*.pyc
+*.pyo
+build/
+dist/
+*.egg-info/
+*.dist-info/
+__pycache__
+var/

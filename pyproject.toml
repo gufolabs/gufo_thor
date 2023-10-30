@@ -1,0 +1,166 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=61.2",
+  "wheel",
+]
+
+[tool.black]
+line-length = 79
+target-version = ['py39']
+
+[tool.coverage.report]
+exclude_lines = [
+  "if TYPE_CHECKING", # Disable type-checking imports
+  "@(abc\\.)?abstract", # Ignore abstract methods
+]
+include = ["src/*"]
+
+[tool.coverage.run]
+branch = false
+omit = ["*tests*", "*examples*"]
+
+[tool.coverage.html]
+directory = "dist/coverage"
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [".git", "build", "dist"]
+line-length = 79
+# Assume Python 3.9
+target-version = "py39"
+# Enable
+select = [
+  "E", # Pycodestyle Error
+  "F", # Pyflakes
+  "W", # Pycodestyle Warning
+  "C90", # mccabe
+  "I", # isort
+  "D", # Pydocstyle
+  "YTT", # flake8-2020
+  "ANN", # flake8-annotations
+  "S", # flake8-bandit
+  "BLE", # flake8-blind-except
+  "B", # flake8-bugbear
+  "A", # flake8-builtins
+  "C4", # flake8-comprehensions 
+  "EM", # flake8-errmsg
+  "ISC", # flake8-implicit-str-concat
+  "ICN", # flake8-import-conventions
+  "PT", # flake8-pytest-style
+  "RET", # flake8-return
+  "SIM", # flake8-simplify
+  "PLC", # pylint
+  "PLE", # pylint
+  "PLR", # pylint
+  "PLW", # pylint
+  "PIE", # flake8-pie
+  "RUF", # ruff specific
+]
+# Always autofix, but never try to fix `F401` (unused imports).
+fix = true
+ignore = ["D203", "D212", "D107", "A002", "A003", "PLR0911", "PLR0913"]
+unfixable = ["F401"]
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[tool.ruff.per-file-ignores]
+# Ignore `E402` (import violations) in all `__init__.py` files
+"__init__.py" = ["F401", "E402"]
+"examples/*.py" = [
+  "D100", # Missing docstring in public module
+  "D101", # Missing docstring in public class
+  "D102", # Missing docstring in public method
+  "D103", # Missing docstring in public function
+  "D104", # Missing docstring in public package
+  "ANN001", # Missing type annotation for function argument `{name}`
+  "ANN101", # Missing type annotation for `self` in method
+  "ANN201", # Missing return type annotation for public function `fail`
+  "BLE001", # Do not catch blind exception: `Exception`
+]
+"tests/*.py" = [
+  "ANN001", # Missing type annotation for function argument {name}
+  "ANN002", # Missing type annotation for `*args`
+  "ANN101", # Missing type annotation for `{name}` in method
+  "ANN201", # Missing return type annotation for public function {name}
+  "ANN202", # Missing return type annotation for private function `{name}`
+  "BLE001", # Do not catch blind exception: `Exception`
+  "D100", # Missing docstring in public module
+  "D101", # Missing docstring in public class
+  "D102", # Missing docstring in public method
+  "D103", # Missing docstring in public function
+  "D104", # Missing docstring in public package
+  "S101", # Use of assert detected
+  "S307", # Use of possibly insecure function; consider using `ast.literal_eval`
+  "S603", # `subprocess` call: check for execution of untrusted input
+  "PLR2004", # Magic value used in comparison, consider replacing {value} with a constant variable
+  "PT011", # `pytest.raises(ValueError)` is too broad, set the `match` parameter or use a more specific exception
+]
+
+[project]
+authors = [{name = "Gufo Labs"}]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "License :: OSI Approved :: BSD License",
+  "Topic :: Software Development",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Operating System :: OS Independent",
+  "Typing :: Typed",
+]
+dependencies = [
+  "PyYAML >= 6.0",
+  "gufo-loader >= 1.0.3",
+]
+dynamic = ["version"]
+keywords = ["NOC"]
+license = {text = "BSD 3-Clause License"}
+name = "gufo_thor"
+requires-python = ">=3.8"
+
+[project.readme]
+content-type = "text/markdown"
+file = "README.md"
+
+[project.scripts]
+gufo-thor = "gufo.thor.cli:main"
+
+[project.urls]
+"Bug Tracker" = "https://github.com/gufolabs/gufo_thor/issues"
+Changelog = "https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md"
+Documentation = "https://docs.gufolabs.com/gufo_thor/"
+Homepage = "https://github.com/gufolabs/gufo_thor/"
+"Source Code" = "https://github.com/gufolabs/gufo_thor/"
+
+[tool.setuptools]
+include-package-data = false
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed", "samples/*.yml"]
+
+[tool.setuptools.dynamic]
+version = {attr = "gufo.thor.__version__"}
+
+[tool.mypy]
+explicit_package_bases = true
+mypy_path = ["src"]
+strict = true
+warn_unused_ignores = false
