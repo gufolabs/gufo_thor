@@ -4,10 +4,10 @@
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
 """
-CardService definition.
+card service definition.
 
 Attributes:
-    card: CardService singleton.
+    card: card service singleton.
 """
 
 # Gufo Thor modules

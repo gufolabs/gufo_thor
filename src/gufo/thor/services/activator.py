@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+activator service.
+
+Attributes:
+    activator: activator service singleton.
+"""
 
 # Gufo Thor modules
 from .liftbridge import liftbridge

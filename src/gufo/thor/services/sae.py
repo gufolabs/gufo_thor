@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+sae service.
+
+Attributes:
+    sae: sae service singleton.
+"""
 
 # Gufo Thor modules
 from .mongo import mongo

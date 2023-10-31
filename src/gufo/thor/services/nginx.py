@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+nginx service.
+
+Attributes:
+    nginx: nginx service singleton.
+"""
 
 # Python modules
 import os

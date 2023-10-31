@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+liftbridge service.
+
+Attributes:
+    liftbridge: liftbridge service singleton.
+"""
 
 # Python modules
 from typing import Dict, List, Optional

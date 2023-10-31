@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+consul service.
+
+Attributes:
+    consul: consul service singleton.
+"""
 
 # Python modules
 from typing import Dict, Optional

@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+registrator service.
+
+Attributes:
+    registrator: registrator service singleton.
+"""
 
 # Gufo Thor modules
 from typing import List, Optional

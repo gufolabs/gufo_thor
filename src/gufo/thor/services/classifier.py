@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+classifier service.
+
+Attributes:
+    classifier: classifier service singleton.
+"""
 
 # Gufo Thor modules
 from .liftbridge import liftbridge

@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+bi service.
+
+Attributes:
+    bi: bi service singleton.
+"""
 
 # Gufo Thor modules
 from .clickhouse import clickhouse

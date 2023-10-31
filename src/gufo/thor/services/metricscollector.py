@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+metricscollector service.
+
+Attributes:
+    metricscollector: metricscollector service singleton.
+"""
 
 # Gufo Thor modules
 from .noc import NocService

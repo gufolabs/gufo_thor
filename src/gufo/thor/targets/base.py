@@ -4,7 +4,7 @@
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
 """
-BaseTarget definitioms.
+BaseTarget definitions.
 
 Attributes:
     loader: Target loader.

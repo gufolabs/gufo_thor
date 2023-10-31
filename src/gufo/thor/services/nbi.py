@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+nbi service.
+
+Attributes:
+    nbi: nbi service singleton.
+"""
 
 # Gufo Thor modules
 from .noc import NocService

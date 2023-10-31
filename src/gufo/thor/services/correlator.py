@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+correlator service.
+
+Attributes:
+    correlator: correlator service singleton.
+"""
 
 # Gufo Thor modules
 from .liftbridge import liftbridge

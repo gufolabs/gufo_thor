@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+traefik service.
+
+Attributes:
+    traefik: traefik service singleton.
+"""
 
 # Python modules
 from typing import List, Optional

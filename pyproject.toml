@@ -75,17 +75,6 @@ max-complexity = 10
 [tool.ruff.per-file-ignores]
 # Ignore `E402` (import violations) in all `__init__.py` files
 "__init__.py" = ["F401", "E402"]
-"examples/*.py" = [
-  "D100", # Missing docstring in public module
-  "D101", # Missing docstring in public class
-  "D102", # Missing docstring in public method
-  "D103", # Missing docstring in public function
-  "D104", # Missing docstring in public package
-  "ANN001", # Missing type annotation for function argument `{name}`
-  "ANN101", # Missing type annotation for `self` in method
-  "ANN201", # Missing return type annotation for public function `fail`
-  "BLE001", # Do not catch blind exception: `Exception`
-]
 "tests/*.py" = [
   "ANN001", # Missing type annotation for function argument {name}
   "ANN002", # Missing type annotation for `*args`
@@ -98,6 +87,7 @@ max-complexity = 10
   "D102", # Missing docstring in public method
   "D103", # Missing docstring in public function
   "D104", # Missing docstring in public package
+  "E501", # Line too long
   "S101", # Use of assert detected
   "S307", # Use of possibly insecure function; consider using `ast.literal_eval`
   "S603", # `subprocess` call: check for execution of untrusted input

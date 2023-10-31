@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+ping service.
+
+Attributes:
+    ping: ping service singleton.
+"""
 
 # Gufo Thor modules
 from .noc import NocService

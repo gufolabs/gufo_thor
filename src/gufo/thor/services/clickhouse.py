@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+clickhouse service.
+
+Attributes:
+    clickhouse: clickhouse service singleton.
+"""
 
 # Python modules
 from typing import Dict, List, Optional

@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+datastream service.
+
+Attributes:
+    datastream: datastream service singleton.
+"""
 
 # Gufo Thor modules
 from .mongo import mongo

@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+discovery service.
+
+Attributes:
+    discovery: discovery service singleton.
+"""
 
 # Gufo Thor modules
 from .activator import activator

@@ -3,6 +3,12 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+selfmon service.
+
+Attributes:
+    selfmon: selfmon service singleton.
+"""
 
 # Gufo Thor modules
 from .noc import NocService
