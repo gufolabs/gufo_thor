@@ -13,6 +13,7 @@ Attributes:
 # Python Modules
 import operator
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 # Gufo Labs modules
@@ -20,6 +21,12 @@ from gufo.loader import Loader
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+
+
+class ComposeDependsCondition(Enum):
+    STARTED = "service_started"
+    HEALTHY = "service_healthy"
+    COMPLETED_SUCCESSFULLY = "service_completed_successfully"
 
 
 class BaseService(ABC):
@@ -90,7 +97,14 @@ class BaseService(ABC):
             "restart": "no",
         }
         # depends_on
-        deps = [svc.name for svc in self.iter_dependencies()]
+        deps = {
+            dep.name: {
+                "condition": dep.get_compose_depends_condition(
+                    config, svc
+                ).value
+            }
+            for dep in self.iter_dependencies()
+        }
         if deps:
             r["depends_on"] = deps
         # working_dir
@@ -125,6 +139,21 @@ class BaseService(ABC):
             r["environment"] = env
         # done
         return r
+
+    def get_compose_depends_condition(
+        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+    ) -> ComposeDependsCondition:
+        """
+        Get condition for all dependend services.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Dependency start condition.
+        """
+        return ComposeDependsCondition.STARTED
 
     @abstractmethod
     def get_compose_image(
