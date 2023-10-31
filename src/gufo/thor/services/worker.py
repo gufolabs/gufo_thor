@@ -11,11 +11,15 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .migrate import migrate
+from .mongo import mongo
 from .noc import NocService
+from .postgres import postgres
 
 
 class WorkerService(NocService):
     name = "worker"
+    dependencies = (migrate, postgres, mongo)
 
 
 worker = WorkerService()

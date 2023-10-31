@@ -11,6 +11,7 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
 from .postgres import postgres
@@ -18,7 +19,7 @@ from .postgres import postgres
 
 class SaeService(NocService):
     name = "sae"
-    dependencies = (postgres, mongo)
+    dependencies = (migrate, postgres, mongo)
 
 
 sae = SaeService()

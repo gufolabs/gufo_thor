@@ -12,6 +12,7 @@ Attributes:
 
 # Gufo Thor modules
 from .liftbridge import liftbridge
+from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
 from .postgres import postgres
@@ -19,7 +20,7 @@ from .postgres import postgres
 
 class CorrelatorService(NocService):
     name = "correlator"
-    dependencies = (postgres, mongo, liftbridge)
+    dependencies = (migrate, postgres, mongo, liftbridge)
 
 
 correlator = CorrelatorService()

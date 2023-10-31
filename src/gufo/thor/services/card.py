@@ -12,6 +12,7 @@ Attributes:
 
 # Gufo Thor modules
 from .clickhouse import clickhouse
+from .migrate import migrate
 from .mongo import mongo
 from .nginx import nginx
 from .noc import NocService
@@ -23,7 +24,7 @@ class CardService(NocService):
     """Card service."""
 
     name = "card"
-    dependencies = (postgres, mongo, clickhouse, traefik, nginx)
+    dependencies = (migrate, postgres, mongo, clickhouse, traefik, nginx)
 
 
 card = CardService()

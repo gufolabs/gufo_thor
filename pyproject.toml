@@ -59,7 +59,7 @@ select = [
 ]
 # Always autofix, but never try to fix `F401` (unused imports).
 fix = true
-ignore = ["D203", "D212", "D107", "A002", "A003", "PLR0911", "PLR0913"]
+ignore = ["D203", "D212", "D107", "A002", "A003", "PLR0911", "PLR0913", "RUF012"]
 unfixable = ["F401"]
 
 [tool.ruff.flake8-quotes]
@@ -144,7 +144,7 @@ namespaces = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-"*" = ["py.typed", "samples/*.yml"]
+"gufo.thor" = ["py.typed", "samples/*", "templates/**"]
 
 [tool.setuptools.dynamic]
 version = {attr = "gufo.thor.__version__"}

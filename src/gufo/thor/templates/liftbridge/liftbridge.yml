@@ -1,0 +1,15 @@
+listen: 0.0.0.0:9292
+host: liftbridge
+data:
+  dir: /data
+nats:
+  embedded: true
+logging:
+  level: info
+  raft: true
+streams:
+  compact.enabled: true
+  retention.max:
+    age: 24h
+cursors:
+  stream.partitions: 1

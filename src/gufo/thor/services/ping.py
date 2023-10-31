@@ -11,11 +11,14 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .datastream import datastream
+from .liftbridge import liftbridge
 from .noc import NocService
 
 
 class PingService(NocService):
     name = "ping"
+    dependencies = (liftbridge, datastream)
 
 
 ping = PingService()

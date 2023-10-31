@@ -13,6 +13,7 @@ Attributes:
 # Gufo Thor modules
 from .activator import activator
 from .clickhouse import clickhouse
+from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
 from .postgres import postgres
@@ -20,7 +21,7 @@ from .postgres import postgres
 
 class DiscoveryService(NocService):
     name = "discovery"
-    dependencies = (postgres, mongo, clickhouse, activator)
+    dependencies = (migrate, postgres, mongo, clickhouse, activator)
 
 
 discovery = DiscoveryService()

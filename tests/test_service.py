@@ -9,9 +9,14 @@ from typing import List
 
 # Third-party modules
 import pytest
+from gufo.thor.config import Config
 
 # Gufo Thor modules
-from gufo.thor.services.base import BaseService, loader
+from gufo.thor.services.base import (
+    BaseService,
+    ComposeDependsCondition,
+    loader,
+)
 from gufo.thor.services.clickhouse import clickhouse
 from gufo.thor.services.consul import consul
 from gufo.thor.services.login import login
@@ -50,6 +55,25 @@ ALL_SERVICES = set(loader.keys())
 def test_resolve(svc: str, expected: List[BaseService]) -> None:
     result = BaseService.resolve([svc])
     assert expected == result
+
+
+@pytest.mark.parametrize("svc", list(loader.keys()))
+def test_compose_config(svc: str) -> None:
+    config = Config.default()
+    s = loader[svc].get_compose_config(config, None)
+    assert s
+
+
+@pytest.mark.parametrize("svc", list(loader.keys()))
+def test_compose_healthcheck(svc: str) -> None:
+    config = Config.default()
+    service = loader[svc]
+    cond = service.get_compose_depends_condition(config, None)
+    if cond != ComposeDependsCondition.HEALTHY:
+        pytest.xfail("No healthcheck configured")
+    healthcheck = service.get_compose_healthcheck(config, None)
+    assert healthcheck
+    assert isinstance(healthcheck, dict)
 
 
 DEPS_DOT = """digraph {

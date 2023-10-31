@@ -11,11 +11,15 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .migrate import migrate
+from .mongo import mongo
 from .noc import NocService
+from .postgres import postgres
 
 
 class SchedulerService(NocService):
     name = "scheduler"
+    dependencies = (migrate, postgres, mongo)
 
 
 scheduler = SchedulerService()

@@ -12,15 +12,18 @@ Attributes:
 
 # Python Modules
 import operator
-from abc import ABC, abstractmethod
+from abc import ABC
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
+from importlib import resources
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
 
 # Gufo Labs modules
 from gufo.loader import Loader
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from ..log import logger
 
 
 class ComposeDependsCondition(Enum):
@@ -36,25 +39,43 @@ class BaseService(ABC):
     Attributes:
         name: Service name
         is_noc: True, if the service is belongs to NOC
-        dependencies:
+        dependencies: Optional list of dependencies
+        compose_image: docker image name. Use `get_compose_image`
+            to override.
+        compose_depends_condition: Condition for all dependend
+            services. Use `get_compose_dependens_condition`
+            to override.
+        compose_healthcheck: Healtcheck section, if any.
+            Use `get_compose_healthcheck` to override.
+        compose_command: `command` section, if any.
+            Use `get_compose_command` to override.
+        compose_entrypoint: `entrypoint` section, if any.
+            Use `get_compose_entrypoint` to override.
+        compose_working_dir: `working_dir` section if any.
+            Use `get_compose_working_dir` to override.
+        compose_volumes: `volumes` section, if any.
+            Use `get_compose_volumes` to override.
+        compose_environment: `environment` section, if any.
+            Use `get_compose_environment` to override.
+        compose_extra: Additional parameters to be merged
+            with the compose config.
+            Usee `get_compose_extra` to override.
     """
 
     name: str
     is_noc: bool = False
     dependencies: Optional[Tuple["BaseService", ...]] = None
-
-    @property
-    def is_abstract(self: "BaseService") -> bool:
-        """
-        Check ig the service is abstract.
-
-        Abstract services must be used only as base
-        classes for real services.
-
-        Returns:
-            True, if service is abstract.
-        """
-        return hasattr(self, "name")
+    compose_image: str
+    compose_depends_condition: ComposeDependsCondition = (
+        ComposeDependsCondition.STARTED
+    )
+    compose_healthcheck: Optional[Dict[str, Any]] = None
+    compose_command: Optional[str] = None
+    compose_entrypoint: Optional[str] = None
+    compose_working_dir: Optional[str] = None
+    compose_volumes: Optional[List[str]] = None
+    compose_environment: Optional[Dict[str, str]] = None
+    compose_extra: Optional[Dict[str, Any]] = None
 
     def iter_dependencies(self: "BaseService") -> Iterable["BaseService"]:
         """
@@ -83,6 +104,8 @@ class BaseService(ABC):
         * `get_compose_networks` - to build `networks` section.
         * `get_compose_ports` - to build `ports` section.
         * `get_compose_environment` - to build `environments` section.
+        * `get_compose_healthcheck` - to build `healthcheck` section.
+        * `get_compose_extra` to add the extra parameters to the result.
 
         Args:
             config: Gufo Thor config instance
@@ -137,6 +160,14 @@ class BaseService(ABC):
         env = self.get_compose_environment(config, svc)
         if env:
             r["environment"] = env
+        # healthcheck
+        healthcheck = self.get_compose_healthcheck(config, svc)
+        if healthcheck:
+            r["healthcheck"] = healthcheck
+        # extra
+        extra = self.get_compose_extra(config, svc)
+        if extra:
+            r.update(extra)
         # done
         return r
 
@@ -153,9 +184,8 @@ class BaseService(ABC):
         Returns:
             Dependency start condition.
         """
-        return ComposeDependsCondition.STARTED
+        return self.compose_depends_condition
 
-    @abstractmethod
     def get_compose_image(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
     ) -> str:
@@ -169,6 +199,11 @@ class BaseService(ABC):
         Returns:
             Image name.
         """
+        try:
+            return self.compose_image
+        except AttributeError as e:
+            msg = "compose_image is not defined"
+            raise NotImplementedError(msg) from e
 
     def get_compose_working_dir(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
@@ -183,7 +218,7 @@ class BaseService(ABC):
         Returns:
             Working dir, if not empty
         """
-        return None
+        return self.compose_working_dir
 
     def get_compose_command(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
@@ -198,7 +233,7 @@ class BaseService(ABC):
         Returns:
             Command, if not empty
         """
-        return None
+        return self.compose_command
 
     def get_compose_entrypoint(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
@@ -213,7 +248,7 @@ class BaseService(ABC):
         Returns:
         Entrypoint, if not empty
         """
-        return None
+        return self.compose_entrypoint
 
     def get_compose_networks(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
@@ -243,7 +278,7 @@ class BaseService(ABC):
         Returns:
             List of volumes config, if not empty.
         """
-        return None
+        return self.compose_volumes
 
     def get_compose_ports(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
@@ -273,7 +308,37 @@ class BaseService(ABC):
         Returns:
             Dict of environment, if not empty
         """
-        return None
+        return self.compose_environment
+
+    def get_compose_healthcheck(
+        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Get docker-compose.yml `healthcheck` section.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Dict of healthcheck, if not empty
+        """
+        return self.compose_healthcheck
+
+    def get_compose_extra(
+        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Get dict to be merged with compose config/.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Dict of extra settings.
+        """
+        return self.compose_extra
 
     def get_compose_dirs(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
@@ -345,6 +410,34 @@ class BaseService(ABC):
                 r.append(f"  {svc.name}")
         r.append("}")
         return "\n".join(r)
+
+    @classmethod
+    def render_file(
+        cls: Type["BaseService"],
+        path: Path,
+        tpl: str,
+        **kwargs: Union[str, int],
+    ) -> None:
+        """
+        Apply a context to the template and write to file.
+
+        Args:
+            path: File path
+            tpl: Template name (relative to `gufo.thor.templates`)
+            kwargs: Template context
+        """
+        # Load template
+        data = (
+            resources.files("gufo.thor")
+            .joinpath("templates", cls.name, tpl)
+            .read_text()
+        )
+        for k, v in kwargs.items():
+            data = data.replace(f"{{{k}}}", str(v))
+        # Write file
+        logger.info("Writing %s", path)
+        with open(path, "w") as fp:
+            fp.write(data)
 
 
 loader: Loader[BaseService] = Loader[BaseService](

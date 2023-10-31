@@ -3,9 +3,16 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+web service.
+
+Attributes:
+    web: web service singleton.
+"""
 
 # Gufo Thor modules
 from .clickhouse import clickhouse
+from .migrate import migrate
 from .mongo import mongo
 from .nginx import nginx
 from .noc import NocService
@@ -15,7 +22,7 @@ from .traefik import traefik
 
 class WebService(NocService):
     name = "web"
-    dependencies = (postgres, mongo, clickhouse, traefik, nginx)
+    dependencies = (migrate, postgres, mongo, clickhouse, traefik, nginx)
 
 
 web = WebService()

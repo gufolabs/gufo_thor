@@ -11,11 +11,15 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .migrate import migrate
+from .mongo import mongo
 from .noc import NocService
+from .postgres import postgres
 
 
 class SelfmonService(NocService):
     name = "selfmon"
+    dependencies = (migrate, postgres, mongo)
 
 
 selfmon = SelfmonService()

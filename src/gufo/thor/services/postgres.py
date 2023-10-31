@@ -3,42 +3,45 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
+"""
+postgres service.
+
+Attributes:
+    postgres: postgres service singleton.
+"""
 
 # Python modules
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 # Gufo Thor modules
-from gufo.thor.config import Config, ServiceConfig
-
-from .base import BaseService
+from ..config import Config, ServiceConfig
+from .base import BaseService, ComposeDependsCondition
+from .registrator import registrator
 
 
 class PostgresService(BaseService):
     name = "postgres"
-
-    def get_compose_image(
-        self: "PostgresService", config: Config, svc: Optional[ServiceConfig]
-    ) -> str:
-        return "postgres:16"
-
-    def get_compose_volumes(
-        self: BaseService, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
-        return ["./data/postgres:/var/lib/postgresql/data"]
+    dependencies = (registrator,)
+    compose_image = "postgres:16"
+    compose_depends_condition = ComposeDependsCondition.HEALTHY
+    compose_healthcheck = {
+        "test": ["CMD", "pg_isready", "-d", "noc"],
+        "interval": "3s",
+        "timeout": "3s",
+        "start_period": "1s",
+        "retries": 3,
+    }
+    compose_volumes = ["./data/postgres:/var/lib/postgresql/data"]
+    compose_environment = {
+        "POSTGRES_DB": "noc",
+        "POSTGRES_USER": "noc",
+        "POSTGRES_PASSWORD": "noc",
+    }
 
     def get_compose_dirs(
         self: "PostgresService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         return ["data/postgres"]
-
-    def get_compose_environment(
-        self: "PostgresService", config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, str]]:
-        return {
-            "POSTGRES_DB": "noc",
-            "POSTGRES_USER": "noc",
-            "POSTGRES_PASSWORD": "noc",
-        }
 
 
 postgres = PostgresService()

@@ -13,6 +13,7 @@ Attributes:
 # Python modules
 import os
 import subprocess
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 # Gufo Thor modules
@@ -26,15 +27,11 @@ from .traefik import traefik
 class NginxService(BaseService):
     name = "nginx"
     dependencies = (traefik, login)
+    compose_image = "nginx:stable"
     SUBJ_PATH = "etc/nginx/ssl/domain_name.txt"
     RSA_KEY_SIZE = 4096
     CERT_SUBJ = "/C=IT/ST=Milano/L=Milano/O=Gufo Labs/OU=Gufo Thor"
     CERT_DAYS = 3650
-
-    def get_compose_image(
-        self: "NginxService", config: Config, svc: Optional[ServiceConfig]
-    ) -> str:
-        return "nginx:stable"
 
     def get_compose_volumes(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]
@@ -71,25 +68,15 @@ class NginxService(BaseService):
     def prepare_compose_config(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]
     ) -> None:
-        # Prepare nginx.conf
-        path = "etc/nginx/nginx.conf"
-        logger.info("Writing %s", path)
-        with open(path, "w") as fp:
-            fp.write(NGINX_CONF)
-        # Prepare mime.types
-        path = "etc/nginx/mime.types"
-        logger.info("Writing %s", path)
-        with open(path, "w") as fp:
-            fp.write(MIME_TYPES)
-        # Prepare noc.conf
-        path = "etc/nginx/conf.d/noc.conf"
-        logger.info("Writing %s", path)
-        with open(path, "w") as fp:
-            fp.write(
-                NOC_CONF.replace(
-                    "{domain_name}", config.expose.domain_name
-                ).replace("{port}", str(config.expose.port))
-            )
+        cfg_root = Path("etc", "nginx")
+        self.render_file(cfg_root / "nginx.conf", "nginx.conf")
+        self.render_file(cfg_root / "mime.types", "mime.types")
+        self.render_file(
+            cfg_root / "conf.d" / "noc.conf",
+            "noc.conf",
+            domain_name=config.expose.domain_name,
+            port=config.expose.port,
+        )
         # Prepare TLS certificates
         if self._to_rebuild_certificate(config):
             self._rebuild_certificate(config)
@@ -152,215 +139,5 @@ class NginxService(BaseService):
         with open(self.SUBJ_PATH, "w") as fp:
             fp.write(self.get_cert_subj(config))
 
-
-NGINX_CONF = """user nginx;
-worker_processes 1;
-
-events {
-    worker_connections  1024;
-}
-
-http {
-    include /etc/nginx/mime.types;
-    default_type application/octet-stream;
-    sendfile on;
-    keepalive_timeout 10;
-    include /etc/nginx/conf.d/*.conf;
-    access_log /dev/stdout;
-    error_log /dev/stdout;
-}
-"""
-
-MIME_TYPES = """types {
-    text/html                             html htm shtml;
-    text/css                              css;
-    text/xml                              xml;
-    image/gif                             gif;
-    image/jpeg                            jpeg jpg;
-    application/javascript                js;
-    application/atom+xml                  atom;
-    application/rss+xml                   rss;
-
-    text/mathml                           mml;
-    text/plain                            txt;
-    text/vnd.sun.j2me.app-descriptor      jad;
-    text/vnd.wap.wml                      wml;
-    text/x-component                      htc;
-
-    image/png                             png;
-    image/tiff                            tif tiff;
-    image/vnd.wap.wbmp                    wbmp;
-    image/x-icon                          ico;
-    image/x-jng                           jng;
-    image/x-ms-bmp                        bmp;
-    image/svg+xml                         svg svgz;
-    image/webp                            webp;
-
-    application/font-woff                 woff;
-    application/java-archive              jar war ear;
-    application/json                      json;
-    application/mac-binhex40              hqx;
-    application/msword                    doc;
-    application/pdf                       pdf;
-    application/postscript                ps eps ai;
-    application/rtf                       rtf;
-    application/vnd.apple.mpegurl         m3u8;
-    application/vnd.ms-excel              xls;
-    application/vnd.ms-fontobject         eot;
-    application/vnd.ms-powerpoint         ppt;
-    application/vnd.wap.wmlc              wmlc;
-    application/vnd.google-earth.kml+xml  kml;
-    application/vnd.google-earth.kmz      kmz;
-    application/x-7z-compressed           7z;
-    application/x-cocoa                   cco;
-    application/x-java-archive-diff       jardiff;
-    application/x-java-jnlp-file          jnlp;
-    application/x-makeself                run;
-    application/x-perl                    pl pm;
-    application/x-pilot                   prc pdb;
-    application/x-rar-compressed          rar;
-    application/x-redhat-package-manager  rpm;
-    application/x-sea                     sea;
-    application/x-shockwave-flash         swf;
-    application/x-stuffit                 sit;
-    application/x-tcl                     tcl tk;
-    application/x-x509-ca-cert            der pem crt;
-    application/x-xpinstall               xpi;
-    application/xhtml+xml                 xhtml;
-    application/xspf+xml                  xspf;
-    application/zip                       zip;
-
-    application/octet-stream              bin exe dll;
-    application/octet-stream              deb;
-    application/octet-stream              dmg;
-    application/octet-stream              iso img;
-    application/octet-stream              msi msp msm;
-
-    application/vnd.openxmlformats-officedocument.wordprocessingml.document    docx;
-    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet          xlsx;
-    application/vnd.openxmlformats-officedocument.presentationml.presentation  pptx;
-
-    audio/midi                            mid midi kar;
-    audio/mpeg                            mp3;
-    audio/ogg                             ogg;
-    audio/x-m4a                           m4a;
-    audio/x-realaudio                     ra;
-
-    video/3gpp                            3gpp 3gp;
-    video/mp2t                            ts;
-    video/mp4                             mp4;
-    video/mpeg                            mpeg mpg;
-    video/quicktime                       mov;
-    video/webm                            webm;
-    video/x-flv                           flv;
-    video/x-m4v                           m4v;
-    video/x-mng                           mng;
-    video/x-ms-asf                        asx asf;
-    video/x-ms-wmv                        wmv;
-    video/x-msvideo                       avi;
-}
-"""
-
-NOC_CONF = """upstream traefik {
-    server noc-traefik-1:80;
-}
-
-log_format timed_combined '$remote_addr - $remote_user [$time_local] '
-    '"$request" $status $body_bytes_sent '
-    '"$http_referer" "$http_user_agent" '
-    '$request_time $upstream_response_time $pipe';
-
-server {
-    listen 443 ssl http2;
-    server_name {domain_name};
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_certificate /etc/nginx/ssl/noc.crt;
-    ssl_certificate_key /etc/nginx/ssl/noc.key;
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains";
-    add_header X-Content-Type-Options nosniff;
-    ssl_stapling off;
-    ssl_stapling_verify off;
-
-    location @error401 {
-        return 302 $scheme://$host:{port}/ui/login/index.html?uri=$request_uri;
-    }
-
-    # Login service api
-    location /api/auth/ {
-        internal;
-        proxy_pass http://traefik;
-        #rewrite  ^/api/auth/(.*)  /api/login/$1 break;
-        # internal;
-        gzip on;
-        gzip_types text/css text/x-js;
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Scheme $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Original-URI $request_uri;
-        proxy_set_header Content-Length '0';
-    }
-
-    # Login service api
-    location /api/login/ {
-        proxy_pass http://traefik;
-        gzip on;
-        gzip_types text/css text/x-js;
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Scheme $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Original-URI $request_uri;
-    }
-
-    # Card service api
-    location /api/ {
-        proxy_pass http://traefik;
-        auth_request /api/auth/auth/;
-        gzip on;
-        gzip_types text/css text/x-js;
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Scheme $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        auth_request_set $user $upstream_http_remote_user;
-        proxy_set_header Remote-User $user;
-        auth_request_set $groups $upstream_http_remote_groups;
-        proxy_set_header Remote-Groups $groups;
-        auth_request_set $apiaccess $upstream_http_x_noc_api_access;
-        proxy_set_header X-NOC-API-Access $apiaccess;
-    }
-
-    # UI files
-    location ^~ /ui/ {
-        alias /opt/noc/ui/;
-        gzip on;
-        gzip_types text/css text/x-js application/javascript;
-    }
-
-    location / {
-        rewrite ^/$ /main/desktop/;
-        proxy_pass http://traefik;
-        auth_request /api/auth/auth/;
-        proxy_read_timeout 900;
-        gzip on;
-        gzip_types text/css text/x-js;
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Scheme $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        auth_request_set $user $upstream_http_remote_user;
-        proxy_set_header Remote-User $user;
-        auth_request_set $groups $upstream_http_remote_groups;
-        proxy_set_header Remote-Groups $groups;
-        # Proxy authentication settings
-        error_page 401 = @error401;
-    }
-}
-"""
 
 nginx = NginxService()

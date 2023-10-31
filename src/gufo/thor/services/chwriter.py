@@ -12,12 +12,14 @@ Attributes:
 
 # Gufo Thor modules
 from .clickhouse import clickhouse
+from .liftbridge import liftbridge
+from .migrate import migrate
 from .noc import NocService
 
 
 class ChwriterService(NocService):
     name = "chwriter"
-    dependencies = (clickhouse,)
+    dependencies = (migrate, clickhouse, liftbridge)
 
 
 chwriter = ChwriterService()

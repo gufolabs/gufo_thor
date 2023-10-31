@@ -11,11 +11,14 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .datastream import datastream
+from .liftbridge import liftbridge
 from .noc import NocService
 
 
 class TopoService(NocService):
     name = "topo"
+    dependencies = (datastream, liftbridge)
 
 
 topo = TopoService()
