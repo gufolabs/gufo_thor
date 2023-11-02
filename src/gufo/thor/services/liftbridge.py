@@ -17,23 +17,18 @@ from typing import Optional
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
 from .base import BaseService
-from .registrator import registrator
 
 
 class LiftbridgeService(BaseService):
     """liftbridge service."""
 
     name = "liftbridge"
-    dependencies = (registrator,)
     compose_image = "liftbridge/liftbridge:v1.9.0"
     compose_entrypoint = "liftbridge --config /etc/liftbridge.yml"
     compose_volumes = [
         "./data/liftbridge:/data/",
         "./etc/liftbridge.yml:/etc/liftbridge.yml",
     ]
-    compose_environment = {
-        "SERVICE_9292_NAME": "liftbridge",
-    }
     compose_data_dirs = [Path("liftbridge")]
 
     def prepare_compose_config(

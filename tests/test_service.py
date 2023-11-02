@@ -120,7 +120,6 @@ DEPS_DOT = """digraph {
   login -> nginx
   ping
   postgres
-  consul -> registrator
   postgres -> sae
   mongo -> sae
   scheduler

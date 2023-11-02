@@ -15,14 +15,12 @@ from pathlib import Path
 
 # Gufo Thor modules
 from .base import BaseService, ComposeDependsCondition
-from .registrator import registrator
 
 
 class PostgresService(BaseService):
     """postgres service."""
 
     name = "postgres"
-    dependencies = (registrator,)
     compose_image = "postgres:16"
     compose_depends_condition = ComposeDependsCondition.HEALTHY
     compose_healthcheck = {
@@ -30,7 +28,7 @@ class PostgresService(BaseService):
         "interval": "3s",
         "timeout": "3s",
         "start_period": "1s",
-        "retries": 3,
+        "retries": 10,
     }
     compose_volumes = ["./data/postgres:/var/lib/postgresql/data"]
     compose_environment = {

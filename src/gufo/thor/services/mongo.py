@@ -15,14 +15,12 @@ from pathlib import Path
 
 # Gufo Thor modules
 from .base import BaseService, ComposeDependsCondition
-from .registrator import registrator
 
 
 class MongoService(BaseService):
     """mongo service."""
 
     name = "mongo"
-    dependencies = (registrator,)
     compose_image = "mongo:4.4"
     compose_depends_condition = ComposeDependsCondition.HEALTHY
     compose_healthcheck = {

@@ -17,14 +17,12 @@ from typing import Optional
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
 from .base import BaseService, ComposeDependsCondition
-from .registrator import registrator
 
 
 class ClickhouseService(BaseService):
     """clickhouse service."""
 
     name = "clickhouse"
-    dependencies = (registrator,)
     compose_image = "clickhouse/clickhouse-server:23"
     compose_depends_condition = ComposeDependsCondition.HEALTHY
     compose_healthcheck = {
@@ -37,11 +35,6 @@ class ClickhouseService(BaseService):
         "./etc/clickhouse-server/:/etc/clickhouse-server",
         "./data/clickhouse:/var/lib/clickhouse",
     ]
-    compose_environment = {
-        "SERVICE_8123_NAME": "clickhouse",
-        "SERVICE_9000_IGNORE": "1",
-        "SERVICE_9009_IGNORE": "1",
-    }
     compose_extra = {
         "cap_add": [
             "SYS_NICE",
