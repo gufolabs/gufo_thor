@@ -7,6 +7,7 @@
 
 # Python modules
 import os
+from pathlib import Path
 from typing import Any, Dict
 
 # Third-party mofules
@@ -39,23 +40,42 @@ class ComposeTarget(BaseTarget):
         # Generate directories and config
         for svc in BaseService.resolve(self.config.services):
             logger.info("Configuring service %s", svc.name)
-            # Create directories
-            dirs = svc.get_compose_dirs(
+            # Create configuration directories, if necessary
+            etc_dirs = svc.get_compose_etc_dirs(
                 self.config, self.config.services.get(svc.name)
             )
-            if dirs is not None:
-                for d in dirs:
-                    if os.path.exists(d):
-                        logger.info(
-                            "Directory %s is already exists. Skipping", d
-                        )
-                    else:
-                        logger.info("Creating directory %s", d)
-                        os.makedirs(d)
+            if etc_dirs:
+                prefix = Path("etc")
+                self._ensure_directory(prefix)
+                for d in etc_dirs:
+                    self._ensure_directory(prefix / d)
+            # Create data directories, if necessary
+            data_dirs = svc.get_compose_data_dirs(
+                self.config, self.config.services.get(svc.name)
+            )
+            if data_dirs:
+                prefix = Path("data")
+                self._ensure_directory(prefix)
+                for d in data_dirs:
+                    self._ensure_directory(prefix / d)
             # Create config
             svc.prepare_compose_config(
                 self.config, self.config.services.get(svc.name)
             )
+
+    @staticmethod
+    def _ensure_directory(path: Path) -> None:
+        """
+        Check directory is exists and create, if necessary.
+
+        Args:
+            path: Directory path.
+        """
+        if os.path.exists(path):
+            logger.info("Directory %s is already exists. Skipping", path)
+            return
+        logger.info("Creating directory %s", path)
+        os.makedirs(path)
 
     def render_config(self: "ComposeTarget") -> str:
         """

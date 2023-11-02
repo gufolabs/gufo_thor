@@ -11,10 +11,9 @@ Attributes:
 """
 
 # Python modules
-from typing import List, Optional
+from pathlib import Path
 
 # Gufo Thor modules
-from ..config import Config, ServiceConfig
 from .base import BaseService, ComposeDependsCondition
 from .registrator import registrator
 
@@ -39,12 +38,7 @@ class PostgresService(BaseService):
         "POSTGRES_USER": "noc",
         "POSTGRES_PASSWORD": "noc",
     }
-
-    def get_compose_dirs(
-        self: "PostgresService", config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
-        """Request data directories to be created."""
-        return ["data/postgres"]
+    compose_data_dirs = [Path("postgres")]
 
 
 postgres = PostgresService()

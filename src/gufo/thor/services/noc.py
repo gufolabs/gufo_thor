@@ -21,6 +21,7 @@ class NocService(BaseService):
     name = "noc"
     compose_working_dir = "/opt/noc"
     _prepared = False
+    compose_etc_dirs = [Path("noc")]
 
     def get_compose_image(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
@@ -71,12 +72,6 @@ class NocService(BaseService):
         if config.noc.custom:
             r["NOC_PATH_CUSTOM_PATH"] = "/opt/noc_custom"
         return r if r else None
-
-    def get_compose_dirs(
-        self: BaseService, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
-        """Request directories to be createed."""
-        return ["etc/noc"]
 
     def prepare_compose_config(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]

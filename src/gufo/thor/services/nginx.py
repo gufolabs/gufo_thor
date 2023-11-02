@@ -35,6 +35,7 @@ class NginxService(BaseService):
     RSA_KEY_SIZE = 4096
     CERT_SUBJ = "/C=IT/ST=Milano/L=Milano/O=Gufo Labs/OU=Gufo Thor"
     CERT_DAYS = 3650
+    compose_etc_dirs = [Path("nginx", "conf.d"), Path("nginx", "ssl")]
 
     def get_compose_volumes(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]
@@ -63,14 +64,6 @@ class NginxService(BaseService):
     ) -> Optional[List[str]]:
         """Get ports section."""
         return [f"{config.expose.port}:443"]
-
-    def get_compose_dirs(
-        self: "NginxService",
-        config: Config,
-        svc: Optional[ServiceConfig],
-    ) -> Optional[List[str]]:
-        """Request directories to be created."""
-        return ["etc/nginx/conf.d", "etc/nginx/ssl"]
 
     def prepare_compose_config(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]

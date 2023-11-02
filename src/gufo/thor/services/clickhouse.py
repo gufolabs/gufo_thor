@@ -12,7 +12,7 @@ Attributes:
 
 # Python modules
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
@@ -55,12 +55,8 @@ class ClickhouseService(BaseService):
             }
         },
     }
-
-    def get_compose_dirs(
-        self: "ClickhouseService", config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
-        """Request data directories to be createed."""
-        return ["etc/clickhouse-server", "data/clickhouse"]
+    compose_etc_dirs = [Path("clickhouse-server")]
+    compose_data_dirs = [Path("clickhouse")]
 
     def prepare_compose_config(
         self: "ClickhouseService", config: Config, svc: Optional[ServiceConfig]

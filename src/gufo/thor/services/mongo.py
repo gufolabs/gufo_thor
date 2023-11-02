@@ -11,10 +11,9 @@ Attributes:
 """
 
 # Python modules
-from typing import List, Optional
+from pathlib import Path
 
 # Gufo Thor modules
-from ..config import Config, ServiceConfig
 from .base import BaseService, ComposeDependsCondition
 from .registrator import registrator
 
@@ -33,14 +32,9 @@ class MongoService(BaseService):
         "start_period": "1s",
         "retries": 10,
     }
-    compose_command = "--wiredTigerCacheSizeGB 4 --bind_ip_all"
+    compose_command = "--wiredTigerCacheSizeGB 1.5 --bind_ip_all"
     compose_volumes = ["./data/mongo:/data/db"]
-
-    def get_compose_dirs(
-        self: "MongoService", config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
-        """Request data directories."""
-        return ["data/mongo"]
+    compose_data_dirs = [Path("mongo")]
 
 
 mongo = MongoService()

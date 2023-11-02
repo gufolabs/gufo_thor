@@ -12,7 +12,7 @@ Attributes:
 
 # Python modules
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
@@ -34,14 +34,7 @@ class LiftbridgeService(BaseService):
     compose_environment = {
         "SERVICE_9292_NAME": "liftbridge",
     }
-
-    def get_compose_dirs(
-        self: "LiftbridgeService",
-        config: Config,
-        svc: Optional[ServiceConfig],
-    ) -> Optional[List[str]]:
-        """Request data directories to be createed."""
-        return ["etc", "data/liftbridge"]
+    compose_data_dirs = [Path("liftbridge")]
 
     def prepare_compose_config(
         self: "LiftbridgeService", config: Config, svc: Optional[ServiceConfig]

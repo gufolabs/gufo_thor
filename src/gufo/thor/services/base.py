@@ -51,26 +51,45 @@ class BaseService(ABC):
         name: Service name
         is_noc: True, if the service is belongs to NOC
         dependencies: Optional list of dependencies
-        compose_image: docker image name. Use `get_compose_image`
-            to override.
+        compose_image: docker image name. Override `get_compose_image`
+            to implement config-depended behavior.
         compose_depends_condition: Condition for all dependend
-            services. Use `get_compose_dependens_condition`
-            to override.
+            services. Override `get_compose_dependens_condition`
+            to implement config-dependend behavior.
         compose_healthcheck: Healtcheck section, if any.
-            Use `get_compose_healthcheck` to override.
+            Override `get_compose_healthcheck`
+            to implement config-dependend behavior.
         compose_command: `command` section, if any.
-            Use `get_compose_command` to override.
+            Override `get_compose_command` to implement
+            config-dependend behavior..
         compose_entrypoint: `entrypoint` section, if any.
-            Use `get_compose_entrypoint` to override.
+            Override `get_compose_entrypoint`
+            to implement config-dependend behavior.
         compose_working_dir: `working_dir` section if any.
-            Use `get_compose_working_dir` to override.
+            Override `get_compose_working_dir`
+            to implement config-dependend behavior.
         compose_volumes: `volumes` section, if any.
-            Use `get_compose_volumes` to override.
+            Override `get_compose_volumes`
+            to implement config-dependend behavior.
         compose_environment: `environment` section, if any.
-            Use `get_compose_environment` to override.
+            Override `get_compose_environment`
+            to implement config-dependend behavior.
         compose_extra: Additional parameters to be merged
             with the compose config.
-            Usee `get_compose_extra` to override.
+            Override `get_compose_extra`
+            to implement config-dependend behavior.
+        compose_etc_dirs: Optional list of directories
+            to be created within `etc` directory
+            in the start of prepare page.
+            Usually contains configuration files.
+            Override `get_compose_etc_dirs`
+            to implement config-dependend behavior.
+        compose_data_dirs: Optional list of directories
+            to be created within `data` directory
+            in the start of prepare page.
+            Usually contains data files.
+            Override `get_compose_data_dirs`
+            to implement config-dependend behavior.
     """
 
     name: str
@@ -87,6 +106,8 @@ class BaseService(ABC):
     compose_volumes: Optional[List[str]] = None
     compose_environment: Optional[Dict[str, str]] = None
     compose_extra: Optional[Dict[str, Any]] = None
+    compose_etc_dirs: Optional[List[Path]] = None
+    compose_data_dirs: Optional[List[Path]] = None
 
     def iter_dependencies(self: "BaseService") -> Iterable["BaseService"]:
         """
@@ -371,11 +392,28 @@ class BaseService(ABC):
         """
         return self.compose_extra
 
-    def get_compose_dirs(
+    def get_compose_etc_dirs(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
+    ) -> Optional[List[Path]]:
         """
-        Get list of required directories for the service.
+        Get list of required cofiguration directories for the service.
+
+        Directories to be created within `etc` directory.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            List of required directories, if not empty.
+        """
+        return self.compose_etc_dirs
+
+    def get_compose_data_dirs(
+        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+    ) -> Optional[List[Path]]:
+        """
+        Get list of required cofiguration directories for the service.
 
         The required directories should be created before the service
         is been configured. Should be used in conjunction with
@@ -388,7 +426,7 @@ class BaseService(ABC):
         Returns:
             List of required directories, if not empty.
         """
-        return None
+        return self.compose_data_dirs
 
     def prepare_compose_config(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]
