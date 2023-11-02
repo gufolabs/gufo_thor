@@ -162,7 +162,7 @@ class Config(object):
         """
         noc_cfg = NocConfig()
         expose_cfg = ExposeConfig()
-        return Config(noc=noc_cfg, expose=expose_cfg, services=[])
+        return Config(noc=noc_cfg, expose=expose_cfg, services={})
 
 
 def get_sample(name: str) -> str:

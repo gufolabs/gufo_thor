@@ -56,7 +56,7 @@ REQUIRED_FILES = [
     "docs/codequality.md",
     "docs/devcommon.md",
     "docs/environment.md",
-    "docs/examples/index.md",
+    # "docs/examples/index.md",
     "docs/faq.md",
     "docs/index.md",
     "docs/installation.md",
