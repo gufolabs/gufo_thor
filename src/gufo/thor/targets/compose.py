@@ -89,7 +89,7 @@ class ComposeTarget(BaseTarget):
 
     def _get_config_dict(self: "ComposeTarget") -> Dict[str, Any]:
         """Get dict of docker-compose.yml."""
-        return {
+        r = {
             "version": "3",
             "services": self._get_services_config(),
             "networks": {
@@ -106,6 +106,22 @@ class ComposeTarget(BaseTarget):
                 }
             },
         }
+        # Configure volumes
+        volumes: Dict[str, Dict[str, Any]] = {}
+        for svc in BaseService.resolve(self.config.services):
+            vc = svc.get_compose_volumes_config(
+                self.config, self.config.services.get(svc.name)
+            )
+            if not vc:
+                continue
+            for n, c in vc.items():
+                if n in volumes:
+                    volumes[n].update(c)
+                else:
+                    volumes[n] = c
+        if volumes:
+            r["volumes"] = volumes
+        return r
 
     def _get_services_config(self: "ComposeTarget") -> Dict[str, Any]:
         """Build services section of config."""

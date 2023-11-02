@@ -71,6 +71,9 @@ class BaseService(ABC):
         compose_volumes: `volumes` section, if any.
             Override `get_compose_volumes`
             to implement custom behavior.
+        commpose_volumes_config: Global `volumes` section, if any.
+            Override `get_compose_volumes_config`
+            to implement custom behavior.
         compose_environment: `environment` section, if any.
             Override `get_compose_environment`
             to implement custom behavior.
@@ -107,6 +110,7 @@ class BaseService(ABC):
     compose_entrypoint: Optional[str] = None
     compose_working_dir: Optional[str] = None
     compose_volumes: Optional[List[str]] = None
+    compose_volumes_config: Optional[Dict[str, Dict[str, Any]]] = None
     compose_environment: Optional[Dict[str, str]] = None
     compose_extra: Optional[Dict[str, Any]] = None
     compose_etc_dirs: Optional[List[Path]] = None
@@ -320,6 +324,21 @@ class BaseService(ABC):
             List of volumes config, if not empty.
         """
         return self.compose_volumes
+
+    def get_compose_volumes_config(
+        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+    ) -> Optional[Dict[str, Dict[str, Any]]]:
+        """
+        Get docker-compose.yml global `volumes` section.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Dict of name -> volumes config
+        """
+        return self.compose_volumes_config
 
     def get_compose_ports(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]

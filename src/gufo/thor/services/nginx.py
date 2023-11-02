@@ -47,7 +47,7 @@ class NginxService(BaseService):
             r += [f"{config.noc.path}/ui:/opt/noc/ui"]
         else:
             # Use /ui from container
-            ...
+            r.append("static:/opt/noc/ui")
         return r
 
     def get_compose_networks(
