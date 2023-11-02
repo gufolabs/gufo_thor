@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class DatasourceService(NocService):
+    """datasource service."""
+
     name = "datasource"
 
 

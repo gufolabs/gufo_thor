@@ -16,12 +16,13 @@ from typing import List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
-from ..log import logger
 from .base import BaseService
 from .registrator import registrator
 
 
 class LiftbridgeService(BaseService):
+    """liftbridge service."""
+
     name = "liftbridge"
     dependencies = (registrator,)
     compose_image = "liftbridge/liftbridge:v1.9.0"
@@ -39,11 +40,13 @@ class LiftbridgeService(BaseService):
         config: Config,
         svc: Optional[ServiceConfig],
     ) -> Optional[List[str]]:
+        """Request data directories to be createed."""
         return ["etc", "data/liftbridge"]
 
     def prepare_compose_config(
         self: "LiftbridgeService", config: Config, svc: Optional[ServiceConfig]
     ) -> None:
+        """Generate config."""
         self.render_file(Path("etc", "liftbridge.yml"), "liftbridge.yml")
 
 

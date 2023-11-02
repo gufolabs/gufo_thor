@@ -36,6 +36,7 @@ class BaseTarget(ABC):
 
     @abstractmethod
     def prepare(self: "BaseTarget") -> None:
+        """Prepare environment before start."""
         ...
 
 

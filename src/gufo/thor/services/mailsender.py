@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class MailsenderService(NocService):
+    """mailsender service."""
+
     name = "mailsender"
 
 

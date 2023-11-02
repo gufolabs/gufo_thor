@@ -18,6 +18,8 @@ from .postgres import postgres
 
 
 class SelfmonService(NocService):
+    """selfmon service."""
+
     name = "selfmon"
     dependencies = (migrate, postgres, mongo)
 

@@ -16,6 +16,8 @@ from .noc import NocService
 
 
 class BiService(NocService):
+    """bi service."""
+
     name = "bi"
     dependencies = (clickhouse,)
 

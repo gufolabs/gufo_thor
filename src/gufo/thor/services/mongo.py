@@ -20,6 +20,8 @@ from .registrator import registrator
 
 
 class MongoService(BaseService):
+    """mongo service."""
+
     name = "mongo"
     dependencies = (registrator,)
     compose_image = "mongo:4.4"
@@ -37,6 +39,7 @@ class MongoService(BaseService):
     def get_compose_dirs(
         self: "MongoService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
+        """Request data directories."""
         return ["data/mongo"]
 
 

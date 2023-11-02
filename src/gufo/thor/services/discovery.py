@@ -20,6 +20,8 @@ from .postgres import postgres
 
 
 class DiscoveryService(NocService):
+    """discovery service."""
+
     name = "discovery"
     dependencies = (migrate, postgres, mongo, clickhouse, activator)
 

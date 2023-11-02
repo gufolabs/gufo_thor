@@ -18,6 +18,8 @@ from .base import BaseService, ComposeDependsCondition
 
 
 class ConsulService(BaseService):
+    """consul service."""
+
     name = "consul"
     compose_image = "consul:1.15"
     compose_depends_condition = ComposeDependsCondition.HEALTHY

@@ -25,6 +25,12 @@ class NocService(BaseService):
     def get_compose_image(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
     ) -> str:
+        """
+        Get image name.
+
+        Use tag from service's config, if any. Otherwise use tag
+        from global config.
+        """
         tag = config.noc.tag
         if svc and svc.tag:
             tag = svc.tag
@@ -33,6 +39,7 @@ class NocService(BaseService):
     def get_compose_command(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
     ) -> str | None:
+        """Get command section."""
         if self.compose_command:
             return self.compose_command
         return (
@@ -42,6 +49,11 @@ class NocService(BaseService):
     def get_compose_volumes(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
+        """
+        Get volumes section.
+
+        Mount repo and custom when necessary.
+        """
         r: List[str] = ["./etc/noc/settings.yml:/opt/noc/etc/settings.yml"]
         # Mount NOC repo inside an image
         if config.noc.path:
@@ -54,6 +66,7 @@ class NocService(BaseService):
     def get_compose_environment(
         self: BaseService, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, str]]:
+        """Get environment section."""
         r: Dict[str, str] = {}
         if config.noc.custom:
             r["NOC_PATH_CUSTOM_PATH"] = "/opt/noc_custom"
@@ -62,11 +75,18 @@ class NocService(BaseService):
     def get_compose_dirs(
         self: BaseService, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
+        """Request directories to be createed."""
         return ["etc/noc"]
 
     def prepare_compose_config(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
     ) -> None:
+        """
+        Render configuration files.
+
+        NB: As the NocServices is the base class for a bunch of services,
+        ensure, the configuration files are rendered only once.
+        """
         if self._prepared:
             return  # Already configured from other subclass
         NocService.render_file(
@@ -74,6 +94,7 @@ class NocService(BaseService):
             "settings.yml",
             installation_name=config.noc.installation_name,
         )
+        self._prepared = True
 
 
 SETTINGS_YML = """installation_name: {installation_name}

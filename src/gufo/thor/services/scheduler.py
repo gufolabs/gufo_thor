@@ -18,6 +18,8 @@ from .postgres import postgres
 
 
 class SchedulerService(NocService):
+    """scheduler service."""
+
     name = "scheduler"
     dependencies = (migrate, postgres, mongo)
 

@@ -18,6 +18,8 @@ from .postgres import postgres
 
 
 class LoginService(NocService):
+    """login service."""
+
     name = "login"
     dependencies = (postgres, mongo, migrate)
 

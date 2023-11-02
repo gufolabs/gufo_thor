@@ -16,6 +16,8 @@ from .consul import consul
 
 
 class TraefikService(BaseService):
+    """traefik service."""
+
     name = "traefik"
     dependencies = (consul,)
     compose_image = "traefik:1.6"

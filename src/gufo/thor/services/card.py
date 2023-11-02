@@ -21,7 +21,7 @@ from .traefik import traefik
 
 
 class CardService(NocService):
-    """Card service."""
+    """card service."""
 
     name = "card"
     dependencies = (migrate, postgres, mongo, clickhouse, traefik, nginx)

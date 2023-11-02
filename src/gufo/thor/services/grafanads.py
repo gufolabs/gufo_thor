@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class GrafanadsService(NocService):
+    """grafanads service."""
+
     name = "grafanads"
 
 

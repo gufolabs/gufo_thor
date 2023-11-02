@@ -20,6 +20,8 @@ from .traefik import traefik
 
 
 class UiService(NocService):
+    """ui service."""
+
     name = "ui"
     dependencies = (migrate, postgres, mongo, traefik, nginx)
 

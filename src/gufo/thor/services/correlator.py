@@ -19,6 +19,8 @@ from .postgres import postgres
 
 
 class CorrelatorService(NocService):
+    """correlator service."""
+
     name = "correlator"
     dependencies = (migrate, postgres, mongo, liftbridge)
 

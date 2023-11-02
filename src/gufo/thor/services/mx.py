@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class MxService(NocService):
+    """mx service."""
+
     name = "mx"
 
 

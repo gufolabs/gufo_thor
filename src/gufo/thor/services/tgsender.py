@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class TgsenderService(NocService):
+    """tgsender service."""
+
     name = "tgsender"
 
 

@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class ZeroconfService(NocService):
+    """zeroconf service."""
+
     name = "zeroconf"
 
 

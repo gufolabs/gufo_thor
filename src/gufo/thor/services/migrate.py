@@ -22,6 +22,16 @@ from .postgres import postgres
 
 
 class MigrateService(NocService):
+    """
+    Database migrations.
+
+    Migrate is a virtual service which launched just after
+    database services became healthy. Then it applies
+    pending database migrations and exits.
+    Other database-dependend services are started only
+    after successful termination of migrate.
+    """
+
     name = "migrate"
     dependencies = (postgres, mongo, liftbridge, clickhouse)
     compose_depends_condition = ComposeDependsCondition.COMPLETED_SUCCESSFULLY

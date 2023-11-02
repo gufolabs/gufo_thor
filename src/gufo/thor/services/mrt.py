@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class MrtService(NocService):
+    """mrt service."""
+
     name = "mrt"
 
 

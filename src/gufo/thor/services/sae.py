@@ -18,6 +18,8 @@ from .postgres import postgres
 
 
 class SaeService(NocService):
+    """sae service."""
+
     name = "sae"
     dependencies = (migrate, postgres, mongo)
 

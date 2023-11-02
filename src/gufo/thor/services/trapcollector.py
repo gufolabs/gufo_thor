@@ -17,6 +17,8 @@ from .noc import NocService
 
 
 class TrapcollectorService(NocService):
+    """trapcollector service."""
+
     name = "trapcollector"
     dependencies = (datastream, liftbridge)
 

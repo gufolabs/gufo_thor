@@ -12,6 +12,7 @@ Attributes:
 
 # Python modules
 import os
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -25,6 +26,8 @@ from .traefik import traefik
 
 
 class NginxService(BaseService):
+    """nginx service."""
+
     name = "nginx"
     dependencies = (traefik, login)
     compose_image = "nginx:stable"
@@ -36,6 +39,7 @@ class NginxService(BaseService):
     def get_compose_volumes(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
+        """Get volumes section."""
         r = ["./etc/nginx:/etc/nginx"]
         if config.noc.path:
             # Use /ui from repo
@@ -48,6 +52,7 @@ class NginxService(BaseService):
     def get_compose_networks(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Any]]:
+        """Get networks section."""
         return {
             "ipv4_address": "172.20.0.100",
             "aliases": ["nginx", config.expose.domain_name],
@@ -56,6 +61,7 @@ class NginxService(BaseService):
     def get_compose_ports(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
+        """Get ports section."""
         return [f"{config.expose.port}:443"]
 
     def get_compose_dirs(
@@ -63,11 +69,13 @@ class NginxService(BaseService):
         config: Config,
         svc: Optional[ServiceConfig],
     ) -> Optional[List[str]]:
+        """Request directories to be created."""
         return ["etc/nginx/conf.d", "etc/nginx/ssl"]
 
     def prepare_compose_config(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]
     ) -> None:
+        """Geerate configuration files."""
         cfg_root = Path("etc", "nginx")
         self.render_file(cfg_root / "nginx.conf", "nginx.conf")
         self.render_file(cfg_root / "mime.types", "mime.types")
@@ -94,18 +102,23 @@ class NginxService(BaseService):
 
     def _rebuild_certificate(self: "NginxService", config: Config) -> None:
         """Rebuild SSL certificates."""
+        # Find openssl
+        openssl = shutil.which("openssl")
+        if not openssl:
+            msg = "openssl is not found. Install openssl."
+            raise ValueError(msg)
         # Generate key
         key_path = "etc/nginx/ssl/noc.key"
         logger.info("Generating private key: %s", key_path)
         subprocess.check_call(
-            ["openssl", "genrsa", "-out", key_path, str(self.RSA_KEY_SIZE)]
+            [openssl, "genrsa", "-out", key_path, str(self.RSA_KEY_SIZE)],
         )
         # Create CSR
         csr_path = "etc/nginx/ssl/noc.csr"
         logger.info("Generating certificate signing request: %s", csr_path)
         subprocess.check_call(
             [
-                "openssl",
+                openssl,
                 "req",
                 "-key",
                 key_path,
@@ -121,7 +134,7 @@ class NginxService(BaseService):
         logger.info("Generating certificate: %s", cert_path)
         subprocess.check_call(
             [
-                "openssl",
+                openssl,
                 "x509",
                 "-signkey",
                 key_path,

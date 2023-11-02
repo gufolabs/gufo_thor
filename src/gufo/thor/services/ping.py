@@ -17,8 +17,15 @@ from .noc import NocService
 
 
 class PingService(NocService):
+    """ping service."""
+
     name = "ping"
     dependencies = (liftbridge, datastream)
+    compose_extra = {
+        "cap_add": [
+            "SYS_NET_RAW",
+        ],
+    }
 
 
 ping = PingService()

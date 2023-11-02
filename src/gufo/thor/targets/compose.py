@@ -19,9 +19,17 @@ from .base import BaseTarget
 
 
 class ComposeTarget(BaseTarget):
+    """
+    docker compose target.
+
+    Prepares `docker-compose.yml` and all the configuration,
+    then starts with `docker compose up -d`
+    """
+
     name = "compose"
 
     def prepare(self: "ComposeTarget") -> None:
+        """Generate docker-compose.yml, data directories, and configs."""
         # Generate docker-compose.yml
         dc = self.render_config()
         path = "docker-compose.yml"
@@ -50,7 +58,14 @@ class ComposeTarget(BaseTarget):
             )
 
     def render_config(self: "ComposeTarget") -> str:
-        return yaml.safe_dump(self._get_config_dict(), sort_keys=False)
+        """
+        Render `docker-compose.yml`.
+
+        Returns:
+            String containing config.
+        """
+        s: str = yaml.safe_dump(self._get_config_dict(), sort_keys=False)
+        return s
 
     def _get_config_dict(self: "ComposeTarget") -> Dict[str, Any]:
         """Get dict of docker-compose.yml."""
@@ -73,6 +88,7 @@ class ComposeTarget(BaseTarget):
         }
 
     def _get_services_config(self: "ComposeTarget") -> Dict[str, Any]:
+        """Builf services section of config."""
         # Check for invalid services
         invalid = {
             svc for svc in self.config.services if not loader[svc].is_noc

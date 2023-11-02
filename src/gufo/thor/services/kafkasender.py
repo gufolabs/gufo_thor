@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class KafkasenderService(NocService):
+    """kafkasender service."""
+
     name = "kafkasender"
 
 

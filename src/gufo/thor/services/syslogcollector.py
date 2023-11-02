@@ -17,6 +17,8 @@ from .noc import NocService
 
 
 class SyslogcollectorService(NocService):
+    """syslogcollector service."""
+
     name = "syslogcollector"
     dependencies = (datastream, liftbridge)
 

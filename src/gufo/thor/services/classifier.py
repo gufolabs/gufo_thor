@@ -19,6 +19,8 @@ from .postgres import postgres
 
 
 class ClassifierService(NocService):
+    """classifier service."""
+
     name = "classifier"
     dependencies = (migrate, postgres, mongo, liftbridge)
 

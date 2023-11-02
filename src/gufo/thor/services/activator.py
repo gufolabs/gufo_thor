@@ -17,6 +17,8 @@ from .sae import sae
 
 
 class ActivatorService(NocService):
+    """activator service."""
+
     name = "activator"
     dependencies = (sae, liftbridge)
 

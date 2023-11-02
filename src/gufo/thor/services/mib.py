@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class MibService(NocService):
+    """mib service."""
+
     name = "mib"
 
 

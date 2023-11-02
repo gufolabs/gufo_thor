@@ -18,6 +18,8 @@ from .consul import consul
 
 
 class RegistratorService(BaseService):
+    """registrator service."""
+
     name = "registrator"
     dependencies = (consul,)
     compose_image = "gliderlabs/registrator:latest"

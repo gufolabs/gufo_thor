@@ -14,6 +14,8 @@ from .noc import NocService
 
 
 class BhService(NocService):
+    """bh service."""
+
     name = "bh"
 
 

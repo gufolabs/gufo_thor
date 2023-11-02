@@ -16,12 +16,13 @@ from typing import List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
-from ..log import logger
 from .base import BaseService, ComposeDependsCondition
 from .registrator import registrator
 
 
 class ClickhouseService(BaseService):
+    """clickhouse service."""
+
     name = "clickhouse"
     dependencies = (registrator,)
     compose_image = "clickhouse/clickhouse-server:23"
@@ -58,11 +59,13 @@ class ClickhouseService(BaseService):
     def get_compose_dirs(
         self: "ClickhouseService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
+        """Request data directories to be createed."""
         return ["etc/clickhouse-server", "data/clickhouse"]
 
     def prepare_compose_config(
         self: "ClickhouseService", config: Config, svc: Optional[ServiceConfig]
     ) -> None:
+        """Render configuration files."""
         cfg_root = Path("etc", "clickhouse-server")
         self.render_file(cfg_root / "config.xml", "config.xml")
         self.render_file(cfg_root / "users.xml", "users.xml")

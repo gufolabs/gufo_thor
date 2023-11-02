@@ -21,6 +21,8 @@ from .traefik import traefik
 
 
 class WebService(NocService):
+    """web service."""
+
     name = "web"
     dependencies = (migrate, postgres, mongo, clickhouse, traefik, nginx)
 

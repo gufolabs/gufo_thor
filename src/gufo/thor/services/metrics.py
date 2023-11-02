@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class MetricsService(NocService):
+    """metrics service."""
+
     name = "metrics"
 
 

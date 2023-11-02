@@ -27,6 +27,17 @@ from ..log import logger
 
 
 class ComposeDependsCondition(Enum):
+    """
+    depends_on condition.
+
+    Attributes:
+        STARTED: Run dependends after the service is started.
+        HEALTHY: Run dependends after the service is started
+            and entered the healhy state.
+        COMPLETED_SUCCESSFULLY: Run dependends after the service
+            is started and terminated successfully.
+    """
+
     STARTED = "service_started"
     HEALTHY = "service_healthy"
     COMPLETED_SUCCESSFULLY = "service_completed_successfully"

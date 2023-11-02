@@ -15,6 +15,8 @@ from .noc import NocService
 
 
 class IcqsenderService(NocService):
+    """icqsender service."""
+
     name = "icqsender"
 
 

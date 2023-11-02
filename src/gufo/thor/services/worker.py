@@ -18,6 +18,8 @@ from .postgres import postgres
 
 
 class WorkerService(NocService):
+    """worker service."""
+
     name = "worker"
     dependencies = (migrate, postgres, mongo)
 

@@ -13,11 +13,14 @@ Attributes:
 # Gufo Thor modules
 from .mongo import mongo
 from .noc import NocService
+from .traefik import traefik
 
 
 class DatastreamService(NocService):
+    """datastream service."""
+
     name = "datastream"
-    dependencies = (mongo,)
+    dependencies = (mongo, traefik)
 
 
 datastream = DatastreamService()

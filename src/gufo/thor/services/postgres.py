@@ -20,6 +20,8 @@ from .registrator import registrator
 
 
 class PostgresService(BaseService):
+    """postgres service."""
+
     name = "postgres"
     dependencies = (registrator,)
     compose_image = "postgres:16"
@@ -41,6 +43,7 @@ class PostgresService(BaseService):
     def get_compose_dirs(
         self: "PostgresService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
+        """Request data directories to be created."""
         return ["data/postgres"]
 
 
