@@ -63,7 +63,6 @@ REQUIRED_FILES = [
     "docs/testing.md",
     "mkdocs.yml",
     "pyproject.toml",
-    "setup.cfg",
     f"src/gufo/{PROJECT}/__init__.py",
     f"src/gufo/{PROJECT}/py.typed",
     "tests/test_docs.py",

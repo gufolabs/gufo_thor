@@ -11,9 +11,9 @@ Attributes:
 """
 
 # Python modules
+from pathlib import Path
 
 # Gufo Thor modules
-
 from .base import BaseService, ComposeDependsCondition
 
 
@@ -34,7 +34,8 @@ class ConsulService(BaseService):
         "timeout": "2s",
         "retries": 3,
     }
-    compose_environment = {"SERVICE_IGNORE": "1"}
+    compose_volumes = ["./etc/consul:/consul/config"]
+    compose_etc_dirs = [Path("consul")]
 
 
 consul = ConsulService()

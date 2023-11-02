@@ -30,6 +30,7 @@ class LiftbridgeService(BaseService):
         "./etc/liftbridge.yml:/etc/liftbridge.yml",
     ]
     compose_data_dirs = [Path("liftbridge")]
+    service_discovery = {"liftbridge": 9292}
 
     def prepare_compose_config(
         self: "LiftbridgeService", config: Config, svc: Optional[ServiceConfig]

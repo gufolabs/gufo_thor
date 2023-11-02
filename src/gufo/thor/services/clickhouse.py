@@ -50,6 +50,7 @@ class ClickhouseService(BaseService):
     }
     compose_etc_dirs = [Path("clickhouse-server")]
     compose_data_dirs = [Path("clickhouse")]
+    service_discovery = {"clickhouse": 8132}
 
     def prepare_compose_config(
         self: "ClickhouseService", config: Config, svc: Optional[ServiceConfig]

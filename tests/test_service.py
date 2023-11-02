@@ -19,7 +19,9 @@ from gufo.thor.services.base import (
 )
 from gufo.thor.services.clickhouse import clickhouse
 from gufo.thor.services.consul import consul
+from gufo.thor.services.liftbridge import liftbridge
 from gufo.thor.services.login import login
+from gufo.thor.services.migrate import migrate
 from gufo.thor.services.mongo import mongo
 from gufo.thor.services.nginx import nginx
 from gufo.thor.services.postgres import postgres
@@ -37,7 +39,9 @@ ALL_SERVICES = set(loader.keys())
             [
                 clickhouse,
                 consul,
+                liftbridge,
                 login,
+                migrate,
                 mongo,
                 nginx,
                 postgres,
@@ -47,13 +51,24 @@ ALL_SERVICES = set(loader.keys())
         ),
         (
             "nginx",
-            [consul, login, mongo, nginx, postgres, traefik],
+            [
+                clickhouse,
+                consul,
+                liftbridge,
+                login,
+                migrate,
+                mongo,
+                nginx,
+                postgres,
+                traefik,
+            ],
         ),
     ],
     ids=["web", "nginx"],
 )
 def test_resolve(svc: str, expected: List[BaseService]) -> None:
     result = BaseService.resolve([svc])
+    print(result)
     assert expected == result
 
 
@@ -81,22 +96,29 @@ DEPS_DOT = """digraph {
   liftbridge -> activator
   bh
   clickhouse -> bi
+  migrate -> card
   postgres -> card
   mongo -> card
   clickhouse -> card
   traefik -> card
   nginx -> card
+  migrate -> chwriter
   clickhouse -> chwriter
+  liftbridge -> chwriter
+  migrate -> classifier
   postgres -> classifier
   mongo -> classifier
   liftbridge -> classifier
   clickhouse
   consul
+  migrate -> correlator
   postgres -> correlator
   mongo -> correlator
   liftbridge -> correlator
   datasource
   mongo -> datastream
+  traefik -> datastream
+  migrate -> discovery
   postgres -> discovery
   mongo -> discovery
   clickhouse -> discovery
@@ -108,34 +130,58 @@ DEPS_DOT = """digraph {
   liftbridge
   postgres -> login
   mongo -> login
+  migrate -> login
   mailsender
   metrics
   metricscollector
   mib
+  postgres -> migrate
+  mongo -> migrate
+  liftbridge -> migrate
+  clickhouse -> migrate
   mongo
   mrt
   mx
-  nbi
+  migrate -> nbi
+  mongo -> nbi
+  postgres -> nbi
+  traefik -> nbi
   traefik -> nginx
   login -> nginx
-  ping
+  liftbridge -> ping
+  datastream -> ping
   postgres
+  migrate -> sae
   postgres -> sae
   mongo -> sae
-  scheduler
-  selfmon
-  syslogcollector
+  migrate -> scheduler
+  postgres -> scheduler
+  mongo -> scheduler
+  migrate -> selfmon
+  postgres -> selfmon
+  mongo -> selfmon
+  datastream -> syslogcollector
+  liftbridge -> syslogcollector
   tgsender
-  topo
+  datastream -> topo
+  liftbridge -> topo
   consul -> traefik
-  trapcollector
-  ui
+  datastream -> trapcollector
+  liftbridge -> trapcollector
+  migrate -> ui
+  postgres -> ui
+  mongo -> ui
+  traefik -> ui
+  nginx -> ui
+  migrate -> web
   postgres -> web
   mongo -> web
   clickhouse -> web
   traefik -> web
   nginx -> web
-  worker
+  migrate -> worker
+  postgres -> worker
+  mongo -> worker
   zeroconf
 }"""
 

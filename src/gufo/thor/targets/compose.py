@@ -6,6 +6,7 @@
 """docker compose target."""
 
 # Python modules
+import json
 import os
 from pathlib import Path
 from typing import Any, Dict
@@ -40,28 +41,27 @@ class ComposeTarget(BaseTarget):
         # Generate directories and config
         for svc in BaseService.resolve(self.config.services):
             logger.info("Configuring service %s", svc.name)
+            svc_cfg = self.config.services.get(svc.name)
             # Create configuration directories, if necessary
-            etc_dirs = svc.get_compose_etc_dirs(
-                self.config, self.config.services.get(svc.name)
-            )
+            etc_dirs = svc.get_compose_etc_dirs(self.config, svc_cfg)
             if etc_dirs:
                 prefix = Path("etc")
                 self._ensure_directory(prefix)
                 for d in etc_dirs:
                     self._ensure_directory(prefix / d)
             # Create data directories, if necessary
-            data_dirs = svc.get_compose_data_dirs(
-                self.config, self.config.services.get(svc.name)
-            )
+            data_dirs = svc.get_compose_data_dirs(self.config, svc_cfg)
             if data_dirs:
                 prefix = Path("data")
                 self._ensure_directory(prefix)
                 for d in data_dirs:
                     self._ensure_directory(prefix / d)
             # Create config
-            svc.prepare_compose_config(
-                self.config, self.config.services.get(svc.name)
-            )
+            svc.prepare_compose_config(self.config, svc_cfg)
+            # Service discovery
+            sd = svc.get_service_discovery(self.config, svc_cfg)
+            if sd:
+                self._configure_service_discovery(svc.name, sd)
 
     @staticmethod
     def _ensure_directory(path: Path) -> None:
@@ -108,7 +108,7 @@ class ComposeTarget(BaseTarget):
         }
 
     def _get_services_config(self: "ComposeTarget") -> Dict[str, Any]:
-        """Builf services section of config."""
+        """Build services section of config."""
         # Check for invalid services
         invalid = {
             svc for svc in self.config.services if not loader[svc].is_noc
@@ -123,3 +123,30 @@ class ComposeTarget(BaseTarget):
             )
             for svc in BaseService.resolve(self.config.services)
         }
+
+    def _configure_service_discovery(
+        self: "ComposeTarget", name: str, sd: Dict[str, int]
+    ) -> None:
+        """Prepare service discovery config."""
+        sd_root = Path("etc", "consul")
+        self._ensure_directory(sd_root)
+        for svc_name, port in sd.items():
+            path = sd_root / f"{svc_name}-{port}.json"
+            logger.info("Writing %s", path)
+            cfg = {
+                "service": {
+                    "name": svc_name,
+                    "address": name,
+                    "port": port,
+                    "checks": [
+                        {
+                            "id": f"tcp-{svc_name}-{port}",
+                            "interval": "1s",
+                            "tcp": f"{name}:{port}",
+                            "timeout": "1s",
+                        }
+                    ],
+                }
+            }
+            with open(path, "w") as fp:
+                fp.write(json.dumps(cfg))

@@ -55,41 +55,44 @@ class BaseService(ABC):
             to implement config-depended behavior.
         compose_depends_condition: Condition for all dependend
             services. Override `get_compose_dependens_condition`
-            to implement config-dependend behavior.
+            to implement custom behavior.
         compose_healthcheck: Healtcheck section, if any.
             Override `get_compose_healthcheck`
-            to implement config-dependend behavior.
+            to implement custom behavior.
         compose_command: `command` section, if any.
             Override `get_compose_command` to implement
-            config-dependend behavior..
+            custom behavior.
         compose_entrypoint: `entrypoint` section, if any.
             Override `get_compose_entrypoint`
-            to implement config-dependend behavior.
+            to implement custom behavior.
         compose_working_dir: `working_dir` section if any.
             Override `get_compose_working_dir`
-            to implement config-dependend behavior.
+            to implement custom behavior.
         compose_volumes: `volumes` section, if any.
             Override `get_compose_volumes`
-            to implement config-dependend behavior.
+            to implement custom behavior.
         compose_environment: `environment` section, if any.
             Override `get_compose_environment`
-            to implement config-dependend behavior.
+            to implement custom behavior.
         compose_extra: Additional parameters to be merged
             with the compose config.
             Override `get_compose_extra`
-            to implement config-dependend behavior.
+            to implement custom behavior.
         compose_etc_dirs: Optional list of directories
             to be created within `etc` directory
             in the start of prepare page.
             Usually contains configuration files.
             Override `get_compose_etc_dirs`
-            to implement config-dependend behavior.
+            to implement custom behavior.
         compose_data_dirs: Optional list of directories
             to be created within `data` directory
             in the start of prepare page.
             Usually contains data files.
             Override `get_compose_data_dirs`
-            to implement config-dependend behavior.
+            to implement custom behavior.
+        service_discovery: Optional name -> port mappings.
+            Override `get_service_discovery` to implement
+            custom behavior.
     """
 
     name: str
@@ -108,6 +111,7 @@ class BaseService(ABC):
     compose_extra: Optional[Dict[str, Any]] = None
     compose_etc_dirs: Optional[List[Path]] = None
     compose_data_dirs: Optional[List[Path]] = None
+    service_discovery: Optional[Dict[str, int]] = None
 
     def iter_dependencies(self: "BaseService") -> Iterable["BaseService"]:
         """
@@ -441,6 +445,21 @@ class BaseService(ABC):
             svc: Service's config from `services` part, if any.
         """
         return
+
+    def get_service_discovery(
+        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[Dict[str, int]]:
+        """
+        Get name to port mappings for service discovery.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Service name -> port mappings
+        """
+        return self.service_discovery
 
     @staticmethod
     def resolve(services: Iterable[str]) -> List["BaseService"]:

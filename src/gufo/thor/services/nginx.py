@@ -55,7 +55,6 @@ class NginxService(BaseService):
     ) -> Optional[Dict[str, Any]]:
         """Get networks section."""
         return {
-            "ipv4_address": "172.20.0.100",
             "aliases": ["nginx", config.expose.domain_name],
         }
 

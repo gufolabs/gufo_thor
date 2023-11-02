@@ -37,6 +37,7 @@ class PostgresService(BaseService):
         "POSTGRES_PASSWORD": "noc",
     }
     compose_data_dirs = [Path("postgres")]
+    service_discovery = {"postgres": 5432}
 
 
 postgres = PostgresService()

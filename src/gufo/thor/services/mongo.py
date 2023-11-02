@@ -33,6 +33,7 @@ class MongoService(BaseService):
     compose_command = "--wiredTigerCacheSizeGB 1.5 --bind_ip_all"
     compose_volumes = ["./data/mongo:/data/db"]
     compose_data_dirs = [Path("mongo")]
+    service_discovery = {"mongo": 27017}
 
 
 mongo = MongoService()
