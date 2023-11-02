@@ -106,6 +106,7 @@ class BaseService(ABC):
         * `get_compose_environment` - to build `environments` section.
         * `get_compose_healthcheck` - to build `healthcheck` section.
         * `get_compose_extra` to add the extra parameters to the result.
+        * `get_compose_logging` - to build `logging` section.
 
         Args:
             config: Gufo Thor config instance
@@ -164,6 +165,10 @@ class BaseService(ABC):
         healthcheck = self.get_compose_healthcheck(config, svc)
         if healthcheck:
             r["healthcheck"] = healthcheck
+        # logging
+        logging = self.get_compose_logging(config, svc)
+        if logging:
+            r["logging"] = logging
         # extra
         extra = self.get_compose_extra(config, svc)
         if extra:
@@ -324,6 +329,21 @@ class BaseService(ABC):
             Dict of healthcheck, if not empty
         """
         return self.compose_healthcheck
+
+    def get_compose_logging(
+        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Get docker-compose.yml `logging` section.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Dict of logging, if not empty
+        """
+        return {"options": {"max-size": "10m", "max-file": "3"}}
 
     def get_compose_extra(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]
