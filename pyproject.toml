@@ -59,7 +59,7 @@ select = [
 ]
 # Always autofix, but never try to fix `F401` (unused imports).
 fix = true
-ignore = ["D203", "D212", "D107", "A002", "A003", "PLR0911", "PLR0913", "RUF012", "S603"]
+ignore = ["D203", "D212", "D107", "A002", "A003", "PLR0911", "PLR0913", "RUF012", "S603", "S607"]
 unfixable = ["F401"]
 
 [tool.ruff.flake8-quotes]
@@ -104,6 +104,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "License :: OSI Approved :: BSD License",
   "Topic :: Software Development",
   "Topic :: Software Development :: Libraries",
@@ -114,6 +115,7 @@ classifiers = [
 dependencies = [
   "PyYAML >= 6.0",
   "gufo-loader >= 1.0.3",
+  "gufo-acme >= 0.2.0",
 ]
 dynamic = ["version"]
 keywords = ["NOC"]

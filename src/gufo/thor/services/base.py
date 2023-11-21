@@ -542,7 +542,7 @@ class BaseService(ABC):
         for k, v in kwargs.items():
             data = data.replace(f"{{{k}}}", str(v))
         # Write file
-        logger.info("Writing %s", path)
+        logger.warning("Writing %s", path)
         with open(path, "w") as fp:
             fp.write(data)
 

@@ -59,7 +59,7 @@ class ExposeConfig(object):
         port: An HTTPS port of the NOC's user interface.
     """
 
-    domain_name: str = "demo.getnoc.com"
+    domain_name: str = "go.getnoc.com"
     port: int = 32777
 
     @staticmethod

@@ -44,7 +44,7 @@ Start NOC with a simple command:
 gufo-thor up
 ```
 
-Access NOC at https://demo.getnoc.com:32777/
+Access NOC at https://go.getnoc.com:32777/
 
 
 To stop NOC:
@@ -74,7 +74,7 @@ noc:
   tag: master
   installation_name: Unconfigured Installation
 expose:
-  domain_name: demo.getnoc.com
+  domain_name: go.getnoc.com
   port: 32777
 services: [web, card]
 ```

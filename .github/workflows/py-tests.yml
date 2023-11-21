@@ -10,7 +10,7 @@ on:
       - "examples/**"
       - "src/**"
       - "tests/**"
-      - "setup.cfg"
+      - "pyproject.toml"
     branches:
       - master
   pull_request:

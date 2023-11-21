@@ -4,6 +4,6 @@ noc:
   tag: master
   installation_name: Unconfigured Installation
 expose:
-  domain_name: demo.getnoc.com
+  domain_name: go.getnoc.com
   port: 32777
 services: [web, card]

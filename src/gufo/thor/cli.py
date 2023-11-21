@@ -13,12 +13,14 @@ Attributes:
 import argparse
 import logging
 import os
+import subprocess
 import sys
 from enum import IntEnum
 from typing import Callable, List
 
 # Gufo Thor modules
 from . import __version__
+from .error import CancelExecution
 from .log import logger
 
 NAME: str = "gufo-thor"
@@ -65,15 +67,22 @@ class Cli(object):
             default="simple",
             help="Select sample config template",
         )
+        # prepare
+        subparsers.add_parser("prepare", help="Prepare services configuration")
         # up
         subparsers.add_parser("up", help="Set up ana launch NOC")
+        # down
+        subparsers.add_parser("stop", help="Stop NOC")
         # Parse arguments
         ns = parser.parse_args(args)
         # Set up logging
         self.setup_logging()
         # Process command
         handler = self.get_handler(ns.cmd)
-        return handler(ns)
+        try:
+            return handler(ns)
+        except CancelExecution:
+            return ExitCode.ERR
 
     def get_handler(
         self: "Cli", name: str
@@ -118,13 +127,13 @@ class Cli(object):
         if os.path.exists(path):
             logger.error("%s is already exists", path)
             return ExitCode.ERR
-        logger.info("Writing %s", path)
+        logger.warning("Writing %s", path)
         with open(path, "w") as fp:
             fp.write(sample)
         return ExitCode.OK
 
-    def handle_up(self: "Cli", _ns: argparse.Namespace) -> ExitCode:
-        """Set up and launch NOC."""
+    def handle_prepare(self: "Cli", _ns: argparse.Namespace) -> ExitCode:
+        """Prepare NOC configuration."""
         from gufo.thor.config import Config
         from gufo.thor.targets.base import loader
 
@@ -135,7 +144,7 @@ class Cli(object):
 
             # Generate config
             sample = get_sample("simple")
-            logger.info("Writing %s", path)
+            logger.warning("Writing %s", path)
             with open(path, "w") as fp:
                 fp.write(sample)
         with open(path) as fp:
@@ -143,6 +152,25 @@ class Cli(object):
         # Prepare target
         target = loader["compose"](config)
         target.prepare()
+        return ExitCode.OK
+
+    def handle_up(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+        """Prepare NOC configuration and run NOC."""
+        r = self.handle_prepare(ns)
+        if r != ExitCode.OK:
+            return r
+        try:
+            subprocess.check_call(["docker", "compose", "up", "-d"])
+        except subprocess.CalledProcessError:
+            return ExitCode.ERR
+        return ExitCode.OK
+
+    def handle_down(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+        """Stop NOC."""
+        try:
+            subprocess.check_call(["docker", "compose", "stop"])
+        except subprocess.CalledProcessError:
+            return ExitCode.ERR
         return ExitCode.OK
 
 

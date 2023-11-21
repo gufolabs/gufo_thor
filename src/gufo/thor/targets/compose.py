@@ -35,12 +35,12 @@ class ComposeTarget(BaseTarget):
         # Generate docker-compose.yml
         dc = self.render_config()
         path = "docker-compose.yml"
-        logger.info("Writing %s", path)
+        logger.warning("Writing %s", path)
         with open(path, "w") as fp:
             fp.write(dc)
         # Generate directories and config
         for svc in BaseService.resolve(self.config.services):
-            logger.info("Configuring service %s", svc.name)
+            logger.warning("Configuring service %s", svc.name)
             svc_cfg = self.config.services.get(svc.name)
             # Create configuration directories, if necessary
             etc_dirs = svc.get_compose_etc_dirs(self.config, svc_cfg)
@@ -72,9 +72,9 @@ class ComposeTarget(BaseTarget):
             path: Directory path.
         """
         if os.path.exists(path):
-            logger.info("Directory %s is already exists. Skipping", path)
+            logger.warning("Directory %s is already exists. Skipping", path)
             return
-        logger.info("Creating directory %s", path)
+        logger.warning("Creating directory %s", path)
         os.makedirs(path)
 
     def render_config(self: "ComposeTarget") -> str:
@@ -148,7 +148,7 @@ class ComposeTarget(BaseTarget):
         self._ensure_directory(sd_root)
         for svc_name, port in sd.items():
             path = sd_root / f"{svc_name}-{port}.json"
-            logger.info("Writing %s", path)
+            logger.warning("Writing %s", path)
             cfg = {
                 "service": {
                     "name": svc_name,

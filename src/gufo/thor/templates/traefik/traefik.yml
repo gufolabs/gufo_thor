@@ -1,0 +1,14 @@
+log:
+  level: INFO
+
+entryPoints:
+  http:
+    address: ":8000"
+
+providers:
+  consulCatalog:
+    prefix: "traefik"
+    endpoint:
+      address: "consul:8500"
+    exposedByDefault: false
+    watch: true

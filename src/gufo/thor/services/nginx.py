@@ -11,18 +11,46 @@ Attributes:
 """
 
 # Python modules
+import http.client
 import os
-import shutil
-import subprocess
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from ..error import CancelExecution
 from ..log import logger
 from .base import BaseService
 from .login import login
 from .traefik import traefik
+
+HTTP_OK = 200
+
+
+@dataclass
+class DomainInfo(object):
+    """
+    Information for preconfigured domains.
+
+    Attributes:
+        domain: Domain name.
+        csr_proxy: CSR Proxy URL
+        subject: CSR subject.
+    """
+
+    domain: str
+    csr_proxy: str
+    subject: str
+
+
+DOMAINS = {
+    "go.getnoc.com": DomainInfo(
+        domain="go.getnoc.com",
+        csr_proxy="csr-proxy.getnoc.com",
+        subject="CN=go.getnoc.com",
+    )
+}
 
 
 class NginxService(BaseService):
@@ -33,7 +61,6 @@ class NginxService(BaseService):
     compose_image = "nginx:stable"
     SUBJ_PATH = "etc/nginx/ssl/domain_name.txt"
     RSA_KEY_SIZE = 4096
-    CERT_SUBJ = "/C=IT/ST=Milano/L=Milano/O=Gufo Labs/OU=Gufo Thor"
     CERT_DAYS = 3650
     compose_etc_dirs = [Path("nginx", "conf.d"), Path("nginx", "ssl")]
 
@@ -90,57 +117,69 @@ class NginxService(BaseService):
 
     def get_cert_subj(self: "NginxService", config: Config) -> str:
         """Get certificate subj."""
-        return f"{self.CERT_SUBJ}/CN={config.expose.domain_name}"
+        return f"CN={config.expose.domain_name}"
+
+    def _get_signed_csr(
+        self: "NginxService", csr_proxy: str, csr: bytes
+    ) -> bytes:
+        """
+        Sign certificate via CSR Proxy.
+
+        Args:
+            csr_proxy: CSR Proxy base url.
+            csr: CSR body.
+
+        Returns:
+            Siged CSR.
+        """
+        conn = http.client.HTTPSConnection(csr_proxy)
+        conn.request("POST", "/v1/sign", body=csr)
+        resp = conn.getresponse()
+        if resp.status == HTTP_OK:
+            return resp.read()
+        logger.error("Invalid response: %s", resp)
+        logger.error("Failed to sing certificate")
+        raise CancelExecution()
 
     def _rebuild_certificate(self: "NginxService", config: Config) -> None:
         """Rebuild SSL certificates."""
-        # Find openssl
-        openssl = shutil.which("openssl")
-        if not openssl:
-            msg = "openssl is not found. Install openssl."
-            raise ValueError(msg)
-        # Generate key
+        from gufo.acme.clients.base import AcmeClient
+
         key_path = "etc/nginx/ssl/noc.key"
-        logger.info("Generating private key: %s", key_path)
-        subprocess.check_call(
-            [openssl, "genrsa", "-out", key_path, str(self.RSA_KEY_SIZE)],
-        )
-        # Create CSR
         csr_path = "etc/nginx/ssl/noc.csr"
-        logger.info("Generating certificate signing request: %s", csr_path)
-        subprocess.check_call(
-            [
-                openssl,
-                "req",
-                "-key",
-                key_path,
-                "-new",
-                "-out",
-                csr_path,
-                "-subj",
-                self.get_cert_subj(config),
-            ]
-        )
-        # Generate certificate
         cert_path = "etc/nginx/ssl/noc.crt"
-        logger.info("Generating certificate: %s", cert_path)
-        subprocess.check_call(
-            [
-                openssl,
-                "x509",
-                "-signkey",
-                key_path,
-                "-in",
-                csr_path,
-                "-req",
-                "-days",
-                str(self.CERT_DAYS),
-                "-out",
-                cert_path,
-            ]
-        )
+
+        di = DOMAINS.get(config.expose.domain_name)
+        if di is None:
+            logger.error(
+                "Certificate autogeneration is not supported for domain %s",
+                config.expose.domain_name,
+            )
+            logger.error(
+                "Either change expose.domain to one of: %s", ", ".join(DOMAINS)
+            )
+            logger.error(
+                "Or generate private key and place it into %s", key_path
+            )
+            logger.error("And signed certificate into %s", cert_path)
+            raise CancelExecution()
+        # Generate key
+        logger.warning("Generating private key: %s", key_path)
+        private_key = AcmeClient.get_domain_private_key()
+        with open(key_path, "wb") as fp:
+            fp.write(private_key)
+        # Create CSR
+        logger.warning("Generating certificate signing request: %s", csr_path)
+        csr = AcmeClient.get_domain_csr(config.expose.domain_name, private_key)
+        with open(csr_path, "wb") as fp:
+            fp.write(csr)
+        # Sign CSR
+        logger.warning("Signing certificate: %s", cert_path)
+        cert = self._get_signed_csr(di.csr_proxy, csr)
+        with open(cert_path, "wb") as fp:
+            fp.write(cert)
         # Write subj
-        logger.info("Writing %s", self.SUBJ_PATH)
+        logger.warning("Writing %s", self.SUBJ_PATH)
         with open(self.SUBJ_PATH, "w") as fp:
             fp.write(self.get_cert_subj(config))
 

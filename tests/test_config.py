@@ -15,7 +15,7 @@ def test_simple() -> None:
     assert cfg.noc.installation_name == "Unconfigured Installation"
     assert cfg.noc.path is None
     assert cfg.noc.custom is None
-    assert cfg.expose.domain_name == "demo.getnoc.com"
+    assert cfg.expose.domain_name == "go.getnoc.com"
     assert cfg.expose.port == 32777
     assert len(cfg.services) == 2
     assert "web" in cfg.services

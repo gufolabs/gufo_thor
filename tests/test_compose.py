@@ -78,7 +78,7 @@ services:
         ipv4_address: 172.20.0.100
         aliases:
         - nginx
-        - demo.getnoc.com
+        - go.getnoc.com
     ports:
     - 32777:443
   postgres:
@@ -247,7 +247,7 @@ services:
         ipv4_address: 172.20.0.100
         aliases:
         - nginx
-        - demo.getnoc.com
+        - go.getnoc.com
     ports:
     - 32777:443
   ping:
