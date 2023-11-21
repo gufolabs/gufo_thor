@@ -39,7 +39,7 @@ class NocService(BaseService):
 
     def get_compose_command(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
-    ) -> str | None:
+    ) -> Optional[str]:
         """Get command section."""
         if self.compose_command:
             return self.compose_command
