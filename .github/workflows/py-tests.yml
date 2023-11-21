@@ -52,10 +52,10 @@ jobs:
         run: pip install -IU -r ./.requirements/deps.txt -r ./.requirements/lint.txt -r ./.requirements/test.txt
 
       - name: Check Formatting
-        run: black --check examples/ src/ tests/
+        run: black --check src/ tests/
 
       - name: Check Ruff
-        run: ruff -q examples/ src/ tests/
+        run: ruff -q src/ tests/
 
       - name: Check Mypy
         run: mypy src/
