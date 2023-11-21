@@ -50,7 +50,7 @@ Access NOC at https://go.getnoc.com:32777/
 To stop NOC:
 
 ```
-gufo-thor down
+gufo-thor stop
 ```
 
 ## Configuration

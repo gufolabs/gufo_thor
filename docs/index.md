@@ -9,7 +9,74 @@ hero:
     install_button: Getting Started
     source_button: Source Code
 ---
-@todo
+Gufo Thor is a simple tool designed for quickly setting up and evaluating [NOC][NOC].
+It's tailored for new NOC users who want to assess NOC's capabilities and NOC developers 
+who need a fast development environment. Thor takes care of the complexity of NOC management, 
+making the process straightforward.
+
+## Installation
+
+To install Thor, use pip:
+
+```
+pip install gufo-thor
+```
+
+## Quick NOC Setup
+
+Create a directory where the services' configuration and data will be stored:
+
+```
+mkdir noc
+cd noc
+```
+
+Start NOC with a simple command:
+
+```
+gufo-thor up
+```
+
+Access NOC at https://go.getnoc.com:32777/
+
+
+To stop NOC:
+
+```
+gufo-thor stop
+```
+
+## Configuration
+
+Thor's configuration is in the thor.yml file. You can use preconfigured defaults:
+
+```
+gufo-thor sample-config -t <name>
+```
+
+Where `<name>` can be:
+
+* `simple` - Minimal setup with a web interface only.
+* `common` - Setup with widely-used features for monitoring and network management.
+
+The thor.yml structure:
+```
+# Gufo Thor configuration
+version: "1.0"
+noc:
+  tag: master
+  installation_name: Unconfigured Installation
+expose:
+  domain_name: go.getnoc.com
+  port: 32777
+services: [web, card]
+```
+
+Adapt the file to your needs and start NOC:
+
+```
+gufo-thor up
+```
 
 ## On Gufo Stack
 

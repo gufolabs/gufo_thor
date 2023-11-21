@@ -9,4 +9,3 @@ Gufo Thor implements and is guided by the following standards:
 
 [PEP8]: https://peps.python.org/pep-0008/
 [PEP561]: https://peps.python.org/pep-0561/
-[RFC8555]: https://datatracker.ietf.org/doc/html/rfc8555
