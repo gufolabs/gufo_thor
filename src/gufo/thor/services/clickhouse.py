@@ -12,10 +12,8 @@ Attributes:
 
 # Python modules
 from pathlib import Path
-from typing import Optional
 
 # Gufo Thor modules
-from ..config import Config, ServiceConfig
 from .base import BaseService, ComposeDependsCondition
 
 
