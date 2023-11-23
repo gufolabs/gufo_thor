@@ -11,19 +11,24 @@ Attributes:
 """
 # Python modules
 import argparse
+import contextlib
 import logging
 import os
+import subprocess
 import sys
 from enum import IntEnum
+from functools import cached_property
 from typing import Callable, List
 
 # Gufo Thor modules
 from . import __version__
+from .config import Config
 from .docker import docker
 from .error import CancelExecution
 from .log import logger
 
 NAME: str = "gufo-thor"
+DEFAULT_HTTPS_PORT = 443
 
 
 class ExitCode(IntEnum):
@@ -132,9 +137,20 @@ class Cli(object):
             fp.write(sample)
         return ExitCode.OK
 
+    @cached_property
+    def config(self: "Cli") -> Config:
+        """
+        Get config.
+
+        Returns:
+            Config instance.
+        """
+        path = "thor.yml"
+        with open(path) as fp:
+            return Config.from_yaml(fp.read())
+
     def handle_prepare(self: "Cli", _ns: argparse.Namespace) -> ExitCode:
         """Prepare NOC configuration."""
-        from gufo.thor.config import Config
         from gufo.thor.targets.base import loader
 
         # Read config
@@ -147,12 +163,24 @@ class Cli(object):
             logger.warning("Writing %s", path)
             with open(path, "w") as fp:
                 fp.write(sample)
-        with open(path) as fp:
-            config = Config.from_yaml(fp.read())
         # Prepare target
-        target = loader["compose"](config)
+        target = loader["compose"](self.config)
         target.prepare()
         return ExitCode.OK
+
+    def _get_ui_url(self: "Cli") -> str:
+        """
+        Get user interface url.
+
+        Returns:
+            URL.
+        """
+        cfg = self.config
+        parts = ["https://", cfg.expose.domain_name]
+        if cfg.expose.port != DEFAULT_HTTPS_PORT:
+            parts.append(f":{cfg.expose.port}")
+        parts.append("/")
+        return "".join(parts)
 
     def handle_up(self: "Cli", ns: argparse.Namespace) -> ExitCode:
         """Prepare NOC configuration and run NOC."""
@@ -161,6 +189,14 @@ class Cli(object):
             return r
         if not docker.up():
             return ExitCode.ERR
+        # Open UI
+        url = self._get_ui_url()
+        logger.warning("To access NOC user interface open %s", url)
+        if self.config.expose.open_browser:
+            logger.warning("Starting browser")
+            with contextlib.suppress(subprocess.CalledProcessError):
+                subprocess.check_output(["open", url])
+        #
         return ExitCode.OK
 
     def handle_stop(self: "Cli", ns: argparse.Namespace) -> ExitCode:

@@ -61,6 +61,7 @@ class ExposeConfig(object):
 
     domain_name: str = "go.getnoc.com"
     port: int = 32777
+    open_browser: bool = True
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "ExposeConfig":
