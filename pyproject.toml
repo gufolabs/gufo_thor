@@ -100,7 +100,6 @@ authors = [{name = "Gufo Labs"}]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -121,7 +120,7 @@ dynamic = ["version"]
 keywords = ["NOC"]
 license = {text = "BSD 3-Clause License"}
 name = "gufo_thor"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.readme]
 content-type = "text/markdown"
