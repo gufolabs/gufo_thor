@@ -160,6 +160,10 @@ DEPS_DOT = """digraph {
   migrate -> selfmon
   postgres -> selfmon
   mongo -> selfmon
+  migrate -> shell
+  postgres -> shell
+  mongo -> shell
+  clickhouse -> shell
   datastream -> syslogcollector
   liftbridge -> syslogcollector
   tgsender

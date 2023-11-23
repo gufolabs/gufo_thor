@@ -17,6 +17,6 @@ def test_simple() -> None:
     assert cfg.noc.custom is None
     assert cfg.expose.domain_name == "go.getnoc.com"
     assert cfg.expose.port == 32777
-    assert len(cfg.services) == 2
+    assert len(cfg.services) == 3
     assert "web" in cfg.services
     assert "card" in cfg.services

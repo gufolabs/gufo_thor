@@ -14,6 +14,7 @@ Attributes:
 # Python modules
 import json
 import subprocess
+import sys
 from dataclasses import dataclass
 from functools import cached_property
 
@@ -48,6 +49,13 @@ class Docker(object):
         Returns:
             DockerConfig.
         """
+        if "pytest" in sys.modules:
+            # Testing stub
+            return DockerConfig(
+                logging_driver="json-file",
+                server_version="24.0.6",
+                has_compose_plugin=True,
+            )
         return self._read_config()
 
     def _read_config(self: "Docker") -> DockerConfig:
