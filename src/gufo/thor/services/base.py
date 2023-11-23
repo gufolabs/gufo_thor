@@ -23,6 +23,7 @@ from gufo.loader import Loader
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from ..docker import docker
 from ..log import logger
 
 
@@ -398,7 +399,9 @@ class BaseService(ABC):
         Returns:
             Dict of logging, if not empty
         """
-        return {"options": {"max-size": "10m", "max-file": "3"}}
+        if docker.logging_driver == "json-file":
+            return {"options": {"max-size": "10m", "max-file": "3"}}
+        return None
 
     def get_compose_extra(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]

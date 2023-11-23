@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_err/blob/master/CHANGELOG.md) guide.
 
+## [Unreleased]
+
+## Added
+
+* Auto-detect docker configuration.
+* Auto-select between docker compose plugin and `docker-compose`.
+
+
+### Changed
+
+* Configure `docker-compose.yml` logging section when using `json-file` driver.
+
 ## 0.1.0 - 2023-11-23
 
 ### Added 

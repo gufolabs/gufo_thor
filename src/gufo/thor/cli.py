@@ -20,6 +20,7 @@ from typing import Callable, List
 
 # Gufo Thor modules
 from . import __version__
+from .docker import docker
 from .error import CancelExecution
 from .log import logger
 
@@ -159,17 +160,13 @@ class Cli(object):
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
             return r
-        try:
-            subprocess.check_call(["docker", "compose", "up", "-d"])
-        except subprocess.CalledProcessError:
+        if not docker.up():
             return ExitCode.ERR
         return ExitCode.OK
 
     def handle_stop(self: "Cli", ns: argparse.Namespace) -> ExitCode:
         """Stop NOC."""
-        try:
-            subprocess.check_call(["docker", "compose", "stop"])
-        except subprocess.CalledProcessError:
+        if not docker.stop():
             return ExitCode.ERR
         return ExitCode.OK
 
