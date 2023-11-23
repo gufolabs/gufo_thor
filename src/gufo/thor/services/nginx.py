@@ -137,8 +137,8 @@ class NginxService(BaseService):
         resp = conn.getresponse()
         if resp.status == HTTP_OK:
             return resp.read()
-        logger.error("Invalid response: %s", resp)
-        logger.error("Failed to sing certificate")
+        logger.error("Invalid response: %s", resp.status)
+        logger.error("Failed to sign certificate")
         raise CancelExecution()
 
     def _rebuild_certificate(self: "NginxService", config: Config) -> None:

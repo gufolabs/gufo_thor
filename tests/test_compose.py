@@ -119,10 +119,6 @@ services:
 networks:
   noc:
     driver: bridge
-    ipam:
-      config:
-      - subnet: 172.20.0.0/24
-        gateway: 172.20.0.1
 """
 
 CFG_COMMON = """version: '3'

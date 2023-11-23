@@ -32,7 +32,6 @@ class ClickhouseService(BaseService):
         "retries": 3,
     }
     compose_volumes = [
-        "./etc/clickhouse-server/:/etc/clickhouse-server",
         "./data/clickhouse:/var/lib/clickhouse",
     ]
     compose_extra = {
@@ -48,17 +47,8 @@ class ClickhouseService(BaseService):
             }
         },
     }
-    compose_etc_dirs = [Path("clickhouse-server")]
     compose_data_dirs = [Path("clickhouse")]
     service_discovery = {"clickhouse": 8132}
-
-    def prepare_compose_config(
-        self: "ClickhouseService", config: Config, svc: Optional[ServiceConfig]
-    ) -> None:
-        """Render configuration files."""
-        cfg_root = Path("etc", "clickhouse-server")
-        self.render_file(cfg_root / "config.xml", "config.xml")
-        self.render_file(cfg_root / "users.xml", "users.xml")
 
 
 clickhouse = ClickhouseService()

@@ -19,7 +19,6 @@ class NocService(BaseService):
 
     is_noc = True
     name = "noc"
-    compose_working_dir = "/opt/noc"
     _prepared = False
     compose_etc_dirs = [Path("noc")]
 
