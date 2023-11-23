@@ -534,9 +534,13 @@ class BaseService(ABC):
             kwargs: Template context
         """
         # Load template
+        # Warning: joinpath() accepts only one
+        # parameter on Py3.9 and Py3.10
         data = (
             resources.files("gufo.thor")
-            .joinpath("templates", cls.name, tpl)
+            .joinpath("templates")
+            .joinpath(cls.name)
+            .joinpath(tpl)
             .read_text()
         )
         for k, v in kwargs.items():

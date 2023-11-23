@@ -165,7 +165,7 @@ class Cli(object):
             return ExitCode.ERR
         return ExitCode.OK
 
-    def handle_down(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_stop(self: "Cli", ns: argparse.Namespace) -> ExitCode:
         """Stop NOC."""
         try:
             subprocess.check_call(["docker", "compose", "stop"])

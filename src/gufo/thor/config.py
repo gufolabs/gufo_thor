@@ -177,8 +177,11 @@ def get_sample(name: str) -> str:
     Returns:
         A string containinng sample code.
     """
+    # Warning: joinpath() accepts only one
+    # parameter on Py3.9 and Py3.10
     return (
         resources.files("gufo.thor")
-        .joinpath("samples", f"{name}.yml")
+        .joinpath("samples")
+        .joinpath(f"{name}.yml")
         .read_text()
     )
