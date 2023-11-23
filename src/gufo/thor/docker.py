@@ -16,7 +16,6 @@ import json
 import subprocess
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Optional
 
 # Gufo Thor modules
 from .log import logger

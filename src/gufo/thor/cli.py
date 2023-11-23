@@ -13,7 +13,6 @@ Attributes:
 import argparse
 import logging
 import os
-import subprocess
 import sys
 from enum import IntEnum
 from typing import Callable, List
