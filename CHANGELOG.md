@@ -14,9 +14,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## Added
 
+* `shell` command.
 * Auto-detect docker configuration.
 * Auto-select between docker compose plugin and `docker-compose`.
-
+* Config: `expose.open_browser` option.
 
 ### Changed
 

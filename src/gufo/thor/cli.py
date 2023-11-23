@@ -78,6 +78,8 @@ class Cli(object):
         subparsers.add_parser("up", help="Set up ana launch NOC")
         # down
         subparsers.add_parser("stop", help="Stop NOC")
+        # shell
+        subparsers.add_parser("shell", help="Run shell")
         # Parse arguments
         ns = parser.parse_args(args)
         # Set up logging
@@ -202,6 +204,12 @@ class Cli(object):
     def handle_stop(self: "Cli", ns: argparse.Namespace) -> ExitCode:
         """Stop NOC."""
         if not docker.stop():
+            return ExitCode.ERR
+        return ExitCode.OK
+
+    def handle_shell(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+        """Run shell."""
+        if not docker.shell():
             return ExitCode.ERR
         return ExitCode.OK
 

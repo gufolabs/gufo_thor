@@ -6,4 +6,5 @@ noc:
 expose:
   domain_name: go.getnoc.com
   port: 32777
-services: [web, card]
+  open_browser: true
+services: [web, card, shell]

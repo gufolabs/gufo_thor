@@ -118,7 +118,7 @@ class Docker(object):
 
     def stop(self: "Docker") -> bool:
         """
-        Perform docker compose up -d.
+        Perform docker compose stop.
 
         Returns:
             True: if command executed successfully.
@@ -126,6 +126,17 @@ class Docker(object):
         """
         logger.warning("Stopping containers")
         return self._commpose_command("stop")
+
+    def shell(self: "Docker") -> bool:
+        """
+        Run shell in container.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        logger.warning("Running shell")
+        return self._commpose_command("run", "--rm", "shell")
 
 
 docker = Docker()
