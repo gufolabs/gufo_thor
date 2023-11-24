@@ -115,6 +115,7 @@ dependencies = [
   "PyYAML >= 6.0",
   "gufo-loader >= 1.0.3",
   "gufo-acme >= 0.2.0",
+  "jinja2 >= 3.0",
 ]
 dynamic = ["version"]
 keywords = ["NOC"]

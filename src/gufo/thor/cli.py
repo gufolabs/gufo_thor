@@ -209,6 +209,9 @@ class Cli(object):
 
     def handle_shell(self: "Cli", ns: argparse.Namespace) -> ExitCode:
         """Run shell."""
+        r = self.handle_prepare(ns)
+        if r != ExitCode.OK:
+            return r
         if not docker.shell():
             return ExitCode.ERR
         return ExitCode.OK

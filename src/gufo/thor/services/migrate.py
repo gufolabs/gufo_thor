@@ -15,6 +15,7 @@ Attributes:
 # Gufo Thor modules
 from .base import ComposeDependsCondition
 from .clickhouse import clickhouse
+from .consul import consul
 from .liftbridge import liftbridge
 from .mongo import mongo
 from .noc import NocService
@@ -33,7 +34,7 @@ class MigrateService(NocService):
     """
 
     name = "migrate"
-    dependencies = (postgres, mongo, liftbridge, clickhouse)
+    dependencies = (postgres, mongo, liftbridge, clickhouse, consul)
     compose_depends_condition = ComposeDependsCondition.COMPLETED_SUCCESSFULLY
     compose_command = "./noc migrate"
 

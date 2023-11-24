@@ -139,6 +139,7 @@ DEPS_DOT = """digraph {
   mongo -> migrate
   liftbridge -> migrate
   clickhouse -> migrate
+  consul -> migrate
   mongo
   mrt
   mx

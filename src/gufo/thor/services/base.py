@@ -18,7 +18,9 @@ from importlib import resources
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
 
-# Gufo Labs modules
+import jinja2
+
+# Third-party modules
 from gufo.loader import Loader
 
 # Gufo Thor modules
@@ -546,8 +548,8 @@ class BaseService(ABC):
             .joinpath(tpl)
             .read_text()
         )
-        for k, v in kwargs.items():
-            data = data.replace(f"{{{k}}}", str(v))
+        template = jinja2.Template(data)
+        data = template.render(**kwargs)
         # Write file
         logger.warning("Writing %s", path)
         with open(path, "w") as fp:

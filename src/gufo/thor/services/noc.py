@@ -85,8 +85,9 @@ class NocService(BaseService):
             return  # Already configured from other subclass
         NocService.render_file(
             Path("etc", "noc", "settings.yml"),
-            "settings.yml",
+            "settings.yml.j2",
             installation_name=config.noc.installation_name,
+            has_custom=config.noc.custom is not None,
         )
         self._prepared = True
 
