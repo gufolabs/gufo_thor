@@ -10,9 +10,6 @@ Attributes:
     postgres: postgres service singleton.
 """
 
-# Python modules
-from pathlib import Path
-
 # Gufo Thor modules
 from .base import BaseService, ComposeDependsCondition
 
@@ -30,13 +27,13 @@ class PostgresService(BaseService):
         "start_period": "1s",
         "retries": 10,
     }
-    compose_volumes = ["./data/postgres:/var/lib/postgresql/data"]
+    compose_volumes = ["postgres_data:/var/lib/postgresql/data"]
+    compose_volumes_config = {"postgres_data": {}}
     compose_environment = {
         "POSTGRES_DB": "noc",
         "POSTGRES_USER": "noc",
         "POSTGRES_PASSWORD": "noc",
     }
-    compose_data_dirs = [Path("postgres")]
     service_discovery = {"postgres": 5432}
 
 

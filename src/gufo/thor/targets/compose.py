@@ -17,6 +17,7 @@ import yaml
 # Gufo Thor modules
 from ..log import logger
 from ..services.base import BaseService, loader
+from ..utils import write_file
 from .base import BaseTarget
 
 
@@ -33,14 +34,9 @@ class ComposeTarget(BaseTarget):
     def prepare(self: "ComposeTarget") -> None:
         """Generate docker-compose.yml, data directories, and configs."""
         # Generate docker-compose.yml
-        dc = self.render_config()
-        path = "docker-compose.yml"
-        logger.warning("Writing %s", path)
-        with open(path, "w") as fp:
-            fp.write(dc)
-        # Generate directories and config
+        write_file(Path("docker-compose.yml"), self.render_config())
+        # Generate directories and configs
         for svc in BaseService.resolve(self.config.services):
-            logger.warning("Configuring service %s", svc.name)
             svc_cfg = self.config.services.get(svc.name)
             # Create configuration directories, if necessary
             etc_dirs = svc.get_compose_etc_dirs(self.config, svc_cfg)
@@ -48,13 +44,6 @@ class ComposeTarget(BaseTarget):
                 prefix = Path("etc")
                 self._ensure_directory(prefix)
                 for d in etc_dirs:
-                    self._ensure_directory(prefix / d)
-            # Create data directories, if necessary
-            data_dirs = svc.get_compose_data_dirs(self.config, svc_cfg)
-            if data_dirs:
-                prefix = Path("data")
-                self._ensure_directory(prefix)
-                for d in data_dirs:
                     self._ensure_directory(prefix / d)
             # Create config
             svc.prepare_compose_config(self.config, svc_cfg)
@@ -72,7 +61,6 @@ class ComposeTarget(BaseTarget):
             path: Directory path.
         """
         if os.path.exists(path):
-            logger.warning("Directory %s is already exists. Skipping", path)
             return
         logger.warning("Creating directory %s", path)
         os.makedirs(path)

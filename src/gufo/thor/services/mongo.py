@@ -10,9 +10,6 @@ Attributes:
     mongo: mongo service singleton.
 """
 
-# Python modules
-from pathlib import Path
-
 # Gufo Thor modules
 from .base import BaseService, ComposeDependsCondition
 
@@ -31,8 +28,8 @@ class MongoService(BaseService):
         "retries": 10,
     }
     compose_command = "--wiredTigerCacheSizeGB 1.5 --bind_ip_all"
-    compose_volumes = ["./data/mongo:/data/db"]
-    compose_data_dirs = [Path("mongo")]
+    compose_volumes = ["mongo_data:/data/db"]
+    compose_volumes_config = {"mongo_data": {}}
     service_discovery = {"mongo": 27017}
 
 

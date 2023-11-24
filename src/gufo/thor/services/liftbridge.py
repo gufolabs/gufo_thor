@@ -26,10 +26,10 @@ class LiftbridgeService(BaseService):
     compose_image = "liftbridge/liftbridge:v1.9.0"
     compose_entrypoint = "liftbridge --config /etc/liftbridge.yml"
     compose_volumes = [
-        "./data/liftbridge:/data/",
-        "./etc/liftbridge.yml:/etc/liftbridge.yml",
+        "./etc/liftbridge.yml:/etc/liftbridge.yml:ro",
+        "liftbridge_data:/data/",
     ]
-    compose_data_dirs = [Path("liftbridge")]
+    compose_volumes_config = {"liftbridge_data": {}}
     service_discovery = {"liftbridge": 9292}
 
     def prepare_compose_config(

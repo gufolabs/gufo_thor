@@ -74,7 +74,7 @@ class BaseService(ABC):
         compose_volumes: `volumes` section, if any.
             Override `get_compose_volumes`
             to implement custom behavior.
-        commpose_volumes_config: Global `volumes` section, if any.
+        compose_volumes_config: Global `volumes` section, if any.
             Override `get_compose_volumes_config`
             to implement custom behavior.
         compose_environment: `environment` section, if any.
@@ -89,12 +89,6 @@ class BaseService(ABC):
             in the start of prepare page.
             Usually contains configuration files.
             Override `get_compose_etc_dirs`
-            to implement custom behavior.
-        compose_data_dirs: Optional list of directories
-            to be created within `data` directory
-            in the start of prepare page.
-            Usually contains data files.
-            Override `get_compose_data_dirs`
             to implement custom behavior.
         service_discovery: Optional name -> port mappings.
             Override `get_service_discovery` to implement
@@ -117,7 +111,6 @@ class BaseService(ABC):
     compose_environment: Optional[Dict[str, str]] = None
     compose_extra: Optional[Dict[str, Any]] = None
     compose_etc_dirs: Optional[List[Path]] = None
-    compose_data_dirs: Optional[List[Path]] = None
     service_discovery: Optional[Dict[str, int]] = None
 
     def iter_dependencies(self: "BaseService") -> Iterable["BaseService"]:
@@ -436,25 +429,6 @@ class BaseService(ABC):
             List of required directories, if not empty.
         """
         return self.compose_etc_dirs
-
-    def get_compose_data_dirs(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[List[Path]]:
-        """
-        Get list of required cofiguration directories for the service.
-
-        The required directories should be created before the service
-        is been configured. Should be used in conjunction with
-        `get_compose_volumes`.
-
-        Args:
-            config: Gufo Thor config instance
-            svc: Service's config from `services` part, if any.
-
-        Returns:
-            List of required directories, if not empty.
-        """
-        return self.compose_data_dirs
 
     def prepare_compose_config(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]

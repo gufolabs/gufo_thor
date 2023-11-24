@@ -10,9 +10,6 @@ Attributes:
     clickhouse: clickhouse service singleton.
 """
 
-# Python modules
-from pathlib import Path
-
 # Gufo Thor modules
 from .base import BaseService, ComposeDependsCondition
 
@@ -30,8 +27,9 @@ class ClickhouseService(BaseService):
         "retries": 3,
     }
     compose_volumes = [
-        "./data/clickhouse:/var/lib/clickhouse",
+        "clickhouse_data:/var/lib/clickhouse",
     ]
+    compose_volumes_config = {"clickhouse_data": {}}
     compose_extra = {
         "cap_add": [
             "SYS_NICE",
@@ -45,7 +43,6 @@ class ClickhouseService(BaseService):
             }
         },
     }
-    compose_data_dirs = [Path("clickhouse")]
     service_discovery = {"clickhouse": 8132}
 
 
