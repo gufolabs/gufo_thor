@@ -27,6 +27,7 @@ from gufo.loader import Loader
 from ..config import Config, ServiceConfig
 from ..docker import docker
 from ..log import logger
+from ..utils import write_file
 
 
 class ComposeDependsCondition(Enum):
@@ -525,9 +526,7 @@ class BaseService(ABC):
         template = jinja2.Template(data)
         data = template.render(**kwargs)
         # Write file
-        logger.warning("Writing %s", path)
-        with open(path, "w") as fp:
-            fp.write(data)
+        write_file(path, data)
 
 
 loader: Loader[BaseService] = Loader[BaseService](

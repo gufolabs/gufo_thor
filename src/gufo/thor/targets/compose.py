@@ -7,9 +7,8 @@
 
 # Python modules
 import json
-import os
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 # Third-party mofules
 import yaml
@@ -17,7 +16,7 @@ import yaml
 # Gufo Thor modules
 from ..log import logger
 from ..services.base import BaseService, loader
-from ..utils import write_file
+from ..utils import ensure_directory, write_file
 from .base import BaseTarget
 
 
@@ -42,28 +41,15 @@ class ComposeTarget(BaseTarget):
             etc_dirs = svc.get_compose_etc_dirs(self.config, svc_cfg)
             if etc_dirs:
                 prefix = Path("etc")
-                self._ensure_directory(prefix)
+                ensure_directory(prefix)
                 for d in etc_dirs:
-                    self._ensure_directory(prefix / d)
+                    ensure_directory(prefix / d)
             # Create config
             svc.prepare_compose_config(self.config, svc_cfg)
             # Service discovery
             sd = svc.get_service_discovery(self.config, svc_cfg)
             if sd:
                 self._configure_service_discovery(svc.name, sd)
-
-    @staticmethod
-    def _ensure_directory(path: Path) -> None:
-        """
-        Check directory is exists and create, if necessary.
-
-        Args:
-            path: Directory path.
-        """
-        if os.path.exists(path):
-            return
-        logger.warning("Creating directory %s", path)
-        os.makedirs(path)
 
     def render_config(self: "ComposeTarget") -> str:
         """
@@ -125,10 +111,9 @@ class ComposeTarget(BaseTarget):
     ) -> None:
         """Prepare service discovery config."""
         sd_root = Path("etc", "consul")
-        self._ensure_directory(sd_root)
+        ensure_directory(sd_root)
         for svc_name, port in sd.items():
             path = sd_root / f"{svc_name}-{port}.json"
-            logger.warning("Writing %s", path)
             cfg = {
                 "service": {
                     "name": svc_name,
@@ -144,5 +129,4 @@ class ComposeTarget(BaseTarget):
                     ],
                 }
             }
-            with open(path, "w") as fp:
-                fp.write(json.dumps(cfg))
+            write_file(path, json.dumps(cfg))
