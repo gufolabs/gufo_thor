@@ -7,7 +7,7 @@
 
 # Python Modules
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
@@ -19,7 +19,8 @@ class NocService(BaseService):
 
     is_noc = True
     name = "noc"
-    _prepared = False
+    _config_prepared = False
+    _volumes_prepared = False
     compose_etc_dirs = [Path("noc")]
 
     def get_compose_image(
@@ -54,13 +55,14 @@ class NocService(BaseService):
 
         Mount repo and custom when necessary.
         """
-        r: List[str] = ["./etc/noc/settings.yml:/opt/noc/etc/settings.yml"]
+        # Config
+        r: List[str] = ["./etc/noc/settings.yml:/opt/noc/etc/settings.yml:ro"]
         # Mount NOC repo inside an image
         if config.noc.path:
-            r.append(f"{config.noc.path}:/opt/noc")
+            r.append(f"{config.noc.path}:/opt/noc:cached")
         # Mount custom inside an image
         if config.noc.custom:
-            r.append(f"{config.noc.custom}:/opt/noc_custom")
+            r.append(f"{config.noc.custom}:/opt/noc_custom:cached")
         return r if r else None
 
     def get_compose_environment(
@@ -81,16 +83,11 @@ class NocService(BaseService):
         NB: As the NocServices is the base class for a bunch of services,
         ensure, the configuration files are rendered only once.
         """
-        if self._prepared:
+        if self._config_prepared:
             return  # Already configured from other subclass
         NocService.render_file(
             Path("etc", "noc", "settings.yml"),
-            "settings.yml.j2",
+            "settings.yml",
             installation_name=config.noc.installation_name,
-            has_custom=config.noc.custom is not None,
         )
-        self._prepared = True
-
-
-SETTINGS_YML = """installation_name: {installation_name}
-"""
+        self._config_prepared = True

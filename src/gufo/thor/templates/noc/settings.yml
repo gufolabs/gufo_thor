@@ -6,7 +6,3 @@ pg:
   db: noc
   user: noc
   password: noc
-{% if has_custom %}
-path:
-  custom_path: /opt/noc_custom
-{% endif %}

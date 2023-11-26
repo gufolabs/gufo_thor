@@ -34,7 +34,7 @@ class ConsulService(BaseService):
         "timeout": "2s",
         "retries": 3,
     }
-    compose_volumes = ["./etc/consul:/consul/config:ro"]
+    compose_volumes = ["./etc/consul:/consul/config"]
     compose_etc_dirs = [Path("consul")]
 
 
