@@ -13,3 +13,5 @@ streams:
     age: 24h
 cursors:
   stream.partitions: 1
+clustering:
+  raft.bootstrap.seed: true

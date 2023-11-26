@@ -31,6 +31,7 @@ class LiftbridgeService(BaseService):
     ]
     compose_volumes_config = {"liftbridge_data": {}}
     service_discovery = {"liftbridge": 9292}
+    compose_extra = {"user": "root"}
 
     def prepare_compose_config(
         self: "LiftbridgeService", config: Config, svc: Optional[ServiceConfig]
