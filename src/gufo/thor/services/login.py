@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from .liftbridge import liftbridge
 from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
@@ -29,7 +30,7 @@ class LoginService(NocService):
     """
 
     name = "login"
-    dependencies = (postgres, mongo, migrate)
+    dependencies = (postgres, mongo, migrate, liftbridge)
 
     def get_compose_volumes(
         self: "LoginService", config: Config, svc: Optional[ServiceConfig]

@@ -131,6 +131,7 @@ DEPS_DOT = """digraph {
   postgres -> login
   mongo -> login
   migrate -> login
+  liftbridge -> login
   mailsender
   metrics
   metricscollector
