@@ -34,6 +34,11 @@ class ComposeTarget(BaseTarget):
         """Generate docker-compose.yml, data directories, and configs."""
         # Generate docker-compose.yml
         write_file(Path("docker-compose.yml"), self.render_config())
+        # Generate .env
+        env_data: List[str] = []
+        if self.config.project is not None:
+            env_data.append(f"COMPOSE_PROJECT_NAME={self.config.project}")
+        write_file(Path(".env"), "\n".join(env_data))
         # Generate directories and configs
         for svc in BaseService.resolve(self.config.services):
             svc_cfg = self.config.services.get(svc.name)

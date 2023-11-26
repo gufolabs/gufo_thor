@@ -115,11 +115,16 @@ class Config(object):
     The Gufo Thor config.
 
     Attributes:
+        project: Optional project name used to prefix
+            the services and volumes. If not set - directory
+            name is used. Should be unique within Thor projects
+            on same host.
         noc: The `noc` section of the config.
         expose: The `expose` section of the config.
         services: The `services` section of the config.
     """
 
+    project: Optional[str]
     noc: NocConfig
     expose: ExposeConfig
     services: Dict[str, ServiceConfig]
@@ -151,7 +156,12 @@ class Config(object):
         else:
             msg = f"services must be list or dict, not {type(data_svc)}"
             raise ValueError(msg)
-        return Config(noc=noc_cfg, expose=expose_cfg, services=services)
+        return Config(
+            project=cfg.get("project"),
+            noc=noc_cfg,
+            expose=expose_cfg,
+            services=services,
+        )
 
     @staticmethod
     def default() -> "Config":
@@ -163,7 +173,9 @@ class Config(object):
         """
         noc_cfg = NocConfig()
         expose_cfg = ExposeConfig()
-        return Config(noc=noc_cfg, expose=expose_cfg, services={})
+        return Config(
+            project=None, noc=noc_cfg, expose=expose_cfg, services={}
+        )
 
 
 def get_sample(name: str) -> str:
