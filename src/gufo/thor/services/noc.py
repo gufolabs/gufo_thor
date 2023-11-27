@@ -11,7 +11,7 @@ from typing import Dict, List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
-from .base import BaseService
+from .base import BaseService, ComposeDependsCondition
 
 
 class NocService(BaseService):
@@ -90,3 +90,15 @@ class NocService(BaseService):
             installation_name=config.noc.installation_name,
         )
         self._config_prepared = True
+
+
+class NocHcService(NocService):
+    """Noc service with healthcheck."""
+
+    compose_depends_condition = ComposeDependsCondition.HEALTHY
+    compose_healthcheck = {
+        "test": ["CMD-SHELL", "curl http://$$HOSTNAME:1200/health"],
+        "interval": "3s",
+        "timeout": "2s",
+        "retries": 3,
+    }

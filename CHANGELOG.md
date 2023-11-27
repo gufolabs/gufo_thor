@@ -18,6 +18,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * config: `service.<name>.scale` option.
 * jinja2 templates for configs.
 * Perform all migrations and collections loading.
+* Helthchecks for traefik and NOC services.
 
 ## Changed
 

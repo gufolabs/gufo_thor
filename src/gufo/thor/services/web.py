@@ -15,13 +15,13 @@ from .clickhouse import clickhouse
 from .migrate import migrate
 from .mongo import mongo
 from .nginx import nginx
-from .noc import NocService
+from .noc import NocHcService
 from .postgres import postgres
 from .traefik import traefik
 from .worker import worker
 
 
-class WebService(NocService):
+class WebService(NocHcService):
     """web service."""
 
     name = "web"

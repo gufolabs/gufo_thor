@@ -12,3 +12,5 @@ providers:
       address: "consul:8500"
     exposedByDefault: false
     watch: true
+
+ping: {}

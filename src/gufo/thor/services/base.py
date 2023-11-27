@@ -154,6 +154,9 @@ class BaseService(ABC):
             "image": self.get_compose_image(config, svc),
             "restart": "no",
         }
+        # scale
+        if self.allow_scale:
+            r["deploy"] = {"replicas": svc.scale if svc else 1}
         # depends_on
         deps = {
             dep.name: {

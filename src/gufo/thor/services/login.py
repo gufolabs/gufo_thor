@@ -18,11 +18,11 @@ from ..config import Config, ServiceConfig
 from .liftbridge import liftbridge
 from .migrate import migrate
 from .mongo import mongo
-from .noc import NocService
+from .noc import NocHcService
 from .postgres import postgres
 
 
-class LoginService(NocService):
+class LoginService(NocHcService):
     """
     login service.
 

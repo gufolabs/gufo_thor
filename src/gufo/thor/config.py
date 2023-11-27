@@ -152,7 +152,9 @@ class Config(object):
         if isinstance(data_svc, list):
             services = {x: ServiceConfig.default() for x in data_svc}
         elif isinstance(data_svc, dict):
-            services = {x: ServiceConfig.from_dict(y) for x, y in data_svc}
+            services = {
+                x: ServiceConfig.from_dict(y) for x, y in data_svc.items()
+            }
         else:
             msg = f"services must be list or dict, not {type(data_svc)}"
             raise ValueError(msg)
