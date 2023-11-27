@@ -21,7 +21,6 @@ class NocService(BaseService):
     name = "noc"
     _config_prepared = False
     _volumes_prepared = False
-    compose_etc_dirs = [Path("noc")]
 
     def get_compose_image(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]

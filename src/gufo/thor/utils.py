@@ -21,7 +21,8 @@ def write_file(
     """
     Write data to file.
 
-    Overwrite file content only if changed.
+    Overwrite file content only if changed. Create all
+    nessessary directories.
 
     Args:
         path: File path.
@@ -32,6 +33,7 @@ def write_file(
         True: if file was written.
         False: if file wasn't changed.
     """
+    ensure_directory(path.parent)
     if os.path.exists(path):
         with open(path) as fp:
             fdata = fp.read()

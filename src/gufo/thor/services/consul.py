@@ -10,9 +10,6 @@ Attributes:
     consul: consul service singleton.
 """
 
-# Python modules
-from pathlib import Path
-
 # Gufo Thor modules
 from .base import BaseService, ComposeDependsCondition
 
@@ -39,7 +36,6 @@ class ConsulService(BaseService):
         "consul_data:/consul/data",
     ]
     compose_volumes_config = {"consul_data": {}}
-    compose_etc_dirs = [Path("consul")]
 
 
 consul = ConsulService()

@@ -26,7 +26,6 @@ from gufo.loader import Loader
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
 from ..docker import docker
-from ..log import logger
 from ..utils import write_file
 
 
@@ -85,12 +84,6 @@ class BaseService(ABC):
             with the compose config.
             Override `get_compose_extra`
             to implement custom behavior.
-        compose_etc_dirs: Optional list of directories
-            to be created within `etc` directory
-            in the start of prepare page.
-            Usually contains configuration files.
-            Override `get_compose_etc_dirs`
-            to implement custom behavior.
         service_discovery: Optional name -> port mappings.
             Override `get_service_discovery` to implement
             custom behavior.
@@ -114,7 +107,6 @@ class BaseService(ABC):
     compose_volumes_config: Optional[Dict[str, Dict[str, Any]]] = None
     compose_environment: Optional[Dict[str, str]] = None
     compose_extra: Optional[Dict[str, Any]] = None
-    compose_etc_dirs: Optional[List[Path]] = None
     service_discovery: Optional[Dict[str, int]] = None
     allow_scale: bool = False
     require_slots: bool = False
@@ -418,23 +410,6 @@ class BaseService(ABC):
             Dict of extra settings.
         """
         return self.compose_extra
-
-    def get_compose_etc_dirs(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[List[Path]]:
-        """
-        Get list of required cofiguration directories for the service.
-
-        Directories to be created within `etc` directory.
-
-        Args:
-            config: Gufo Thor config instance
-            svc: Service's config from `services` part, if any.
-
-        Returns:
-            List of required directories, if not empty.
-        """
-        return self.compose_etc_dirs
 
     def prepare_compose_config(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]

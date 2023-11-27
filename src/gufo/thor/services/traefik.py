@@ -26,7 +26,6 @@ class TraefikService(BaseService):
     name = "traefik"
     dependencies = (consul,)
     compose_image = "traefik:2.10"
-    compose_etc_dirs = [Path("traefik")]
     compose_volumes = ["./etc/traefik/:/etc/traefik/:ro"]
 
     def prepare_compose_config(

@@ -62,7 +62,6 @@ class NginxService(BaseService):
     SUBJ_PATH = "etc/nginx/ssl/domain_name.txt"
     RSA_KEY_SIZE = 4096
     CERT_DAYS = 3650
-    compose_etc_dirs = [Path("nginx", "conf.d"), Path("nginx", "ssl")]
 
     def get_compose_volumes(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]

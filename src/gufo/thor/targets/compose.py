@@ -61,11 +61,6 @@ class ComposeTarget(BaseTarget):
             # Process slots
             if svc.require_slots:
                 slots[svc.name] = scale
-            # Create configuration directories, if necessary
-            etc_dirs = svc.get_compose_etc_dirs(self.config, svc_cfg)
-            if etc_dirs:
-                for d in etc_dirs:
-                    ensure_directory(etc / d)
             # Create config
             svc.prepare_compose_config(self.config, svc_cfg)
             # Service discovery

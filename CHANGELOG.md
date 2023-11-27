@@ -25,6 +25,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * Mount service configurations as read-only.
 * Store persistent data in named volumes.
 
+## Removed
+
+* `BaseService.compose_etc_dirs` and `.get_compose_etc_dirs()`
+
 ## 0.2.0 - 2023-11-23
 
 ### Added
