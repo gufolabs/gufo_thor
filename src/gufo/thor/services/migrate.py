@@ -13,7 +13,11 @@ Attributes:
 # Python modules
 
 # Gufo Thor modules
-from .base import ComposeDependsCondition
+from typing import Dict, List, Optional
+
+from gufo.thor.config import Config, ServiceConfig
+
+from .base import BaseService, ComposeDependsCondition
 from .clickhouse import clickhouse
 from .consul import consul
 from .liftbridge import liftbridge
@@ -37,8 +41,20 @@ class MigrateService(NocService):
     dependencies = (postgres, mongo, liftbridge, clickhouse, consul)
     compose_depends_condition = ComposeDependsCondition.COMPLETED_SUCCESSFULLY
     compose_command = "./scripts/deploy/migrate.sh"
-    compose_volumes = ["./etc/slots.cfg:/etc/slots.cfg:ro"]
-    compose_environment = {"NOC_MIGRATE_SLOTS_PATH": "/etc/slots.cfg"}
+
+    def get_compose_volumes(
+        self: NocService, config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[List[str]]:
+        r = super().get_compose_volumes(config, svc) or []
+        r.append("./etc/slots.cfg:/etc/slots.cfg:ro")
+        return r
+
+    def get_compose_environment(
+        self: NocService, config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[Dict[str, str]]:
+        r = super().get_compose_environment(config, svc) or {}
+        r["NOC_MIGRATE_SLOTS_PATH"] = "/etc/slots.cfg"
+        return r
 
 
 migrate = MigrateService()

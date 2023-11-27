@@ -43,7 +43,7 @@ class ClickhouseService(BaseService):
             }
         },
     }
-    service_discovery = {"clickhouse": 8132}
+    service_discovery = {"clickhouse": 8123}
 
 
 clickhouse = ClickhouseService()

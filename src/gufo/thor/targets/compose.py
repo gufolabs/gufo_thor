@@ -70,13 +70,13 @@ class ComposeTarget(BaseTarget):
         # Save scales
         write_file(
             etc / "scale.cfg",
-            "\n".join(f"{k} {v}" for k, v in sorted(scale_factors.items())),
+            "\n".join(f"{k}: {v}" for k, v in sorted(scale_factors.items())),
             backup_path=etc / "scale.cfg.prev",
         )
         # Save slots
         write_file(
             etc / "slots.cfg",
-            "\n".join(f"{k} {v}" for k, v in sorted(slots.items())),
+            "\n".join(f"{k}: {v}" for k, v in sorted(slots.items())),
         )
 
     def render_config(self: "ComposeTarget") -> str:
