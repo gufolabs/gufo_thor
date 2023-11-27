@@ -7,7 +7,7 @@
 
 # Python Modules
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig

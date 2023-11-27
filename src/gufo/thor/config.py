@@ -84,11 +84,11 @@ class ServiceConfig(object):
 
     Attributes:
         tag: Override `noc.tag` setting for a service if not empty.
-        enabled: True, if the service is enabled.
+        scale: Number of concurrently running servers. 0 - disable.
     """
 
     tag: Optional[str] = None
-    enabled: bool = True
+    scale: int = 1
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "ServiceConfig":
@@ -106,7 +106,7 @@ class ServiceConfig(object):
     @staticmethod
     def default() -> "ServiceConfig":
         """Get default ServiceConfig."""
-        return ServiceConfig(tag=None, enabled=True)
+        return ServiceConfig(tag=None, scale=1)
 
 
 @dataclass

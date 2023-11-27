@@ -27,6 +27,7 @@ from gufo.thor.services.nginx import nginx
 from gufo.thor.services.postgres import postgres
 from gufo.thor.services.traefik import traefik
 from gufo.thor.services.web import web
+from gufo.thor.services.worker import worker
 
 ALL_SERVICES = set(loader.keys())
 
@@ -47,6 +48,7 @@ ALL_SERVICES = set(loader.keys())
                 postgres,
                 traefik,
                 web,
+                worker,
             ],
         ),
         (
@@ -166,6 +168,7 @@ DEPS_DOT = """digraph {
   postgres -> shell
   mongo -> shell
   clickhouse -> shell
+  worker -> shell
   datastream -> syslogcollector
   liftbridge -> syslogcollector
   tgsender
@@ -185,6 +188,7 @@ DEPS_DOT = """digraph {
   clickhouse -> web
   traefik -> web
   nginx -> web
+  worker -> web
   migrate -> worker
   postgres -> worker
   mongo -> worker

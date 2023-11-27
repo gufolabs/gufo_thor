@@ -31,6 +31,7 @@ class LoginService(NocService):
 
     name = "login"
     dependencies = (postgres, mongo, migrate, liftbridge)
+    allow_scale = True
 
     def get_compose_volumes(
         self: "LoginService", config: Config, svc: Optional[ServiceConfig]

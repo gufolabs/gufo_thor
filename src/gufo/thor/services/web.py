@@ -18,13 +18,23 @@ from .nginx import nginx
 from .noc import NocService
 from .postgres import postgres
 from .traefik import traefik
+from .worker import worker
 
 
 class WebService(NocService):
     """web service."""
 
     name = "web"
-    dependencies = (migrate, postgres, mongo, clickhouse, traefik, nginx)
+    dependencies = (
+        migrate,
+        postgres,
+        mongo,
+        clickhouse,
+        traefik,
+        nginx,
+        worker,
+    )
+    allow_scale = True
 
 
 web = WebService()

@@ -20,13 +20,14 @@ from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
 from .postgres import postgres
+from .worker import worker
 
 
 class ShellService(NocService):
     """web service."""
 
     name = "shell"
-    dependencies = (migrate, postgres, mongo, clickhouse)
+    dependencies = (migrate, postgres, mongo, clickhouse, worker)
     compose_extra = {"scale": 0}
 
     def get_compose_command(

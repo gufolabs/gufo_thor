@@ -37,6 +37,8 @@ class MigrateService(NocService):
     dependencies = (postgres, mongo, liftbridge, clickhouse, consul)
     compose_depends_condition = ComposeDependsCondition.COMPLETED_SUCCESSFULLY
     compose_command = "./scripts/deploy/migrate.sh"
+    compose_volumes = ["./etc/slots.cfg:/etc/slots.cfg:ro"]
+    compose_environment = {"NOC_MIGRATE_SLOTS_PATH": "/etc/slots.cfg"}
 
 
 migrate = MigrateService()

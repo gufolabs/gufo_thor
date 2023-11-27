@@ -22,6 +22,8 @@ class WorkerService(NocService):
 
     name = "worker"
     dependencies = (migrate, postgres, mongo)
+    allow_scale = True
+    require_slots = True
 
 
 worker = WorkerService()

@@ -94,6 +94,9 @@ class BaseService(ABC):
         service_discovery: Optional name -> port mappings.
             Override `get_service_discovery` to implement
             custom behavior.
+        allow_scale: If the service allows running multiple
+            instances.
+        require_slots: If the service requires slots creation.
     """
 
     name: str
@@ -113,6 +116,8 @@ class BaseService(ABC):
     compose_extra: Optional[Dict[str, Any]] = None
     compose_etc_dirs: Optional[List[Path]] = None
     service_discovery: Optional[Dict[str, int]] = None
+    allow_scale: bool = False
+    require_slots: bool = False
 
     def iter_dependencies(self: "BaseService") -> Iterable["BaseService"]:
         """

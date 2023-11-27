@@ -39,22 +39,50 @@ class ComposeTarget(BaseTarget):
         if self.config.project is not None:
             env_data.append(f"COMPOSE_PROJECT_NAME={self.config.project}")
         write_file(Path(".env"), "\n".join(env_data))
+        # Create etc/
+        etc = Path("etc")
+        ensure_directory(etc)
         # Generate directories and configs
+        scale_factors: Dict[str, int] = {}
+        slots: Dict[str, int] = {}
         for svc in BaseService.resolve(self.config.services):
             svc_cfg = self.config.services.get(svc.name)
+            # Process scale
+            scale = svc_cfg.scale if svc_cfg else 1
+            if scale <= 0:
+                continue  # Disabled
+            if svc.allow_scale:
+                scale_factors[svc.name] = scale
+            elif scale > 1:
+                logger.warn(
+                    "%s service is not supports scale, reverting to 1",
+                    svc.name,
+                )
+            # Process slots
+            if svc.require_slots:
+                slots[svc.name] = scale
             # Create configuration directories, if necessary
             etc_dirs = svc.get_compose_etc_dirs(self.config, svc_cfg)
             if etc_dirs:
-                prefix = Path("etc")
-                ensure_directory(prefix)
                 for d in etc_dirs:
-                    ensure_directory(prefix / d)
+                    ensure_directory(etc / d)
             # Create config
             svc.prepare_compose_config(self.config, svc_cfg)
             # Service discovery
             sd = svc.get_service_discovery(self.config, svc_cfg)
             if sd:
                 self._configure_service_discovery(svc.name, sd)
+        # Save scales
+        write_file(
+            etc / "scale.cfg",
+            "\n".join(f"{k} {v}" for k, v in sorted(scale_factors.items())),
+            backup_path=etc / "scale.cfg.prev",
+        )
+        # Save slots
+        write_file(
+            etc / "slots.cfg",
+            "\n".join(f"{k} {v}" for k, v in sorted(slots.items())),
+        )
 
     def render_config(self: "ComposeTarget") -> str:
         """

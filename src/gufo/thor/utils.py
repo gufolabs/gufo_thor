@@ -7,13 +7,17 @@
 
 # Python modules
 import os
+import shutil
 from pathlib import Path
+from typing import Optional
 
 # Gufo Thor modules
 from .log import logger
 
 
-def write_file(path: Path, content: str) -> bool:
+def write_file(
+    path: Path, content: str, backup_path: Optional[Path] = None
+) -> bool:
     """
     Write data to file.
 
@@ -22,6 +26,7 @@ def write_file(path: Path, content: str) -> bool:
     Args:
         path: File path.
         content: File content.
+        backup_path: Path to store a copy of file when overwritten.
 
     Returns:
         True: if file was written.
@@ -32,6 +37,8 @@ def write_file(path: Path, content: str) -> bool:
             fdata = fp.read()
             if fdata == content:
                 return False  # Not changed
+        if backup_path:
+            shutil.move(path, backup_path)
     logger.warning("Writing file %s", path)
     with open(path, "w") as fp:
         fp.write(content)
