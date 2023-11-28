@@ -14,7 +14,6 @@ from typing import Any, Dict, List
 import yaml
 
 # Gufo Thor modules
-from ..log import logger
 from ..services.base import BaseService, loader
 from ..utils import ensure_directory, write_file
 from .base import BaseTarget

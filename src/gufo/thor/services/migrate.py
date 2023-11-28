@@ -17,7 +17,7 @@ from typing import Dict, List, Optional
 
 from gufo.thor.config import Config, ServiceConfig
 
-from .base import BaseService, ComposeDependsCondition
+from .base import ComposeDependsCondition
 from .clickhouse import clickhouse
 from .consul import consul
 from .liftbridge import liftbridge
@@ -45,6 +45,11 @@ class MigrateService(NocService):
     def get_compose_volumes(
         self: NocService, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
+        """
+        Get volumes settings for docker compose.
+
+        Additionaly map slots configuration.
+        """
         r = super().get_compose_volumes(config, svc) or []
         r.append("./etc/slots.cfg:/etc/slots.cfg:ro")
         return r
@@ -52,6 +57,11 @@ class MigrateService(NocService):
     def get_compose_environment(
         self: NocService, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, str]]:
+        """
+        Environment settings for container.
+
+        Additionally set NOC_MIGRATE_SLOTS_PATH.
+        """
         r = super().get_compose_environment(config, svc) or {}
         r["NOC_MIGRATE_SLOTS_PATH"] = "/etc/slots.cfg"
         return r
