@@ -43,7 +43,7 @@ class MigrateService(NocService):
     compose_command = "./scripts/deploy/migrate.sh"
 
     def get_compose_volumes(
-        self: NocService, config: Config, svc: Optional[ServiceConfig]
+        self: "MigrateService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """
         Get volumes settings for docker compose.
@@ -55,7 +55,7 @@ class MigrateService(NocService):
         return r
 
     def get_compose_environment(
-        self: NocService, config: Config, svc: Optional[ServiceConfig]
+        self: "MigrateService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, str]]:
         """
         Environment settings for container.
