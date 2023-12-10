@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md) guide.
 
+## [Unreleased]
+
+### Fixed
+
+* `FileNotFoundError` when writing nginx keys.
+
+### Changed
+
+* `write_file` accepts content as `str` and `bytes`.
+
 ## 0.3.0 - 2023-11-28
 
 ### Added

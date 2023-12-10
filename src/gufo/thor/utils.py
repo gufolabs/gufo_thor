@@ -9,14 +9,14 @@
 import os
 import shutil
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 # Gufo Thor modules
 from .log import logger
 
 
 def write_file(
-    path: Path, content: str, backup_path: Optional[Path] = None
+    path: Path, content: Union[str, bytes], backup_path: Optional[Path] = None
 ) -> bool:
     """
     Write data to file.
@@ -42,7 +42,8 @@ def write_file(
         if backup_path:
             shutil.move(path, backup_path)
     logger.warning("Writing file %s", path)
-    with open(path, "w") as fp:
+    mode = "w" if isinstance(content, str) else "wb"
+    with open(path, mode) as fp:
         fp.write(content)
     return True
 

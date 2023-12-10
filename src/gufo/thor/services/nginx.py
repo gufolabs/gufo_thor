@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional
 from ..config import Config, ServiceConfig
 from ..error import CancelExecution
 from ..log import logger
+from ..utils import write_file
 from .base import BaseService
 from .login import login
 from .traefik import traefik
@@ -144,9 +145,9 @@ class NginxService(BaseService):
         """Rebuild SSL certificates."""
         from gufo.acme.clients.base import AcmeClient
 
-        key_path = "etc/nginx/ssl/noc.key"
-        csr_path = "etc/nginx/ssl/noc.csr"
-        cert_path = "etc/nginx/ssl/noc.crt"
+        key_path = Path("etc", "nginx", "ssl", "noc.key")
+        csr_path = Path("etc", "nginx", "ssl", "noc.csr")
+        cert_path = Path("etc", "nginx", "ssl", "noc.crt")
 
         di = DOMAINS.get(config.expose.domain_name)
         if di is None:
@@ -165,18 +166,15 @@ class NginxService(BaseService):
         # Generate key
         logger.warning("Generating private key: %s", key_path)
         private_key = AcmeClient.get_domain_private_key()
-        with open(key_path, "wb") as fp:
-            fp.write(private_key)
+        write_file(key_path, private_key)
         # Create CSR
         logger.warning("Generating certificate signing request: %s", csr_path)
         csr = AcmeClient.get_domain_csr(config.expose.domain_name, private_key)
-        with open(csr_path, "wb") as fp:
-            fp.write(csr)
+        write_file(csr_path, csr)
         # Sign CSR
         logger.warning("Signing certificate: %s", cert_path)
         cert = self._get_signed_csr(di.csr_proxy, csr)
-        with open(cert_path, "wb") as fp:
-            fp.write(cert)
+        write_file(cert_path, cert)
         # Write subj
         logger.warning("Writing %s", self.SUBJ_PATH)
         with open(self.SUBJ_PATH, "w") as fp:
