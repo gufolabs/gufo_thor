@@ -16,6 +16,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * Mount consul's config in read/write mode to prevent the permissions changing error.
 
+### Added
+
+* Upgrade instructuons.
+
 ## 0.3.1 - 2023-12-10
 
 ### Fixed

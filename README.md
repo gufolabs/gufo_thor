@@ -1,6 +1,6 @@
 # Gufo Thor
 
-*A simple [NOC][NOC] management and deployment tool.
+*A simple [NOC][NOC] management and deployment tool.*
 
 [![PyPi version](https://img.shields.io/pypi/v/gufo_thor.svg)](https://pypi.python.org/pypi/gufo_thor/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/gufo_thor)
@@ -26,7 +26,15 @@ making the process straightforward.
 To install Thor, use pip:
 
 ```
-pip install gufo-thor
+pip3 install gufo-thor
+```
+
+## Update
+
+To update Thor, use pip
+
+```
+pip3 install --upgrade gufo-thor
 ```
 
 ## Quick NOC Setup
@@ -44,8 +52,7 @@ Start NOC with a simple command:
 gufo-thor up
 ```
 
-Access NOC at https://go.getnoc.com:32777/
-
+After the NOC is ready, you will be redirected to https://go.getnoc.com:32777/
 
 To stop NOC:
 
