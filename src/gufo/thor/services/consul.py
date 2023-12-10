@@ -32,7 +32,7 @@ class ConsulService(BaseService):
         "retries": 3,
     }
     compose_volumes = [
-        "./etc/consul:/consul/config:ro",
+        "./etc/consul:/consul/config",
         "consul_data:/consul/data",
     ]
     compose_volumes_config = {"consul_data": {}}
