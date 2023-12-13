@@ -26,7 +26,15 @@ It creates a dedicated Python virtual environment (venv) and isolates Thor along
 with all dependent libraries from other systems.
 
 ```
-curl https://sh.gufolabs.com/thor | sh -s mode=venv
+python -m venv .
+. ./bin/activate
+curl https://sh.gufolabs.com/thor
+```
+
+Later, when using Thor, make sure to activate the virtual environment (venv):
+
+```
+. ./bin/activate
 ```
 
 ## Checking the Installation

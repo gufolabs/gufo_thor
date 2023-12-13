@@ -45,7 +45,12 @@ To install or update Thor, follow these steps:
 
 ## NOC Operations Cheat List
 
-Perform all operations from the directory where the Thor configuration is stored:
+Execute all actions from the directory containing the Thor configuration. 
+If you are using venv mode, ensure to activate the virtual environment (venv) before utilizing Thor.
+
+``` shell
+. ./bin/activate
+```
 
 ### Start NOC
 Use the following command to start NOC:
