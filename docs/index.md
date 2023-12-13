@@ -54,6 +54,10 @@ gufo-thor up
 ```
 
 Once NOC is ready, you will be redirected to https://go.getnoc.com:32777/
+Log in using the following credentials:
+
+- **Username:** admin
+- **Password:** admin
 
 ### Stop NOC
 

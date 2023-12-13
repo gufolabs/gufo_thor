@@ -50,7 +50,7 @@ gufo-thor version
 To upgrade existing Gufo Thor installation use pip
 
 ```
-$ pip install --upgrade gufo_thor
+$ pip3 install --upgrade gufo-thor
 ```
 
 ## Uninstalling
@@ -58,5 +58,5 @@ $ pip install --upgrade gufo_thor
 To uninstall Gufo Thor use pip
 
 ```
-$ pip uninstall gufo_thor
+$ pip3 uninstall gufo-thor
 ```
