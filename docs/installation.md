@@ -28,7 +28,7 @@ with all dependent libraries from other systems.
 ```
 python -m venv .
 . ./bin/activate
-curl https://sh.gufolabs.com/thor
+curl https://sh.gufolabs.com/thor | sh
 ```
 
 Later, when using Thor, make sure to activate the virtual environment (venv):
