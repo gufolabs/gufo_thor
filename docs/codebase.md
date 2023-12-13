@@ -25,6 +25,7 @@ The code base of the project has following structure:
   * `services` - services definitions.
   * `targets` - targets implementations.
 * `tests/` - Project's [Pytest][Pytest] test suite.
+* `tools/` - Various scripts.
 * `.gitignore` - [Gitignore][Gitignore] file.
 * `Dockerfile` - [Dockerfile][Dockerfile] for development container.
 * `mkdocs.yml` - [Mkdocs][Mkdocs] configuration file.
@@ -35,7 +36,6 @@ The code base of the project has following structure:
 [Mkdocs]: https://www.mkdocs.org
 [Mkdocs Material]: https://squidfunk.github.io/mkdocs-material/
 [Black]: https://black.readthedocs.io/en/stable
-[Flake8]: https://flake8.pycqa.org/en/latest/
 [Mypy]: https://mypy.readthedocs.io/en/stable/
 [Pytest]: https://docs.pytest.org/
 [Dockerfile]: https://docs.docker.com/engine/reference/builder/

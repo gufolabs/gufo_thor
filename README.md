@@ -21,40 +21,44 @@ It's tailored for new NOC users who want to assess NOC's capabilities and NOC de
 who need a fast development environment. Thor takes care of the complexity of NOC management, 
 making the process straightforward.
 
+## Prerequisites
+
+To use Thor, make sure you have the following software packages installed:
+
+- Docker
+- docker-compose or the compose plugin
+- Python 3.8+
+
 ## Installation
 
-To install Thor, use pip:
+To install or update Thor, follow these steps:
 
-```
-pip3 install gufo-thor
-```
+1. Create a dedicated directory where all configuration files will be stored.
+2. Navigate to the newly created directory.
+3. Run the installer:
+  ```
+  curl https://sh.gufolabs.com/thor | sh
+  ```
+4. After installation, NOC will be launched,
+   and your browser will open at  https://go.getnoc.com:32777/
+5. Log in as user `admin` with password `admin`.
 
-## Update
+## NOC Operations Cheat List
 
-To update Thor, use pip
+Perform all operations from the directory where the Thor configuration is stored:
 
-```
-pip3 install --upgrade gufo-thor
-```
-
-## Quick NOC Setup
-
-Create a directory where the services' configuration and data will be stored:
-
-```
-mkdir noc
-cd noc
-```
-
-Start NOC with a simple command:
+### Start NOC
+Use the following command to start NOC:
 
 ```
 gufo-thor up
 ```
 
-After the NOC is ready, you will be redirected to https://go.getnoc.com:32777/
+Once NOC is ready, you will be redirected to https://go.getnoc.com:32777/
 
-To stop NOC:
+### Stop NOC
+
+To stop NOC, use the command:
 
 ```
 gufo-thor stop
