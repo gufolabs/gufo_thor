@@ -7,6 +7,8 @@
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
 
+set -e
+
 # Check for docker
 if docker version &> /dev/null; then
     echo "docker is installed"
@@ -34,7 +36,7 @@ if command -v python3 &> /dev/null; then
     major_version=$(echo "$python_version" | cut -d'.' -f1)
     minor_version=$(echo "$python_version" | cut -d'.' -f2)
     # Compare the version
-    if [[ "$major_version" -ge 3 && "$minor_version" -ge 8 ]]; then
+    if test "$major_version" -ge 3 && test "$minor_version" -ge 8; then
         echo "Python $python_version is installed."
     else
         echo "Python 3.8 or later is required. Exiting."
@@ -45,27 +47,8 @@ else
     exit 1
 fi
 
-# Parse command-line arguments
-mode=""
-for arg in "$@"; do
-    case "$arg" in
-        mode=venv)
-            mode="venv"
-            ;;
-        mode=global)
-            mode="global"
-            ;;
-    esac
-done
-
-# Initialize venv, when necessary
-if [[ "$mode" -eq "venv" ]]; then
-    python -m venv .
-    source ./bin/activate
-fi
-
 # Install Gufo Thor
-pip install --upgrade gufo-thor
+pip3 install --upgrade gufo-thor
 
 # Run
 gufo-thor up
