@@ -34,7 +34,11 @@ To install or update Thor, follow these steps:
   ```
 4. After installation, NOC will be launched,
    and your browser will open at  https://go.getnoc.com:32777/
-5. Log in as user `admin` with password `admin`.
+
+Log in using the following credentials:
+
+- **Username:** admin
+- **Password:** admin
 
 ## NOC Operations Cheat List
 
