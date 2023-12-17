@@ -15,6 +15,9 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 ### Added
 
 * curl/sh installation script.
+* docs: Configuration reference.
+* docs: Configuration templates.
+* docs: Command Line reference.
 
 ### Changed
 
