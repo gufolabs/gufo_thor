@@ -23,7 +23,7 @@ class PingService(NocService):
     dependencies = (liftbridge, datastream)
     compose_extra = {
         "cap_add": [
-            "SYS_NET_RAW",
+            "NET_RAW",
         ],
     }
 

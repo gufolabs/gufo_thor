@@ -12,6 +12,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Unreleased]
 
+### Fixed
+
+* Fixed ping container capabilities.
+
 ### Added
 
 * curl/sh installation script.
