@@ -11,8 +11,9 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .base import ComposeDependsCondition
 from .nginx import nginx
-from .noc import ComposeDependsCondition, NocService
+from .noc import NocService
 from .traefik import traefik
 
 
