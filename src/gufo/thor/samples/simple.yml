@@ -3,6 +3,7 @@ version: "1.0"
 noc:
   tag: master
   installation_name: Unconfigured Installation
+  theme: noc
 expose:
   domain_name: go.getnoc.com
   port: 32777

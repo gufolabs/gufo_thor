@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md) guide.
 
+## [Unreleased]
+
+### Added
+
+* `thor.yml`: `noc.theme` parameter.
+* `static` service for serving static files.
+
 ## 0.3.3 - 2023-12-18
 
 ### Fixed

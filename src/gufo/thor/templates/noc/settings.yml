@@ -6,3 +6,6 @@ pg:
   db: noc
   user: noc
   password: noc
+web:
+  theme: >
+    {{theme}}

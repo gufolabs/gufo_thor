@@ -8,7 +8,7 @@
 # Python Modules
 from dataclasses import dataclass
 from importlib import resources
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional
 
 # Third-party modules
 import yaml
@@ -27,12 +27,14 @@ class NocConfig(object):
             in the `/opt/noc_custom` directory.
         installation_name: The installation name which will be shown
             in the interface.
+        theme: Web interface theme. One of: `noc`, `gray`.
     """
 
     tag: str = "master"
     path: Optional[str] = None
     custom: Optional[str] = None
     installation_name: str = "Unconfigured Installation"
+    theme: Literal["noc", "gray"] = "noc"
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "NocConfig":
