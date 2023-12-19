@@ -8,7 +8,7 @@
 # Python modules
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 # Third-party mofules
 import yaml
@@ -116,19 +116,21 @@ class ComposeTarget(BaseTarget):
         }
 
     def _configure_service_discovery(
-        self: "ComposeTarget", name: str, sd: Dict[str, int]
+        self: "ComposeTarget",
+        name: str,
+        sd: Dict[str, Union[int, Dict[str, Any]]],
     ) -> None:
         """Prepare service discovery config."""
         sd_root = Path("etc", "consul")
         ensure_directory(sd_root)
-        for svc_name, sd in sd.items():
+        for svc_name, sd_cfg in sd.items():
             cfg: Dict[str, Any] = {
                 "name": svc_name,
                 "address": name,
             }
-            if isinstance(sd, int):
+            if isinstance(sd_cfg, int):
                 # Port
-                port = sd
+                port = sd_cfg
                 cfg.update(
                     {
                         "port": port,
@@ -143,7 +145,7 @@ class ComposeTarget(BaseTarget):
                     }
                 )
             else:
-                cfg.update(sd)
+                cfg.update(sd_cfg)
                 if "port" not in cfg:
                     msg = "port is not set"
                     raise ValueError(msg)
