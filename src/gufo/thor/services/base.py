@@ -107,7 +107,7 @@ class BaseService(ABC):
     compose_volumes_config: Optional[Dict[str, Dict[str, Any]]] = None
     compose_environment: Optional[Dict[str, str]] = None
     compose_extra: Optional[Dict[str, Any]] = None
-    service_discovery: Optional[Dict[str, int]] = None
+    service_discovery: Optional[Dict[str, Union[int, Dict[str, Any]]]] = None
     allow_scale: bool = False
     require_slots: bool = False
 
@@ -430,7 +430,7 @@ class BaseService(ABC):
 
     def get_service_discovery(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, int]]:
+    ) -> Optional[Dict[str, Union[int, Dict[str, Any]]]]:
         """
         Get name to port mappings for service discovery.
 

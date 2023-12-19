@@ -121,21 +121,31 @@ class ComposeTarget(BaseTarget):
         """Prepare service discovery config."""
         sd_root = Path("etc", "consul")
         ensure_directory(sd_root)
-        for svc_name, port in sd.items():
-            path = sd_root / f"{svc_name}-{port}.json"
-            cfg = {
-                "service": {
-                    "name": svc_name,
-                    "address": name,
-                    "port": port,
-                    "checks": [
-                        {
-                            "id": f"tcp-{svc_name}-{port}",
-                            "interval": "1s",
-                            "tcp": f"{name}:{port}",
-                            "timeout": "1s",
-                        }
-                    ],
-                }
+        for svc_name, sd in sd.items():
+            cfg: Dict[str, Any] = {
+                "name": svc_name,
+                "address": name,
             }
-            write_file(path, json.dumps(cfg))
+            if isinstance(sd, int):
+                # Port
+                port = sd
+                cfg.update(
+                    {
+                        "port": port,
+                        "checks": [
+                            {
+                                "id": f"tcp-{svc_name}-{port}",
+                                "interval": "1s",
+                                "tcp": f"{name}:{port}",
+                                "timeout": "1s",
+                            }
+                        ],
+                    }
+                )
+            else:
+                cfg.update(sd)
+                if "port" not in cfg:
+                    msg = "port is not set"
+                    raise ValueError(msg)
+            path = sd_root / f"{svc_name}-{cfg['port']}.json"
+            write_file(path, json.dumps({"service": cfg}))
