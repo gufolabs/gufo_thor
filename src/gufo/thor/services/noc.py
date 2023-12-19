@@ -88,6 +88,7 @@ class NocService(BaseService):
             Path("etc", "noc", "settings.yml"),
             "settings.yml",
             installation_name=config.noc.installation_name,
+            theme=config.noc.theme,
         )
         self._config_prepared = True
 

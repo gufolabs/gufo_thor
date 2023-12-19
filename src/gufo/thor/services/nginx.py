@@ -60,22 +60,10 @@ class NginxService(BaseService):
     name = "nginx"
     dependencies = (traefik, login)
     compose_image = "nginx:stable"
+    compose_volumes = ["./etc/nginx:/etc/nginx"]
     SUBJ_PATH = "etc/nginx/ssl/domain_name.txt"
     RSA_KEY_SIZE = 4096
     CERT_DAYS = 3650
-
-    def get_compose_volumes(
-        self: "NginxService", config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
-        """Get volumes section."""
-        r = ["./etc/nginx:/etc/nginx"]
-        if config.noc.path:
-            # Use /ui from repo
-            r += [f"{config.noc.path}/ui:/opt/noc/ui"]
-        else:
-            # Use /ui from container
-            r.append("static:/opt/noc/ui")
-        return r
 
     def get_compose_networks(
         self: "NginxService", config: Config, svc: Optional[ServiceConfig]

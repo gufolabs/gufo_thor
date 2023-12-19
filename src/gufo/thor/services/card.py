@@ -17,6 +17,7 @@ from .mongo import mongo
 from .nginx import nginx
 from .noc import NocService
 from .postgres import postgres
+from .static import static
 from .traefik import traefik
 
 
@@ -24,7 +25,15 @@ class CardService(NocService):
     """card service."""
 
     name = "card"
-    dependencies = (migrate, postgres, mongo, clickhouse, traefik, nginx)
+    dependencies = (
+        migrate,
+        postgres,
+        mongo,
+        clickhouse,
+        traefik,
+        nginx,
+        static,
+    )
 
 
 card = CardService()

@@ -17,6 +17,7 @@ from .mongo import mongo
 from .nginx import nginx
 from .noc import NocHcService
 from .postgres import postgres
+from .static import static
 from .traefik import traefik
 from .worker import worker
 
@@ -33,6 +34,7 @@ class WebService(NocHcService):
         traefik,
         nginx,
         worker,
+        static,
     )
     allow_scale = True
 

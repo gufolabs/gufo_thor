@@ -14,3 +14,5 @@ providers:
     watch: true
 
 ping: {}
+
+accessLog: {}

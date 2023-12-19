@@ -16,6 +16,7 @@ from .mongo import mongo
 from .nginx import nginx
 from .noc import NocService
 from .postgres import postgres
+from .static import static
 from .traefik import traefik
 
 
@@ -23,7 +24,7 @@ class UiService(NocService):
     """ui service."""
 
     name = "ui"
-    dependencies = (migrate, postgres, mongo, traefik, nginx)
+    dependencies = (migrate, postgres, mongo, traefik, nginx, static)
 
 
 ui = UiService()
