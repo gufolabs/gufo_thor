@@ -22,7 +22,7 @@ from ..config import Config, ServiceConfig
 from ..error import CancelExecution
 from ..log import logger
 from ..utils import write_file
-from .base import BaseService, ComposeDependsCondition
+from .base import BaseService
 
 HTTP_OK = 200
 HTTPS = 443
