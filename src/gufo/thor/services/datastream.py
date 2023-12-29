@@ -11,16 +11,19 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .auth import auth
+from .envoy import envoy
+from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
-from .traefik import traefik
 
 
 class DatastreamService(NocService):
     """datastream service."""
 
     name = "datastream"
-    dependencies = (mongo, traefik)
+    dependencies = (auth, envoy, migrate, mongo)
+    expose_http_prefix = "/api/datastream/"
 
 
 datastream = DatastreamService()

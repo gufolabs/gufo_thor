@@ -12,7 +12,7 @@ Attributes:
 
 # Python modules
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
@@ -34,7 +34,10 @@ class LiftbridgeService(BaseService):
     compose_extra = {"user": "root"}
 
     def prepare_compose_config(
-        self: "LiftbridgeService", config: Config, svc: Optional[ServiceConfig]
+        self: "LiftbridgeService",
+        config: Config,
+        svc: Optional[ServiceConfig],
+        services: List["BaseService"],
     ) -> None:
         """Generate config."""
         self.render_file(Path("etc", "liftbridge.yml"), "liftbridge.yml")

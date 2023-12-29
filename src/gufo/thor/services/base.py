@@ -90,6 +90,13 @@ class BaseService(ABC):
         allow_scale: If the service allows running multiple
             instances.
         require_slots: If the service requires slots creation.
+        expose_http_prefix: Optional prefix to be exposed on edge proxy.
+            Override `get_exposed_http_prefix` to implement
+            custom behavior.
+        require_http_auth: True, if the service protected by
+            http auth proxy.
+        rewrite_http_prefix: If set, rewrite matched http prefix
+            before passing request to upstream.
     """
 
     name: str
@@ -110,6 +117,9 @@ class BaseService(ABC):
     service_discovery: Optional[Dict[str, Union[int, Dict[str, Any]]]] = None
     allow_scale: bool = False
     require_slots: bool = False
+    expose_http_prefix: Optional[str] = None
+    require_http_auth: bool = False
+    rewrite_http_prefix: Optional[str] = None
 
     def iter_dependencies(self: "BaseService") -> Iterable["BaseService"]:
         """
@@ -415,7 +425,10 @@ class BaseService(ABC):
         return self.compose_extra
 
     def prepare_compose_config(
-        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+        self: "BaseService",
+        config: Config,
+        svc: Optional[ServiceConfig],
+        services: List["BaseService"],
     ) -> None:
         """
         Prepare service configs.
@@ -425,8 +438,21 @@ class BaseService(ABC):
         Args:
             config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
+            services: List of all services.
         """
         return
+
+    def get_expose_http_prefix(
+        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[str]:
+        """
+        Iterate over exposed http paths.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+        """
+        return self.expose_http_prefix
 
     def get_service_discovery(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]
@@ -470,15 +496,11 @@ class BaseService(ABC):
         Returns:
             Dependencies graph.
         """
-        r = ["digraph {"]
-        for svc in loader.values():
-            deps = list(svc.iter_dependencies())
-            if deps:
-                for dep in deps:
-                    r.append(f"  {dep.name} -> {svc.name}")
-            else:
-                r.append(f"  {svc.name}")
-        r.append("}")
+        items: List[Tuple[str, str]] = []
+        for svc in sorted(loader.values(), key=lambda x: x.name):
+            for d in svc.iter_dependencies():
+                items.append((svc.name, d.name))
+        r = ["digraph {"] + [f"  {x} -> {y}" for y, x in sorted(items)] + ["}"]
         return "\n".join(r)
 
     @classmethod
@@ -486,7 +508,7 @@ class BaseService(ABC):
         cls: Type["BaseService"],
         path: Path,
         tpl: str,
-        **kwargs: Union[str, int],
+        **kwargs: Union[str, int, List[Any]],
     ) -> None:
         """
         Apply a context to the template and write to file.

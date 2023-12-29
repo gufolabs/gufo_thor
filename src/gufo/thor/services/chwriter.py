@@ -21,7 +21,7 @@ class ChwriterService(NocService):
     """chwriter service."""
 
     name = "chwriter"
-    dependencies = (migrate, clickhouse, liftbridge)
+    dependencies = (clickhouse, liftbridge, migrate)
 
 
 chwriter = ChwriterService()

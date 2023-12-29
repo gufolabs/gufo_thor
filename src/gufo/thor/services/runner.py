@@ -1,27 +1,29 @@
 # ---------------------------------------------------------------------
-# Gufo Thor: selfmon service
+# Gufo Thor: worker service
 # ---------------------------------------------------------------------
 # Copyright (C) 2023, Gufo Labs
 # ---------------------------------------------------------------------
 """
-selfmon service.
+worker service.
 
 Attributes:
-    selfmon: selfmon service singleton.
+    runner: runner service singleton.
 """
 
 # Gufo Thor modules
+from .liftbridge import liftbridge
 from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
-from .postgres import postgres
 
 
-class SelfmonService(NocService):
-    """selfmon service."""
+class RunnerService(NocService):
+    """runner service."""
 
-    name = "selfmon"
-    dependencies = (migrate, mongo, postgres)
+    name = "runner"
+    dependencies = (liftbridge, migrate, mongo)
+    allow_scale = False
+    require_slots = False
 
 
-selfmon = SelfmonService()
+runner = RunnerService()

@@ -22,7 +22,7 @@ class CorrelatorService(NocService):
     """correlator service."""
 
     name = "correlator"
-    dependencies = (migrate, postgres, mongo, liftbridge)
+    dependencies = (liftbridge, migrate, mongo, postgres)
 
 
 correlator = CorrelatorService()

@@ -74,7 +74,10 @@ class NocService(BaseService):
         return r if r else None
 
     def prepare_compose_config(
-        self: "NocService", config: Config, svc: Optional[ServiceConfig]
+        self: "NocService",
+        config: Config,
+        svc: Optional[ServiceConfig],
+        services: List["BaseService"],
     ) -> None:
         """
         Render configuration files.

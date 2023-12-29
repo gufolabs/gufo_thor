@@ -21,7 +21,7 @@ class SchedulerService(NocService):
     """scheduler service."""
 
     name = "scheduler"
-    dependencies = (migrate, postgres, mongo)
+    dependencies = (migrate, mongo, postgres)
 
 
 scheduler = SchedulerService()

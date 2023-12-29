@@ -22,7 +22,7 @@ class ClassifierService(NocService):
     """classifier service."""
 
     name = "classifier"
-    dependencies = (migrate, postgres, mongo, liftbridge)
+    dependencies = (liftbridge, migrate, mongo, postgres)
 
 
 classifier = ClassifierService()
