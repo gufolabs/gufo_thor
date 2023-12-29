@@ -21,7 +21,7 @@ class SaeService(NocService):
     """sae service."""
 
     name = "sae"
-    dependencies = (migrate, postgres, mongo)
+    dependencies = (migrate, mongo, postgres)
 
 
 sae = SaeService()

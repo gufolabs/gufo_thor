@@ -43,13 +43,14 @@ class ComposeTarget(BaseTarget):
         ensure_directory(etc)
         # Generate directories and configs
         slots: Dict[str, int] = {}
-        for svc in BaseService.resolve(self.config.services):
+        services = list(BaseService.resolve(self.config.services))
+        for svc in services:
             svc_cfg = self.config.services.get(svc.name)
             # Process slots
             if svc.require_slots:
                 slots[svc.name] = svc_cfg.scale if svc_cfg else 1
             # Create config
-            svc.prepare_compose_config(self.config, svc_cfg)
+            svc.prepare_compose_config(self.config, svc_cfg, services)
             # Service discovery
             sd = svc.get_service_discovery(self.config, svc_cfg)
             if sd:

@@ -11,14 +11,15 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .auth import auth
 from .clickhouse import clickhouse
+from .envoy import envoy
+from .login import login
 from .migrate import migrate
 from .mongo import mongo
-from .nginx import nginx
 from .noc import NocService
 from .postgres import postgres
 from .static import static
-from .traefik import traefik
 
 
 class CardService(NocService):
@@ -26,14 +27,17 @@ class CardService(NocService):
 
     name = "card"
     dependencies = (
-        migrate,
-        postgres,
-        mongo,
+        auth,
         clickhouse,
-        traefik,
-        nginx,
+        envoy,
+        login,
+        migrate,
+        mongo,
+        postgres,
         static,
     )
+    expose_http_prefix = "/api/card/"
+    require_http_auth = True
 
 
 card = CardService()

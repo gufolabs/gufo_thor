@@ -11,18 +11,20 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .auth import auth
+from .envoy import envoy
 from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
 from .postgres import postgres
-from .traefik import traefik
 
 
 class NbiService(NocService):
     """nbi service."""
 
     name = "nbi"
-    dependencies = (migrate, mongo, postgres, traefik)
+    dependencies = (auth, envoy, migrate, mongo, postgres)
+    expose_http_prefix = "/api/nbi/"
 
 
 nbi = NbiService()

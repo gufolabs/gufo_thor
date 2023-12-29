@@ -13,6 +13,7 @@ Attributes:
 # Gufo Thor modules
 from .datastream import datastream
 from .liftbridge import liftbridge
+from .migrate import migrate
 from .noc import NocService
 
 
@@ -20,7 +21,7 @@ class PingService(NocService):
     """ping service."""
 
     name = "ping"
-    dependencies = (liftbridge, datastream)
+    dependencies = (datastream, liftbridge, migrate)
     compose_extra = {
         "cap_add": [
             "NET_RAW",

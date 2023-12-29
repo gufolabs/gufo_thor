@@ -12,7 +12,7 @@ Attributes:
 
 # Gufo Thor modules
 from .activator import activator
-from .clickhouse import clickhouse
+from .chwriter import chwriter
 from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
@@ -23,7 +23,7 @@ class DiscoveryService(NocService):
     """discovery service."""
 
     name = "discovery"
-    dependencies = (migrate, postgres, mongo, clickhouse, activator)
+    dependencies = (activator, chwriter, migrate, mongo, postgres)
 
 
 discovery = DiscoveryService()

@@ -11,20 +11,22 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .auth import auth
+from .envoy import envoy
+from .login import login
 from .migrate import migrate
 from .mongo import mongo
-from .nginx import nginx
 from .noc import NocService
 from .postgres import postgres
 from .static import static
-from .traefik import traefik
 
 
 class UiService(NocService):
     """ui service."""
 
     name = "ui"
-    dependencies = (migrate, postgres, mongo, traefik, nginx, static)
+    dependencies = (auth, envoy, login, migrate, mongo, postgres, static)
+    expose_http_prefix = "/api/ui/"
 
 
 ui = UiService()

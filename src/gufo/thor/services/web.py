@@ -11,14 +11,15 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .auth import auth
 from .clickhouse import clickhouse
+from .envoy import envoy
+from .login import login
 from .migrate import migrate
 from .mongo import mongo
-from .nginx import nginx
 from .noc import NocHcService
 from .postgres import postgres
 from .static import static
-from .traefik import traefik
 from .worker import worker
 
 
@@ -27,16 +28,19 @@ class WebService(NocHcService):
 
     name = "web"
     dependencies = (
-        migrate,
-        postgres,
-        mongo,
+        auth,
         clickhouse,
-        traefik,
-        nginx,
-        worker,
+        envoy,
+        login,
+        migrate,
+        mongo,
+        postgres,
         static,
+        worker,
     )
     allow_scale = True
+    expose_http_prefix = "/"
+    require_http_auth = True
 
 
 web = WebService()

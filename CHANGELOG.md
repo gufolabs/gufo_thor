@@ -14,8 +14,19 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ### Added
 
+* `envoy` service.
 * `thor.yml`: `noc.theme` parameter.
 * `static` service for serving static files.
+* `auth` service.
+
+### Changed
+
+* Refined service dependencies.
+  
+### Removed
+
+* `nginx` service.
+* `traefik` service.
 
 ## 0.3.3 - 2023-12-18
 

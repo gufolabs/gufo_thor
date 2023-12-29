@@ -1,0 +1,169 @@
+static_resources:
+  listeners:
+    - name: https_listener
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 443
+      filter_chains:
+        - filters:
+            - name: ingress_https
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_https
+                access_log:
+                  - name: envoy.access_loggers.stdout
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
+                route_config:
+                  name: route
+                  virtual_hosts:
+                    - name: "{{ domain_name }}"
+                      domains:
+                        - "{{ domain_name }}"
+                        - "{{ domain_name }}:*"
+                      routes:
+                        # {% for route in routes %}
+                        # {{ route.name }}
+                        # {% if route.redirect_to %}
+                        - match:
+                            path: "{{ route.prefix }}"
+                          redirect:
+                            path_redirect: "{{ route.redirect_to }}"
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        # {% else %}
+                        - match:
+                            prefix: "{{ route.prefix }}"
+                          route:
+                            cluster: "{{ route.name }}_cluster"
+                            # {% if route.prefix_rewrite %}
+                            prefix_rewrite: "{{ route.prefix_rewrite }}"
+                            # {% endif %}
+                          # {% if route.disable_auth %}
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                          # {% endif %}
+                        # {% endif %}
+                        # {% endfor %}
+                http_filters:
+                  # Compression
+                  - name: envoy.filters.http.compressor
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.compressor.v3.Compressor
+                      response_direction_config:
+                        common_config:
+                          min_content_length: 100
+                          content_type:
+                            - text/html
+                            - text/css
+                            - application/json
+                            - application/javascript
+                        disable_on_etag_header: true
+                      request_direction_config:
+                        common_config:
+                          enabled:
+                            default_value: false
+                            runtime_key: request_compressor_enabled
+                      compressor_library:
+                        name: text_optimized
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.compression.gzip.compressor.v3.Gzip
+                          memory_level: 3
+                          window_bits: 10
+                          compression_level: BEST_COMPRESSION
+                          compression_strategy: DEFAULT_STRATEGY
+                  # Authentication
+                  - name: envoy.filters.http.ext_authz
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+                      http_service:
+                        server_uri:
+                          uri: "http://login:1200/api/auth/auth/"
+                          cluster: login_cluster
+                          timeout: 0.5s
+                        path_prefix: /api/auth/auth/?uri=
+                        authorization_request:
+                          allowed_headers:
+                            patterns:
+                              - exact: private-token
+                              - exact: authorization
+                              - exact: cookie
+                          headers_to_add:
+                            - key: X-Original-URI
+                              value: "%REQ(:path)%"
+                        authorization_response:
+                          allowed_upstream_headers:
+                            patterns:
+                              - exact: "remote-user"
+                              - exact: "remote-groups"
+                              - exact: "x-noc-api-access"
+                  # HTTP Router
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+                local_reply_config:
+                  mappers:
+                    - filter:
+                        status_code_filter:
+                          comparison:
+                            op: EQ
+                            value:
+                              default_value: 401
+                              runtime_key: key_b
+                      status_code: 301
+                      headers_to_add:
+                        - header:
+                            key: location
+                            value: /ui/login/index.html?uri=%REQ(:path)%
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                      body:
+                        inline_string: ""
+          transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              common_tls_context:
+                alpn_protocols: ["h2,http/1.1"]
+                tls_params:
+                  tls_minimum_protocol_version: TLSv1_2
+                  tls_maximum_protocol_version: TLSv1_3
+                tls_certificates:
+                  - certificate_chain:
+                      filename: "/etc/envoy/ssl/noc.crt"
+                    private_key:
+                      filename: "/etc/envoy/ssl/noc.key"
+  clusters:
+    # {% for svc in services %}
+    - name: "{{ svc }}_cluster"
+      connect_timeout: 0.25s
+      type: strict_dns
+      lb_policy: least_request
+      http2_protocol_options: {}
+      dns_lookup_family: V4_ONLY
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http_protocol_options: {}
+      load_assignment:
+        cluster_name: "{{ svc }}_cluster"
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: "{{ svc }}"
+                      port_value: 1200
+      health_checks:
+        - timeout: 3s
+          interval: 10s
+          unhealthy_threshold: 3
+          healthy_threshold: 2
+          http_health_check:
+            path: "/health"
+    # {% endfor %}

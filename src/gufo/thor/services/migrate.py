@@ -38,7 +38,7 @@ class MigrateService(NocService):
     """
 
     name = "migrate"
-    dependencies = (postgres, mongo, liftbridge, clickhouse, consul)
+    dependencies = (clickhouse, consul, liftbridge, mongo, postgres)
     compose_depends_condition = ComposeDependsCondition.COMPLETED_SUCCESSFULLY
     compose_command = "./scripts/deploy/migrate.sh"
 

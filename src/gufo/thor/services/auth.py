@@ -7,25 +7,27 @@
 login service.
 
 Attributes:
-    login: login service singleton.
+    auth: auth service singleton.
 """
 
 # Gufo Thor modules
 from .envoy import envoy
+from .liftbridge import liftbridge
 from .migrate import migrate
 from .mongo import mongo
 from .noc import NocHcService
-from .postgres import postgres
-from .static import static
 
 
-class LoginService(NocHcService):
-    """login service."""
+class AuthService(NocHcService):
+    """auth service."""
 
-    name = "login"
-    dependencies = (envoy, migrate, mongo, postgres, static)
+    name = "auth"
+    dependencies = (envoy, liftbridge, migrate, mongo)
     allow_scale = True
-    expose_http_prefix = "/api/login/"
+    expose_http_prefix = "/api/auth/"
+    compose_command = (
+        "/usr/local/bin/python3 /opt/noc/services/login/service.py"
+    )
 
 
-login = LoginService()
+auth = AuthService()
