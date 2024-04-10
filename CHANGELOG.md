@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md) guide.
 
+## [Unreleased]
+
+### Added
+
+* `gufo-thor up --no-migrate` option.
+
 ## 0.4.0 - 2023-12-29
 
 ### Added
@@ -21,6 +27,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ### Changed
 
+* Code streamlining and refactoring.
 * Refined service dependencies.
   
 ### Removed

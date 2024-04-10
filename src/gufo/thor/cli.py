@@ -75,7 +75,10 @@ class Cli(object):
         # prepare
         subparsers.add_parser("prepare", help="Prepare services configuration")
         # up
-        subparsers.add_parser("up", help="Set up ana launch NOC")
+        up_parser = subparsers.add_parser("up", help="Set up and launch NOC")
+        up_parser.add_argument(
+            "--no-migrate", action="store_true", help="Skip migrations on run"
+        )
         # down
         subparsers.add_parser("stop", help="Stop NOC")
         # shell
@@ -151,7 +154,7 @@ class Cli(object):
         with open(path) as fp:
             return Config.from_yaml(fp.read())
 
-    def handle_prepare(self: "Cli", _ns: argparse.Namespace) -> ExitCode:
+    def handle_prepare(self: "Cli", ns: argparse.Namespace) -> ExitCode:
         """Prepare NOC configuration."""
         from gufo.thor.targets.base import loader
 
@@ -186,6 +189,10 @@ class Cli(object):
 
     def handle_up(self: "Cli", ns: argparse.Namespace) -> ExitCode:
         """Prepare NOC configuration and run NOC."""
+        # --no-migrations
+        if ns.no_migrate:
+            self.config.cli.no_migrate = True
+        #
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
             return r

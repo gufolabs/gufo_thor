@@ -42,6 +42,18 @@ class MigrateService(NocService):
     compose_depends_condition = ComposeDependsCondition.COMPLETED_SUCCESSFULLY
     compose_command = "./scripts/deploy/migrate.sh"
 
+    def get_compose_command(
+        self: "MigrateService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[str]:
+        """
+        Get compose command.
+
+        Considers config.cli.no_migrations option.
+        """
+        if config.cli.no_migrate:
+            return "/bin/true"
+        return self.compose_command
+
     def get_compose_volumes(
         self: "MigrateService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:

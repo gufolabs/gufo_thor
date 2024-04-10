@@ -112,6 +112,21 @@ class ServiceConfig(object):
 
 
 @dataclass
+class CliConfig(object):
+    """
+    Config populated during runtime.
+
+    Should not be set by user. Populated
+    from CLI options.
+
+    Attributes:
+        no_migrations: Skip migrations if true.
+    """
+
+    no_migrate: bool = False
+
+
+@dataclass
 class Config(object):
     """
     The Gufo Thor config.
@@ -130,6 +145,7 @@ class Config(object):
     noc: NocConfig
     expose: ExposeConfig
     services: Dict[str, ServiceConfig]
+    cli: CliConfig
 
     @staticmethod
     def from_yaml(data: str) -> "Config":
@@ -165,6 +181,7 @@ class Config(object):
             noc=noc_cfg,
             expose=expose_cfg,
             services=services,
+            cli=CliConfig(),
         )
 
     @staticmethod
