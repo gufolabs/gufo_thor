@@ -16,7 +16,6 @@ from typing import Optional
 from gufo.thor.config import Config, ServiceConfig
 
 from .clickhouse import clickhouse
-from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
 from .postgres import postgres
