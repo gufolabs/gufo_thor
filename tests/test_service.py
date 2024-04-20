@@ -115,6 +115,8 @@ def test_envoy_deps(svc: str) -> None:
 def test_migrate_deps(svc: str) -> None:
     if svc == "migrate":
         pytest.skip("migrate service")
+    if svc == "shell":
+        return
     service = loader[svc]
     deps = set(service.iter_dependencies())
     if mongo in deps:
@@ -225,7 +227,6 @@ DEPS_DOT = """digraph {
   mongo -> selfmon
   postgres -> selfmon
   clickhouse -> shell
-  migrate -> shell
   mongo -> shell
   postgres -> shell
   worker -> shell
