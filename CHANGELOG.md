@@ -16,6 +16,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * `gufo-thor up --no-migrate` option.
 
+### Changed
+
+* `shell` no longer depends on `migrate`.
+
 ## 0.4.0 - 2023-12-29
 
 ### Added

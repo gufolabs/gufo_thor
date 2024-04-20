@@ -27,7 +27,7 @@ class ShellService(NocService):
     """web service."""
 
     name = "shell"
-    dependencies = (clickhouse, migrate, mongo, postgres, worker)
+    dependencies = (clickhouse, mongo, postgres, worker)
     compose_extra = {"scale": 0}
 
     def get_compose_command(
