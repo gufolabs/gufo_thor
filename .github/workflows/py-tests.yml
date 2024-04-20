@@ -28,16 +28,16 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set Up Python {{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
       # Cache dependencies
       - name: Cache Dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./.pip
           key: ${{ runner.os }}-tests-{{ matrix.python-version }}-${{ hashFiles('./.requirements/lint.txt') }}-${{ hashFiles('./.requirements/test.txt') }}
@@ -71,10 +71,10 @@ jobs:
     needs: test
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set Up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
