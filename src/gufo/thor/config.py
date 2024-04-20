@@ -195,7 +195,11 @@ class Config(object):
         noc_cfg = NocConfig()
         expose_cfg = ExposeConfig()
         return Config(
-            project=None, noc=noc_cfg, expose=expose_cfg, services={}
+            project=None,
+            noc=noc_cfg,
+            expose=expose_cfg,
+            services={},
+            cli=CliConfig(),
         )
 
 
