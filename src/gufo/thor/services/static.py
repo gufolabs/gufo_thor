@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: static service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-24, Gufo Labs
 # ---------------------------------------------------------------------
 """
 static service.
@@ -10,7 +10,12 @@ Attributes:
     static: static service singleton.
 """
 
+# NOC modules
+from typing import List, Optional
+
 # Gufo Thor modules
+from gufo.thor.config import Config, ServiceConfig
+
 from .base import ComposeDependsCondition
 from .envoy import envoy
 from .noc import NocService
@@ -35,6 +40,20 @@ class StaticService(NocService):
     }
     expose_http_prefix = "/ui/"
     rewrite_http_prefix = "/"
+
+    def get_compose_volumes(
+        self: "StaticService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[List[str]]:
+        """
+        Get volumes section.
+
+        Avoid /ui/pkg to be overriden.
+        """
+        r = super().get_compose_volumes(config, svc) or []
+        if config.noc.path:
+            # Preserve /ui/pkg to not be overriden with repo
+            r.append("/opt/noc/ui/pkg")
+        return r if r else None
 
 
 static = StaticService()

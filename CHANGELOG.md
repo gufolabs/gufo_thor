@@ -14,7 +14,8 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ### Changed
 
-* Do not write `version` attribute to `docker-compose.yml`
+* Do not write `version` attribute to `docker-compose.yml`.
+* Do not override the container's /opt/noc/ui/pkg.
 
 ## 0.5.0 - 2024-04-20
 
