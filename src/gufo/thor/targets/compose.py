@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: ComposeTarget
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-24, Gufo Labs
 # ---------------------------------------------------------------------
 """docker compose target."""
 
@@ -74,7 +74,6 @@ class ComposeTarget(BaseTarget):
     def _get_config_dict(self: "ComposeTarget") -> Dict[str, Any]:
         """Get dict of docker-compose.yml."""
         r = {
-            "version": "3.3",
             "services": self._get_services_config(),
             "networks": {
                 "noc": {

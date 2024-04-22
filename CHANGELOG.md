@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md) guide.
 
+## [Unreleased]
+
+### Changed
+
+* Do not write `version` attribute to `docker-compose.yml`
+
 ## 0.5.0 - 2024-04-20
 
 ### Added
