@@ -19,6 +19,7 @@ from .migrate import migrate
 from .mongo import mongo
 from .noc import NocHcService
 from .postgres import postgres
+from .scheduler import scheduler
 from .static import static
 from .worker import worker
 
@@ -35,6 +36,7 @@ class WebService(NocHcService):
         migrate,
         mongo,
         postgres,
+        scheduler,
         static,
         worker,
     )

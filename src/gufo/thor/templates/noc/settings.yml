@@ -1,7 +1,5 @@
 installation_name: >
   {{installation_name}}
-features:
-  traefik: true
 pg:
   db: noc
   user: noc

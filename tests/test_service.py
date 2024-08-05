@@ -27,6 +27,7 @@ from gufo.thor.services.login import login
 from gufo.thor.services.migrate import migrate
 from gufo.thor.services.mongo import mongo
 from gufo.thor.services.postgres import postgres
+from gufo.thor.services.scheduler import scheduler
 from gufo.thor.services.static import static
 from gufo.thor.services.web import web
 from gufo.thor.services.worker import worker
@@ -59,6 +60,7 @@ def test_depends_sorted(svc: str) -> None:
                 migrate,
                 mongo,
                 postgres,
+                scheduler,
                 static,
                 web,
                 worker,
@@ -256,6 +258,7 @@ DEPS_DOT = """digraph {
   migrate -> web
   mongo -> web
   postgres -> web
+  scheduler -> web
   static -> web
   worker -> web
   datastream -> worker
