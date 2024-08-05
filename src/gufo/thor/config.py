@@ -120,9 +120,6 @@ class CliConfig(object):
 
     Should not be set by user. Populated
     from CLI options.
-
-    Attributes:
-        ...
     """
 
 
