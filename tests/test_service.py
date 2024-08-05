@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Service tests
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-24, Gufo Labs
 # ---------------------------------------------------------------------
 
 # Python modules
@@ -20,6 +20,7 @@ from gufo.thor.services.base import (
 )
 from gufo.thor.services.clickhouse import clickhouse
 from gufo.thor.services.consul import consul
+from gufo.thor.services.datastream import datastream
 from gufo.thor.services.envoy import envoy
 from gufo.thor.services.liftbridge import liftbridge
 from gufo.thor.services.login import login
@@ -51,6 +52,7 @@ def test_depends_sorted(svc: str) -> None:
                 auth,
                 clickhouse,
                 consul,
+                datastream,
                 envoy,
                 liftbridge,
                 login,
@@ -256,6 +258,8 @@ DEPS_DOT = """digraph {
   postgres -> web
   static -> web
   worker -> web
+  datastream -> worker
+  liftbridge -> worker
   migrate -> worker
   mongo -> worker
   postgres -> worker
