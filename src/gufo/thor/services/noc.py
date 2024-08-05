@@ -7,7 +7,7 @@
 
 # Python Modules
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
@@ -20,7 +20,7 @@ class NocService(BaseService):
     is_noc = True
     name = "noc"
     _config_prepared = False
-    _volumes_prepared = False
+    _volumes_config_prepared = False
 
     def get_compose_image(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
@@ -54,8 +54,11 @@ class NocService(BaseService):
 
         Mount repo and custom when necessary.
         """
-        # Config
-        r: List[str] = ["./etc/noc/settings.yml:/opt/noc/etc/settings.yml:ro"]
+        # Config + crashinfo
+        r: List[str] = [
+            "./etc/noc/settings.yml:/opt/noc/etc/settings.yml:ro",
+            "crashinfo:/var/lib/noc/cp/crashinfo/new",
+        ]
         # Mount NOC repo inside an image
         if config.noc.path:
             r.append(f"{config.noc.path}:/opt/noc:cached")
@@ -94,6 +97,15 @@ class NocService(BaseService):
             theme=config.noc.theme,
         )
         self._config_prepared = True
+
+    def get_compose_volumes_config(
+        self: "NocService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[Dict[str, Dict[str, Any]]]:
+        """Generate crashinfo volume."""
+        if self._volumes_config_prepared:
+            return None  # Already prepared from other subclass
+        self._volumes_config_prepared = True
+        return {"crashinfo": {}}
 
 
 class NocHcService(NocService):

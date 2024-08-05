@@ -68,6 +68,15 @@ noc:
     installation_name: "ACME INC"
 ```
 
+### migrate { #noc-migrate }
+
+Run migrations on start. Has default value `True`.
+
+``` yaml
+noc:
+    migrate: true
+```
+
 ## Expose Section { #expose }
 
 Web interface entrypoint configuration.

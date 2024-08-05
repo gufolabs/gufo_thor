@@ -28,6 +28,7 @@ class NocConfig(object):
         installation_name: The installation name which will be shown
             in the interface.
         theme: Web interface theme. One of: `noc`, `gray`.
+        migrate: Run migrations on start
     """
 
     tag: str = "master"
@@ -35,6 +36,7 @@ class NocConfig(object):
     custom: Optional[str] = None
     installation_name: str = "Unconfigured Installation"
     theme: Literal["noc", "gray"] = "noc"
+    migrate: bool = True
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "NocConfig":
@@ -120,10 +122,8 @@ class CliConfig(object):
     from CLI options.
 
     Attributes:
-        no_migrations: Skip migrations if true.
+        ...
     """
-
-    no_migrate: bool = False
 
 
 @dataclass

@@ -50,9 +50,9 @@ class MigrateService(NocService):
 
         Considers config.cli.no_migrations option.
         """
-        if config.cli.no_migrate:
-            return "/bin/true"
-        return self.compose_command
+        if config.noc.migrate:
+            return self.compose_command
+        return "/bin/true"
 
     def get_compose_volumes(
         self: "MigrateService", config: Config, svc: Optional[ServiceConfig]

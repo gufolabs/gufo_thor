@@ -77,6 +77,9 @@ class Cli(object):
         # up
         up_parser = subparsers.add_parser("up", help="Set up and launch NOC")
         up_parser.add_argument(
+            "--migrate", action="store_true", help="Run migrations"
+        )
+        up_parser.add_argument(
             "--no-migrate", action="store_true", help="Skip migrations on run"
         )
         # down
@@ -189,9 +192,11 @@ class Cli(object):
 
     def handle_up(self: "Cli", ns: argparse.Namespace) -> ExitCode:
         """Prepare NOC configuration and run NOC."""
-        # --no-migrations
-        if ns.no_migrate:
-            self.config.cli.no_migrate = True
+        # Migrate status
+        if ns.migrate:
+            self.config.noc.migrate = True
+        elif ns.no_migrate:
+            self.config.noc.migrate = False
         #
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:

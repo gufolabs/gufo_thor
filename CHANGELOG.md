@@ -12,10 +12,16 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Unreleased]
 
+### Added
+
+* `noc.migrate` config option.
+* `gufo-thor --migrate` option.
+
 ### Changed
 
 * Do not write `version` attribute to `docker-compose.yml`.
-* Do not override the container's /opt/noc/ui/pkg.
+* Do not override the container's `/opt/noc/ui/pkg`.
+* `worker` service depends on `liftbridge` and `datastream`.
 
 ## 0.5.0 - 2024-04-20
 
