@@ -86,6 +86,13 @@ class Cli(object):
         subparsers.add_parser("stop", help="Stop NOC")
         # shell
         subparsers.add_parser("shell", help="Run shell")
+        # Restart
+        restart_parser = subparsers.add_parser(
+            "restart", help="Restart service"
+        )
+        restart_parser.add_argument(
+            "services", nargs=argparse.ONE_OR_MORE, help="Service names"
+        )
         # Parse arguments
         ns = parser.parse_args(args)
         # Set up logging
@@ -209,7 +216,12 @@ class Cli(object):
         if self.config.expose.open_browser:
             logger.warning("Starting browser")
             with contextlib.suppress(subprocess.CalledProcessError):
-                subprocess.check_output(["open", url])
+                try:
+                    subprocess.check_output(["open", url])
+                except FileNotFoundError:
+                    logger.warning(
+                        "Cannot start browser. Command `open` is not found"
+                    )
         #
         return ExitCode.OK
 
@@ -225,6 +237,15 @@ class Cli(object):
         if r != ExitCode.OK:
             return r
         if not docker.shell():
+            return ExitCode.ERR
+        return ExitCode.OK
+
+    def handle_restart(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+        """Restart services."""
+        r = self.handle_prepare(ns)
+        if r != ExitCode.OK:
+            return r
+        if not docker.restart(ns.services):
             return ExitCode.ERR
         return ExitCode.OK
 
