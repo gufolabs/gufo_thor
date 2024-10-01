@@ -245,7 +245,7 @@ class Cli(object):
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
             return r
-        if not docker.restart(ns.services):
+        if not docker.restart(*ns.services):
             return ExitCode.ERR
         return ExitCode.OK
 

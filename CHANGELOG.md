@@ -16,6 +16,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * Do not raise exception when cannot start browser.
 
+### Added
+
+* `restart` command.
+
 ## 0.6.0 - 2024-08-05
 
 ### Added

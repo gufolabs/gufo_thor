@@ -135,6 +135,19 @@ class Docker(object):
         logger.warning("Stopping containers")
         return self._commpose_command("stop")
 
+    def restart(self: "Docker", *args: str) -> bool:
+        """
+        Perform services restart.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        logger.warning("Restarting containers: %s", ", ".join(args))
+        return self._commpose_command(
+            *("stop", *args)
+        ) and self._commpose_command(*("up", "-d", *args))
+
     def shell(self: "Docker") -> bool:
         """
         Run shell in container.
