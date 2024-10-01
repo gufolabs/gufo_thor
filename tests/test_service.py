@@ -22,7 +22,7 @@ from gufo.thor.services.clickhouse import clickhouse
 from gufo.thor.services.consul import consul
 from gufo.thor.services.datastream import datastream
 from gufo.thor.services.envoy import envoy
-from gufo.thor.services.liftbridge import liftbridge
+from gufo.thor.services.kafka import kafka
 from gufo.thor.services.login import login
 from gufo.thor.services.migrate import migrate
 from gufo.thor.services.mongo import mongo
@@ -55,7 +55,7 @@ def test_depends_sorted(svc: str) -> None:
                 consul,
                 datastream,
                 envoy,
-                liftbridge,
+                kafka,
                 login,
                 migrate,
                 mongo,
@@ -133,7 +133,7 @@ def test_migrate_deps(svc: str) -> None:
         assert (
             migrate in deps
         ), "Depends on `clickhouse`, must depend on `migrate`"
-    if liftbridge in deps:
+    if kafka in deps:
         assert (
             migrate in deps
         ), "Depends on `liftbridge`, must depend on `migrate`"

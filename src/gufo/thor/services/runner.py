@@ -11,7 +11,7 @@ Attributes:
 """
 
 # Gufo Thor modules
-from .liftbridge import liftbridge
+from .kafka import kafka
 from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
@@ -21,7 +21,7 @@ class RunnerService(NocService):
     """runner service."""
 
     name = "runner"
-    dependencies = (liftbridge, migrate, mongo)
+    dependencies = (kafka, migrate, mongo)
     allow_scale = False
     require_slots = False
 

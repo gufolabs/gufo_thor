@@ -12,7 +12,7 @@ Attributes:
 
 # Gufo Thor modules
 from .datastream import datastream
-from .liftbridge import liftbridge
+from .kafka import kafka
 from .migrate import migrate
 from .noc import NocService
 
@@ -21,7 +21,7 @@ class TrapcollectorService(NocService):
     """trapcollector service."""
 
     name = "trapcollector"
-    dependencies = (datastream, liftbridge, migrate)
+    dependencies = (datastream, kafka, migrate)
 
 
 trapcollector = TrapcollectorService()

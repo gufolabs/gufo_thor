@@ -11,7 +11,7 @@ Attributes:
 """
 
 # Gufo Thor modules
-from .liftbridge import liftbridge
+from .kafka import kafka
 from .migrate import migrate
 from .noc import NocService
 from .sae import sae
@@ -21,7 +21,7 @@ class ActivatorService(NocService):
     """activator service."""
 
     name = "activator"
-    dependencies = (liftbridge, migrate, sae)
+    dependencies = (kafka, migrate, sae)
 
 
 activator = ActivatorService()

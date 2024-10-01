@@ -7,3 +7,7 @@ pg:
 web:
   theme: >
     {{theme}}
+msgstream:
+  client_class: noc.core.msgstream.redpanda.RedPandaClient
+redpanda:
+  addresses: kafka:9092

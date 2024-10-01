@@ -11,7 +11,7 @@ Attributes:
 """
 
 # Gufo Thor modules
-from .liftbridge import liftbridge
+from .kafka import kafka
 from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
@@ -22,7 +22,7 @@ class ClassifierService(NocService):
     """classifier service."""
 
     name = "classifier"
-    dependencies = (liftbridge, migrate, mongo, postgres)
+    dependencies = (kafka, migrate, mongo, postgres)
 
 
 classifier = ClassifierService()

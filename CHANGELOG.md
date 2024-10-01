@@ -20,6 +20,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * `restart` command.
 
+### Changed
+
+* `liftbridge` service replaced with `kafka`
+
 ## 0.6.0 - 2024-08-05
 
 ### Added

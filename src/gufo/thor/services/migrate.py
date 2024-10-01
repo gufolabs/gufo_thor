@@ -20,7 +20,7 @@ from gufo.thor.config import Config, ServiceConfig
 from .base import ComposeDependsCondition
 from .clickhouse import clickhouse
 from .consul import consul
-from .liftbridge import liftbridge
+from .kafka import kafka
 from .mongo import mongo
 from .noc import NocService
 from .postgres import postgres
@@ -38,7 +38,7 @@ class MigrateService(NocService):
     """
 
     name = "migrate"
-    dependencies = (clickhouse, consul, liftbridge, mongo, postgres)
+    dependencies = (clickhouse, consul, kafka, mongo, postgres)
     compose_depends_condition = ComposeDependsCondition.COMPLETED_SUCCESSFULLY
     compose_command = "./scripts/deploy/migrate.sh"
 

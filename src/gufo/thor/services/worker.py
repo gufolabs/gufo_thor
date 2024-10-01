@@ -12,7 +12,7 @@ Attributes:
 
 # Gufo Thor modules
 from .datastream import datastream
-from .liftbridge import liftbridge
+from .kafka import kafka
 from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
@@ -23,7 +23,7 @@ class WorkerService(NocService):
     """worker service."""
 
     name = "worker"
-    dependencies = (datastream, liftbridge, migrate, mongo, postgres)
+    dependencies = (datastream, kafka, migrate, mongo, postgres)
     allow_scale = True
     require_slots = True
 
