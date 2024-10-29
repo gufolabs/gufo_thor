@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: noc service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-24, Gufo Labs
 # ---------------------------------------------------------------------
 """NocService base class."""
 
@@ -9,8 +9,12 @@
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+# Third-party modules
+import yaml
+
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from ..utils import merge_dict, write_file
 from .base import BaseService, ComposeDependsCondition
 
 
@@ -90,12 +94,27 @@ class NocService(BaseService):
         """
         if self._config_prepared:
             return  # Already configured from other subclass
-        NocService.render_file(
-            Path("etc", "noc", "settings.yml"),
-            "settings.yml",
-            installation_name=config.noc.installation_name,
-            theme=config.noc.theme,
-        )
+        # Build default config
+        cfg = {
+            "installation_name": config.noc.installation_name,
+            "pg": {
+                "db": "noc",
+                "user": "noc",
+                "password": "noc",
+            },
+            "web": {
+                "theme": config.noc.theme,
+            },
+            "msgstream": {
+                "client_class": "noc.core.msgstream.redpanda.RedPandaClient",
+            },
+            "redpanda": {"addresses": "kafka:9092"},
+        }
+        # Apply user config
+        if config.noc.config:
+            cfg = merge_dict(cfg, config.noc.config)
+        # Write
+        write_file(Path("etc", "noc", "settings.yml"), yaml.dump(cfg))
         self._config_prepared = True
 
     def get_compose_volumes_config(

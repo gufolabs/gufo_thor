@@ -20,7 +20,7 @@ class KafkaService(BaseService):
     name = "kafka"
     compose_image = "bitnami/kafka:3.6.2"
     compose_volumes = [
-        "kafka_data:/data/",
+        "kafka_data:/bitnami/data/",
     ]
     compose_volumes_config = {"kafka_data": {}}
     service_discovery = {"kafka": 9093}

@@ -29,6 +29,7 @@ class NocConfig(object):
             in the interface.
         theme: Web interface theme. One of: `noc`, `gray`.
         migrate: Run migrations on start
+        config: User-defined config.
     """
 
     tag: str = "master"
@@ -37,6 +38,7 @@ class NocConfig(object):
     installation_name: str = "Unconfigured Installation"
     theme: Literal["noc", "gray"] = "noc"
     migrate: bool = True
+    config: Optional[Dict[str, Any]] = None
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "NocConfig":

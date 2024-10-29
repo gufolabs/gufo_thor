@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Various utilities
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023--24, Gufo Labs
 # ---------------------------------------------------------------------
 """Various utilities."""
 
@@ -9,7 +9,7 @@
 import os
 import shutil
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 # Gufo Thor modules
 from .log import logger
@@ -59,3 +59,35 @@ def ensure_directory(path: Path) -> None:
         return
     logger.warning("Creating directory %s", path)
     os.makedirs(path)
+
+
+def merge_dict(x: Dict[str, Any], y: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Deep merge dictionaries.
+
+    Do not affect source dictionaries.
+    Second dictionary overrides first.
+
+    Args:
+        x: First dictionary.
+        y: Second dictionary.
+
+    Returns:
+        Merged dictionary.
+    """
+    r: Dict[str, Any] = {}
+    xk = set(x)
+    yk = set(y)
+    # Append keys which are only in first dictionary
+    for k in xk - yk:
+        r[k] = x[k]
+    # Append keys which are only in second dictionary
+    for k in yk - xk:
+        r[k] = y[k]
+    # Merge overlapped keys
+    for k in xk.intersection(yk):
+        if isinstance(x[k], dict) and isinstance(y[k], dict):
+            r[k] = merge_dict(x[k], y[k])
+        else:
+            r[k] = y[k]
+    return r
