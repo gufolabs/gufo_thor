@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: envoy service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-24, Gufo Labs
 # ---------------------------------------------------------------------
 """
 envoy service.
@@ -72,6 +72,13 @@ class Route(object):
     prefix_rewrite: Optional[str] = None
     redirect_to: Optional[str] = None
 
+    @property
+    def cluster(self: "Route") -> str:
+        """Get cluster name."""
+        if self.name == "/index.html":
+            return "web_cluster"
+        return f"{self.name}_cluster"
+
 
 class EnvoyService(BaseService):
     """envoy service."""
@@ -133,13 +140,29 @@ class EnvoyService(BaseService):
                 )
             )
             if s.name == "web":
+                # Add redirect from legacy desktop
+                routes.append(
+                    Route(
+                        name="Redirect /main/desktop/ -> /index.html",
+                        prefix="/main/desktop/",
+                        disable_auth=True,
+                        redirect_to="/index.html",
+                    )
+                )
                 # Add redirect to desktop
                 routes.append(
                     Route(
-                        name="Redirect / -> /main/desktop/",
+                        name="Redirect / -> /index.html",
                         prefix="/",
                         disable_auth=True,
-                        redirect_to="/main/desktop/",
+                        redirect_to="/index.html",
+                    )
+                )
+                routes.append(
+                    Route(
+                        name="/index.html",
+                        prefix="/index.html",
+                        disable_auth=True,
                     )
                 )
         routes = sorted(

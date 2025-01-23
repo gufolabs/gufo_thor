@@ -38,7 +38,7 @@ static_resources:
                         - match:
                             prefix: "{{ route.prefix }}"
                           route:
-                            cluster: "{{ route.name }}_cluster"
+                            cluster: "{{ route.cluster }}"
                             # {% if route.prefix_rewrite %}
                             prefix_rewrite: "{{ route.prefix_rewrite }}"
                             # {% endif %}
@@ -119,7 +119,7 @@ static_resources:
                       headers_to_add:
                         - header:
                             key: location
-                            value: /ui/login/index.html?uri=%REQ(:path)%
+                            value: /index.html?uri=%REQ(:path)%
                           append_action: OVERWRITE_IF_EXISTS_OR_ADD
                       body:
                         inline_string: ""

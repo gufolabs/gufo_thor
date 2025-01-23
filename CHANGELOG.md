@@ -18,6 +18,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ### Added
 
+* Unified login support.
 * `restart` command.
 * `noc.config` section.
 
