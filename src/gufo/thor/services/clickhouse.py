@@ -27,6 +27,7 @@ class ClickhouseService(BaseService):
         "retries": 3,
     }
     compose_volumes = [
+        "./etc/clickhouse/users.d:/etc/clickhouse-server/users.d",
         "clickhouse_data:/var/lib/clickhouse",
     ]
     compose_volumes_config = {"clickhouse_data": {}}
