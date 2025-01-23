@@ -159,11 +159,11 @@ def test_envoy_http_auth(svc: str) -> None:
 
 
 DEPS_DOT = """digraph {
-  liftbridge -> activator
+  kafka -> activator
   migrate -> activator
   sae -> activator
   envoy -> auth
-  liftbridge -> auth
+  kafka -> auth
   migrate -> auth
   mongo -> auth
   auth -> bi
@@ -172,6 +172,7 @@ DEPS_DOT = """digraph {
   login -> bi
   migrate -> bi
   static -> bi
+  web -> bi
   auth -> card
   clickhouse -> card
   envoy -> card
@@ -180,14 +181,15 @@ DEPS_DOT = """digraph {
   mongo -> card
   postgres -> card
   static -> card
+  web -> card
   clickhouse -> chwriter
-  liftbridge -> chwriter
+  kafka -> chwriter
   migrate -> chwriter
-  liftbridge -> classifier
+  kafka -> classifier
   migrate -> classifier
   mongo -> classifier
   postgres -> classifier
-  liftbridge -> correlator
+  kafka -> correlator
   migrate -> correlator
   mongo -> correlator
   postgres -> correlator
@@ -207,7 +209,7 @@ DEPS_DOT = """digraph {
   static -> login
   clickhouse -> migrate
   consul -> migrate
-  liftbridge -> migrate
+  kafka -> migrate
   mongo -> migrate
   postgres -> migrate
   auth -> nbi
@@ -216,9 +218,9 @@ DEPS_DOT = """digraph {
   mongo -> nbi
   postgres -> nbi
   datastream -> ping
-  liftbridge -> ping
+  kafka -> ping
   migrate -> ping
-  liftbridge -> runner
+  kafka -> runner
   migrate -> runner
   mongo -> runner
   migrate -> sae
@@ -236,13 +238,13 @@ DEPS_DOT = """digraph {
   worker -> shell
   envoy -> static
   datastream -> syslogcollector
-  liftbridge -> syslogcollector
+  kafka -> syslogcollector
   migrate -> syslogcollector
   datastream -> topo
-  liftbridge -> topo
+  kafka -> topo
   migrate -> topo
   datastream -> trapcollector
-  liftbridge -> trapcollector
+  kafka -> trapcollector
   migrate -> trapcollector
   auth -> ui
   envoy -> ui
@@ -262,7 +264,7 @@ DEPS_DOT = """digraph {
   static -> web
   worker -> web
   datastream -> worker
-  liftbridge -> worker
+  kafka -> worker
   migrate -> worker
   mongo -> worker
   postgres -> worker
