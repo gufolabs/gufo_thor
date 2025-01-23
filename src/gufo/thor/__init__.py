@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """
 Simple NOC management tool.
@@ -9,4 +9,4 @@ Simple NOC management tool.
 Attributes:
     __version__: Gufo Thor version
 """
-__version__: str = "0.6.0"
+__version__: str = "0.7.0"
