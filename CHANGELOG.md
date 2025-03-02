@@ -15,6 +15,11 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 ### Added
 
 * Kafka flushes every message on single-node installations.
+* `expose.web` setting.
+
+### Changed
+
+* `expose.port` replaced with `expose.web.port` settings.
 
 ### Infrastructure
 

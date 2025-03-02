@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Command-line utility
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """
 `gufo-thor` command-line utility.
@@ -193,8 +193,8 @@ class Cli(object):
         """
         cfg = self.config
         parts = ["https://", cfg.expose.domain_name]
-        if cfg.expose.port != DEFAULT_HTTPS_PORT:
-            parts.append(f":{cfg.expose.port}")
+        if cfg.expose.web and cfg.expose.web.port != DEFAULT_HTTPS_PORT:
+            parts.append(f":{cfg.expose.web.port}")
         parts.append("/")
         return "".join(parts)
 
@@ -205,7 +205,6 @@ class Cli(object):
             self.config.noc.migrate = True
         elif ns.no_migrate:
             self.config.noc.migrate = False
-        #
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
             return r
@@ -223,7 +222,6 @@ class Cli(object):
                     logger.warning(
                         "Cannot start browser. Command `open` is not found"
                     )
-        #
         return ExitCode.OK
 
     def handle_stop(self: "Cli", ns: argparse.Namespace) -> ExitCode:

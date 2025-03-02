@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: envoy service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-24, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """
 envoy service.
@@ -109,7 +109,9 @@ class EnvoyService(BaseService):
         self: "EnvoyService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """Get ports section."""
-        return [f"{config.expose.port}:443"]
+        if config.expose.web:
+            return [config.expose.web.docker_compose_port(443)]
+        return None
 
     def prepare_compose_config(
         self: "EnvoyService",
@@ -119,11 +121,11 @@ class EnvoyService(BaseService):
     ) -> None:
         """Generate config."""
         # Generate domain_name_and_port
-        if config.expose.port == HTTPS:
+        if not config.expose.web or config.expose.web.port == HTTPS:
             domain_name_and_port = config.expose.domain_name
         else:
             domain_name_and_port = (
-                f"{config.expose.domain_name}:{config.expose.port}"
+                f"{config.expose.domain_name}:{config.expose.web.port}"
             )
         # Generate routes
         routes: List[Route] = []

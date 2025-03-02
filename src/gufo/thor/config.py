@@ -1,17 +1,25 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Command-line utility
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """Config data structures."""
 
 # Python Modules
 from dataclasses import dataclass
 from importlib import resources
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal, Optional, Union
 
 # Third-party modules
 import yaml
+
+# Gufo Thor modules
+from .log import logger
+
+LOCALHOST = "127.0.0.1"
+ALL = "0.0.0.0"
+
+DEFAULT_WEB_PORT = 32777
 
 
 @dataclass
@@ -55,6 +63,65 @@ class NocConfig(object):
 
 
 @dataclass
+class Listen(object):
+    """
+    Listener configuration.
+
+    Used to proxy host's ports into the container.
+
+    Accepts formats:
+    ```
+    * <port>
+    * "<port>"
+    * "<address>:<port>"
+    * {"port": <port>}
+    * {"address": "<address>", "port": <port>}
+    ```
+
+    Attributes:
+        address: Listen address.
+        port: Listen port.
+    """
+
+    address: str
+    port: int
+
+    @staticmethod
+    def from_dict(data: Union[dict[str, Any], int, str]) -> "Listen":
+        """
+        Generate listener from data.
+
+        Args:
+            data: Incoming data.
+
+        Returns:
+            A configured Listener instance.
+        """
+        if isinstance(data, int):
+            return Listen(address=LOCALHOST, port=data)
+        if isinstance(data, str):
+            if ":" in data:
+                addr, port = data.rsplit(":", 1)
+                return Listen(address=addr, port=int(port))
+            return Listen(address=LOCALHOST, port=int(data))
+        return Listen(
+            address=data.get("address", LOCALHOST), port=data["port"]
+        )
+
+    def docker_compose_port(self: "Listen", container_port: int) -> str:
+        """
+        Generate configuration for port forwarding.
+
+        Args:
+            container_port: Port in the container.
+
+        Returns:
+            Port configuration for docker compose.
+        """
+        return f"{self.address}:{self.port}:{container_port}"
+
+
+@dataclass
 class ExposeConfig(object):
     """
     The `expose` section of the config.
@@ -62,11 +129,13 @@ class ExposeConfig(object):
     Attributes:
         domain_name: A domain name through which the NOC's user interface
             will be accessed in browser.
-        port: An HTTPS port of the NOC's user interface.
+        web: Web listener configuration.
+        port: An HTTPS port of the NOC's user interface (deprecated).
+        open_browser: Open browser on startup.
     """
 
     domain_name: str = "go.getnoc.com"
-    port: int = 32777
+    web: Optional[Listen] = None
     open_browser: bool = True
 
     @staticmethod
@@ -75,11 +144,27 @@ class ExposeConfig(object):
         Generate ExposeConfig instance from a dictionary.
 
         Args:
-        data: Incoming data.
+            data: Incoming data.
 
         Returns:
-        A configured ExposeConfig instance.
+            A configured ExposeConfig instance.
         """
+        data = data.copy()
+        # Decode web
+        if "web" in data:
+            data["web"] = Listen.from_dict(data["web"])
+        elif "port" in data:
+            data["web"] = Listen.from_dict(data["port"])
+        else:
+            data["web"] = Listen(address=LOCALHOST, port=DEFAULT_WEB_PORT)
+        # Deprecated port option
+        if data.get("port"):
+            port = data.pop("port")
+            logger.warning("Using obsolete `expose.port` configuration.")
+            logger.warning("In thor.yml replace:")
+            logger.warning(">>>>>\nexpose:\n  port: %s\n<<<<<", port)
+            logger.warning("with:")
+            logger.warning(">>>>>\nexpose:\n  web:\n    port: %s\n<<<<<", port)
         return ExposeConfig(**data)
 
 

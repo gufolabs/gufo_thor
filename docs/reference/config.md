@@ -98,13 +98,15 @@ expose:
     domain_name: go.getnoc.com
 ```
 
-### port { #expose-port }
+### web { #expose-web }
 
-Web interface port. `32777` is used by default.
+Web interface address and port.
 
 ```
 expose:
-    port: 32777
+    web:
+        address: 127.0.0.1
+        port: 32777
 ```
 
 ### open_browser { #expose-open-browser }

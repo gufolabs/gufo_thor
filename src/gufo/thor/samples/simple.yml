@@ -6,6 +6,7 @@ noc:
   theme: noc
 expose:
   domain_name: go.getnoc.com
-  port: 32777
+  web:
+    port: 32777
   open_browser: true
 services: [web, card, shell]
