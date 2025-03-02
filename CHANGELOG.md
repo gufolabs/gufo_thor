@@ -16,6 +16,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * Kafka flushes every message on single-node installations.
 
+### Infrastructure
+
+* Use `ruff` for formatting
+
 ## 0.7.0 - 2025-01-23
 
 ### Fixed

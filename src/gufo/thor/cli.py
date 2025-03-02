@@ -9,6 +9,7 @@
 Attributes:
     NAME: Utility name
 """
+
 # Python modules
 import argparse
 import contextlib

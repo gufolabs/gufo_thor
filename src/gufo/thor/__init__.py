@@ -9,4 +9,5 @@ Simple NOC management tool.
 Attributes:
     __version__: Gufo Thor version
 """
+
 __version__: str = "0.7.0"

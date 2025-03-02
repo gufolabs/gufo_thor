@@ -52,7 +52,7 @@ jobs:
         run: pip install -IU -r ./.requirements/deps.txt -r ./.requirements/lint.txt -r ./.requirements/test.txt
 
       - name: Check Formatting
-        run: black --check src/ tests/
+        run: ruff format --check src/ tests/
 
       - name: Check Ruff
         run: ruff -q src/ tests/
