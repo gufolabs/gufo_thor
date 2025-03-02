@@ -34,6 +34,10 @@ class KafkaService(BaseService):
         "KAFKA_CFG_CONTROLLER_QUORUM_VOTERS": "0@kafka:9093",
         "KAFKA_CFG_CONTROLLER_LISTENER_NAMES": "CONTROLLER",
         "KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE": "false",
+        # Enable fsync on sigle-node installation
+        "KAFKA_CFG_LOG_FLUSH_INTERVAL_MESSAGES": "1",
+        "KAFKA_CFG_LOG_FLUSH_INTERVAL_MS": "1000",
+        "KAFKA_CFG_LOG_FLUSH_SCHEDULER_INTERVAL_MS": "1000",
     }
 
 
