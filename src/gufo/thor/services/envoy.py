@@ -13,9 +13,13 @@ Attributes:
 # Python modules
 import http.client
 import os
+import ssl
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+# Third-party modules
+import certifi
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
@@ -212,7 +216,10 @@ class EnvoyService(BaseService):
         Returns:
             Siged CSR.
         """
-        conn = http.client.HTTPSConnection(csr_proxy)
+        conn = http.client.HTTPSConnection(
+            csr_proxy,
+            context=ssl.create_default_context(cafile=certifi.where()),
+        )
         conn.request("POST", "/v1/sign", body=csr)
         resp = conn.getresponse()
         if resp.status == HTTP_OK:

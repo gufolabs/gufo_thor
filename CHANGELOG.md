@@ -12,6 +12,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Unreleased]
 
+### Fixed
+
+* CSR Proxy client uses Certifi's root CA list implicitly.
+
 ### Added
 
 * Kafka flushes every message on single-node installations.
