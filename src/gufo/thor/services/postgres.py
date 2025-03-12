@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: postgres service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """
 postgres service.
@@ -27,7 +27,10 @@ class PostgresService(BaseService):
         "start_period": "1s",
         "retries": 10,
     }
-    compose_volumes = ["postgres_data:/var/lib/postgresql/data"]
+    compose_volumes = [
+        "postgres_data:/var/lib/postgresql/data",
+        "backup:/var/lib/postgres/backup",
+    ]
     compose_volumes_config = {"postgres_data": {}}
     compose_environment = {
         "POSTGRES_DB": "noc",

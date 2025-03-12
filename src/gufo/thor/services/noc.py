@@ -14,7 +14,7 @@ import yaml
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
-from ..utils import merge_dict, write_file
+from ..utils import ensure_directory, merge_dict, write_file
 from .base import BaseService, ComposeDependsCondition
 
 
@@ -115,16 +115,37 @@ class NocService(BaseService):
             cfg = merge_dict(cfg, config.noc.config)
         # Write
         write_file(Path("etc", "noc", "settings.yml"), yaml.dump(cfg))
+        # Ensure directories
+        ensure_directory(Path("data", "crashinfo"))
+        ensure_directory(Path("data", "backup"))
+        # Mark as ready
         self._config_prepared = True
 
     def get_compose_volumes_config(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Dict[str, Any]]]:
-        """Generate crashinfo volume."""
+        """Generate crashinfo and backup volume."""
         if self._volumes_config_prepared:
             return None  # Already prepared from other subclass
         self._volumes_config_prepared = True
-        return {"crashinfo": {}}
+        return {
+            "crashinfo": {
+                "driver": "local",
+                "driver_opts": {
+                    "type": "bind",
+                    "device": "./data/crashinfo",
+                    "o": "bind",
+                },
+            },
+            "backup": {
+                "driver": "local",
+                "driver_opts": {
+                    "type": "bind",
+                    "device": "./data/backup",
+                    "o": "bind",
+                },
+            },
+        }
 
 
 class NocHcService(NocService):

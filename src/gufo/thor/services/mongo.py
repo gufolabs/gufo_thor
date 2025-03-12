@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: mongo service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """
 mongo service.
@@ -28,7 +28,7 @@ class MongoService(BaseService):
         "retries": 10,
     }
     compose_command = "--wiredTigerCacheSizeGB 1.5 --bind_ip_all"
-    compose_volumes = ["mongo_data:/data/db"]
+    compose_volumes = ["mongo_data:/data/db", "backup:/data/backup"]
     compose_volumes_config = {"mongo_data": {}}
     service_discovery = {"mongo": 27017}
 

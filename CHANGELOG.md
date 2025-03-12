@@ -20,10 +20,12 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * Kafka flushes every message on single-node installations.
 * `expose.web` setting.
+* `backup` volume.
 
 ### Changed
 
 * `expose.port` replaced with `expose.web.port` settings.
+* `crashinfo` volume exposed to local filesystem.
 
 ### Infrastructure
 
