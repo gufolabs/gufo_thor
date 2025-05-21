@@ -88,7 +88,7 @@ jobs:
         run: pip install --upgrade build
 
       - name: Install Dependencies
-        run: pip install -IU -r -e .[deps,test]
+        run: pip install -IU -e .[deps,test]
 
       - name: Run Tests
         run: coverage run -m pytest -v
