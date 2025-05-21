@@ -1,11 +1,10 @@
 syntax: glob
 .*
-!.coveragerc
 !.gitignore
+!.dockerignore
 !.gitkeep
 !.devcontainer/
 !.github/
-!.requirements/
 *.pyc
 *.pyo
 build/

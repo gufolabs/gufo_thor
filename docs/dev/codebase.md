@@ -11,14 +11,6 @@ The code base of the project has following structure:
     * `workflows/` - [GitHub Actions Workflows][GitHub Workflows] settings.
       Used to run tests and build the documentation.
 
-* `.requirements/` - Python dependencies for development environment.
-
-    * `deps.txt` - Gufo Thor dependencies.
-    * `docs.txt` - [Mkdocs Material][Mkdocs Material] dependencies.
-    * `ipython.txt` - [IPython] dependencies.
-    * `lint.txt` - [Ruff][Ruff], and [Mypy][Mypy] dependencies.
-    * `test.txt` - [Pytest][Pytest] dependencies.
-
 * `docs/` - [Mkdocs][Mkdocs] documentation.
 * `src/gufo/thor/` - Project's source code.
   * `samples` - `thor.yml` condif samples.

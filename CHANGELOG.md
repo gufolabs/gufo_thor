@@ -29,8 +29,9 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ### Infrastructure
 
-* Use `ruff` for formatting
-* Move CI lint to separate step
+* Use `ruff` for formatting.
+* Move CI lint to separate step.
+* Move dependencies from `.requirements/` to `pyproject.toml`.
 
 ## 0.7.0 - 2025-01-23
 
