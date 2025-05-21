@@ -5,10 +5,6 @@ requires = [
   "wheel",
 ]
 
-[tool.black]
-line-length = 79
-target-version = ['py39']
-
 [tool.coverage.report]
 exclude_lines = [
   "if TYPE_CHECKING", # Disable type-checking imports

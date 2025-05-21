@@ -35,12 +35,12 @@ requirement in our [Code Quality](codequality.md) standards. To check code
 formatting run:
 
 ```
-$ black --check examples/ src/ tests/
+$ ruff format --check examples/ src/ tests/
 ```
 
 To fix formatting errors run:
 ```
-$ black src/ tests/
+$ ruff format src/ tests/
 ```
 
 We recommend setting python code formatting on file saving
