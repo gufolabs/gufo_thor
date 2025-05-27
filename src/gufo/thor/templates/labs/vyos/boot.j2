@@ -1,0 +1,49 @@
+interfaces {
+    {% if router_id -%}
+    loopback lo {
+       address {{ router_id }}/32
+    }
+    {%- endif %}
+    {%- for iface in eth_interfaces %}
+    ethernet {{ iface.name }} {
+        description "{{ iface.description }}"
+        address {{ iface.address }}
+        ipv6 {
+            no-default-link-local
+        }
+    }
+    {%- endfor %}
+}
+system {
+    host-name {{ hostname }}
+    ipv6 {
+        disable
+    }
+}
+{%- if has_protocols %}
+protocols {
+    {% if has_isis -%}
+    isis {
+        {%- for iface in eth_interfaces %}
+        {%- if iface.is_isis %}
+        interface {{ iface.name }} {
+            hello-padding
+            {%- if iface.isis_metric %}
+            metric {{ iface.isis_metric }}
+            {%- endif %}
+            network {
+               point-to-point
+            }
+        }
+        {%- endif %}
+        {%- endfor %}
+        interface lo {
+            passive
+       }
+       level level-2
+       metric-style wide
+       net {{ isis_net }}
+    }
+    {%- endif %}
+}
+{% endif %}

@@ -75,7 +75,6 @@ class Docker(object):
         has_compose = any(
             True for d in client_plugins if d["Name"] == "compose"
         )
-        #
         cfg = DockerConfig(
             logging_driver=data["LoggingDriver"],
             server_version=data["ServerVersion"],

@@ -19,7 +19,8 @@ import subprocess
 import sys
 from enum import IntEnum
 from functools import cached_property
-from typing import Callable, List
+from pathlib import Path
+from typing import Callable, List, Never, Optional
 
 # Gufo Thor modules
 from . import __version__
@@ -46,6 +47,13 @@ class ExitCode(IntEnum):
 
 class Cli(object):
     """`gufo-thor` CLI utility class."""
+
+    @staticmethod
+    def die(msg: Optional[str] = None) -> Never:
+        """Die with message."""
+        if msg:
+            print(msg)
+        sys.exit(1)
 
     def run(self: "Cli", args: List[str]) -> ExitCode:
         """
@@ -161,9 +169,8 @@ class Cli(object):
         Returns:
             Config instance.
         """
-        path = "thor.yml"
-        with open(path) as fp:
-            return Config.from_yaml(fp.read())
+        path = Path("thor.yml")
+        return Config.from_file(path)
 
     def handle_prepare(self: "Cli", ns: argparse.Namespace) -> ExitCode:
         """Prepare NOC configuration."""

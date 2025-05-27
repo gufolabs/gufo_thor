@@ -5,6 +5,7 @@ which addresses various patterns of usage:
 
 * [simple](#simple) - web-only setup.
 * [common](#common) - web and hardware integration.
+* [lab1](#lab1) - Full hardware integration stack and lab with 3 VyOS routers.
 
 To generate template config use:
 
@@ -27,4 +28,13 @@ and event-processing pipeline.
 
 ``` yaml
 --8<-- "src/gufo/thor/samples/common.yml"
+```
+
+## lab1
+
+Full hardware-integration stack with sample lab with
+3 VyOS routers connected in ring.
+
+``` yaml
+--8<-- "src/gufo/thor/samples/lab1.yml"
 ```

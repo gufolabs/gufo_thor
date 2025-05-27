@@ -1,24 +1,37 @@
 # ---------------------------------------------------------------------
-# Gufo Thor: Command-line utility
+# Gufo Thor: Config
 # ---------------------------------------------------------------------
 # Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """Config data structures."""
 
 # Python Modules
+from collections import defaultdict
 from dataclasses import dataclass
 from importlib import resources
-from typing import Any, Dict, Literal, Optional, Union
+from pathlib import Path
+from typing import (
+    Any,
+    DefaultDict,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    TypedDict,
+    Union,
+    cast,
+)
 
 # Third-party modules
 import yaml
 
+from .ip import IPv4Address, IPv4Prefix
+
 # Gufo Thor modules
 from .log import logger
+from .validator import as_int, as_ipv4, as_str, errors
 
 LOCALHOST = "127.0.0.1"
-ALL = "0.0.0.0"
-
 DEFAULT_WEB_PORT = 32777
 
 
@@ -60,6 +73,16 @@ class NocConfig(object):
             A configured NocConfig instance.
         """
         return NocConfig(**data)
+
+    @staticmethod
+    def default() -> "NocConfig":
+        """
+        Get default NocConfig.
+
+        Returns:
+            NocConfig instance.
+        """
+        return NocConfig()
 
 
 @dataclass
@@ -167,6 +190,16 @@ class ExposeConfig(object):
             logger.warning(">>>>>\nexpose:\n  web:\n    port: %s\n<<<<<", port)
         return ExposeConfig(**data)
 
+    @staticmethod
+    def default() -> "ExposeConfig":
+        """
+        Get default ExposeConfig.
+
+        Returns:
+            ExposeConfig instance.
+        """
+        return ExposeConfig()
+
 
 @dataclass
 class ServiceConfig(object):
@@ -211,6 +244,175 @@ class CliConfig(object):
 
 
 @dataclass
+class LabNodeConfig(object):
+    """The `labs.nodes` section of config."""
+
+    name: str
+    type: str
+    version: Optional[str] = None
+    router_id: Optional[IPv4Address] = None
+
+    @staticmethod
+    def from_dict(
+        name: str, data: Dict[str, Optional[str]]
+    ) -> "LabNodeConfig":
+        """
+        Generate LabNodeConfig from dict.
+
+        Args:
+            name: Node name.
+            data: Incoming data.
+
+        Returns:
+            LabNodeConfig instance.
+        """
+        return LabNodeConfig(
+            name=name,
+            type=as_str(data, "type", required=True),
+            version=as_str(data, "version", required=False),
+            router_id=as_ipv4(data, "router-id", required=False),
+        )
+
+
+@dataclass
+class EmptyLinkProtocolConfig(object):
+    """Empty protocol configuration."""
+
+    @staticmethod
+    def default() -> "EmptyLinkProtocolConfig":
+        """Get default instance."""
+        return EmptyLinkProtocolConfig()
+
+
+@dataclass
+class IsisLinkProtocolConfig(object):
+    """ISIS protocol configuration for link."""
+
+    metric: Optional[int] = None
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "IsisLinkProtocolConfig":
+        """
+        Generate IsisLinkProtocolConfig from dict.
+
+        Args:
+            data: Incoming data.
+
+        Returns:
+            IsisLinkProtocolConfig instance.
+        """
+        return IsisLinkProtocolConfig(
+            metric=as_int(data, "metric", required=False)
+        )
+
+
+class LinkProtocolConfig(TypedDict, total=False):
+    """Protocol settings."""
+
+    isis: IsisLinkProtocolConfig
+
+
+@dataclass
+class LabLinkConfig(object):
+    """Link item."""
+
+    prefix: IPv4Prefix
+    node_a: str
+    node_z: str
+    protocols: LinkProtocolConfig
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "LabLinkConfig":
+        """Create link item from config."""
+        # Build protocols
+        protocols: LinkProtocolConfig = {}
+        with errors.context("protocols"):
+            for proto_name, proto_conf in data.get("protocols", {}).items():
+                match proto_name:
+                    case "isis":
+                        protocols["isis"] = IsisLinkProtocolConfig.from_dict(
+                            proto_conf
+                        )
+                    case _:
+                        errors.error("Unknown protocol")
+        return LabLinkConfig(
+            prefix=IPv4Prefix(as_str(data, "prefix", required=True)),
+            node_a=as_str(data, "node-a", required=True),
+            node_z=as_str(data, "node-z", required=True),
+            protocols=protocols,
+        )
+
+
+@dataclass
+class LabConfig(object):
+    """
+    The `labs` section of the config.
+
+    Attributes:
+        name: lab name.
+        nodes: Nodes configuration.
+    """
+
+    name: str
+    # pool
+    nodes: Dict[str, LabNodeConfig]
+    links: List[LabLinkConfig]
+
+    @staticmethod
+    def from_dict(name: str, data: Dict[str, Any]) -> "LabConfig":
+        """
+        Generate LabConfig instance from a dictionary.
+
+        Args:
+            name: Lab name.
+            data: Incoming data.
+
+        Returns:
+            A configured LabConfig instance.
+        """
+        with errors.context(name):
+            # Process nodes
+            nodes: Dict[str, LabNodeConfig] = {}
+            with errors.context("nodes"):
+                for x, y in data.get("nodes", {}).items():
+                    node_name = str(x)
+                    with errors.context(node_name):
+                        nodes[node_name] = LabNodeConfig.from_dict(
+                            node_name, y
+                        )
+            # Process links
+            links: List[LabLinkConfig] = []
+            with errors.context("links"):
+                for n, x in enumerate(data.get("links", [])):
+                    with errors.context(str(n)):
+                        links.append(LabLinkConfig.from_dict(x))
+            return LabConfig(
+                name=name,
+                nodes=nodes,
+                links=links,
+            )
+
+    def check(self) -> None:
+        """Check config."""
+        # Check router-id for uniqueness
+        # collect
+        seen: DefaultDict[str, List[str]] = defaultdict(list)
+        for node_name, node in self.nodes.items():
+            if node.router_id:
+                seen[str(node.router_id)].append(node_name)
+        # Validate
+        for router_id, node_names in seen.items():
+            if len(node_names) > 1:
+                nl = ", ".join(node_names)
+                for node_name in node_names:
+                    with errors.context(["nodes", node_name, "router-id"]):
+                        errors.error(
+                            f"router-id `{router_id}` is not unique. "
+                            f"Occured in {nl}"
+                        )
+
+
+@dataclass
 class Config(object):
     """
     The Gufo Thor config.
@@ -223,6 +425,7 @@ class Config(object):
         noc: The `noc` section of the config.
         expose: The `expose` section of the config.
         services: The `services` section of the config.
+        labs: The `labs` section of the config.
     """
 
     project: Optional[str]
@@ -230,41 +433,112 @@ class Config(object):
     expose: ExposeConfig
     services: Dict[str, ServiceConfig]
     cli: CliConfig
+    labs: Dict[str, LabConfig]
+
+    @staticmethod
+    def from_file(path: Union[Path, str]) -> "Config":
+        """
+        Read file and return instance of the Config.
+
+        Dies if config contains errors.
+
+        Args:
+            path: File path.
+
+        Returns:
+            Config instance.
+        """
+        try:
+            with open(path) as fp:
+                return Config.from_yaml(fp.read())
+        except OSError as e:
+            errors.die(f"Cannot read file {path}: {e}")
+
+    @staticmethod
+    def _parse_yaml(data: str) -> Dict[str, Any]:
+        cfg = yaml.safe_load(data)
+        if not isinstance(cfg, dict):
+            errors.die("Config must be dict")
+        return cast(Dict[str, Any], cfg)
+
+    @staticmethod
+    def _parse_noc(data: Dict[str, Any]) -> NocConfig:
+        with errors.context("noc"):
+            cfg = data.get("noc")
+            if cfg is None:
+                return NocConfig.default()
+            return NocConfig.from_dict(cfg)
+
+    @staticmethod
+    def _parse_expose(data: Dict[str, Any]) -> ExposeConfig:
+        with errors.context("expose"):
+            cfg = data.get("expose")
+            if cfg is None:
+                return ExposeConfig.default()
+            return ExposeConfig.from_dict(cfg)
+
+    @staticmethod
+    def _parse_services(data: Dict[str, Any]) -> Dict[str, ServiceConfig]:
+        with errors.context("services"):
+            cfg = data.get("services")
+            if not cfg:
+                errors.error("must be set")
+                return {}
+            services: Dict[str, ServiceConfig]
+            if isinstance(cfg, list):
+                services = {x: ServiceConfig.default() for x in cfg}
+            elif isinstance(cfg, dict):
+                services = {
+                    x: ServiceConfig.from_dict(y) for x, y in cfg.items()
+                }
+            else:
+                errors.error(f"services must be list or dict, not {type(cfg)}")
+                services = {}
+            return services
+
+    @staticmethod
+    def _parse_labs(data: Dict[str, Any]) -> Dict[str, LabConfig]:
+        with errors.context("labs"):
+            cfg = data.get("labs")
+            if not cfg:
+                return {}
+            if not isinstance(cfg, dict):
+                errors.error("must be dict")
+                return {}
+            labs: Dict[str, LabConfig] = {}
+            for x, y in cfg.items():
+                lab_name = str(x)
+                lab = LabConfig.from_dict(lab_name, y)
+                with errors.context(lab_name):
+                    lab.check()
+                labs[lab_name] = lab
+            return labs
 
     @staticmethod
     def from_yaml(data: str) -> "Config":
         """
         Parse YAML file and return an instance of the Config.
 
+        Dies if config contains errors.
+
         Args:
             data: String containing YAML config.
-
 
         Returns:
             An Config instance.
         """
-        cfg = yaml.safe_load(data)
-        if not isinstance(cfg, dict):
-            msg = "Config must be dict"
-            raise ValueError(msg)
-        noc_cfg = NocConfig.from_dict(cfg["noc"])
-        expose_cfg = ExposeConfig.from_dict(cfg["expose"])
-        services: Dict[str, ServiceConfig] = {}
-        data_svc: Any = cfg.get("services", [])
-        if isinstance(data_svc, list):
-            services = {x: ServiceConfig.default() for x in data_svc}
-        elif isinstance(data_svc, dict):
-            services = {
-                x: ServiceConfig.from_dict(y) for x, y in data_svc.items()
-            }
-        else:
-            msg = f"services must be list or dict, not {type(data_svc)}"
-            raise ValueError(msg)
+        cfg = Config._parse_yaml(data)
+        noc_cfg = Config._parse_noc(cfg)
+        expose_cfg = Config._parse_expose(cfg)
+        services_cfg = Config._parse_services(cfg)
+        labs_cfg = Config._parse_labs(cfg)
+        errors.check()
         return Config(
             project=cfg.get("project"),
             noc=noc_cfg,
             expose=expose_cfg,
-            services=services,
+            services=services_cfg,
+            labs=labs_cfg,
             cli=CliConfig(),
         )
 
@@ -276,13 +550,12 @@ class Config(object):
         Returns:
             An Config instance
         """
-        noc_cfg = NocConfig()
-        expose_cfg = ExposeConfig()
         return Config(
             project=None,
-            noc=noc_cfg,
-            expose=expose_cfg,
+            noc=NocConfig.default(),
+            expose=ExposeConfig.default(),
             services={},
+            labs={},
             cli=CliConfig(),
         )
 

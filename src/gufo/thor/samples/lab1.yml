@@ -1,0 +1,45 @@
+# Gufo Thor configuration
+version: "1.0"
+noc:
+  tag: master
+  installation_name: Unconfigured Installation
+  theme: noc
+expose:
+  domain_name: go.getnoc.com
+  web:
+    port: 32777
+  open_browser: true
+services: [web, card, shell]
+labs:
+  lab1:
+    nodes:
+      r1:
+        type: vyos
+        version: "1.4"
+        router-id: 10.0.0.1
+      r2:
+        type: vyos
+        version: "1.4"
+        router-id: 10.0.0.2
+      r3:
+        type: vyos
+        version: "1.4"
+        router-id: 10.0.0.3
+    links:
+      - prefix: 10.0.1.0/30
+        node-a: r1
+        node-z: r2
+        protocols:
+          isis:
+            metric: 100
+      - prefix: 10.0.1.4/30
+        node-a: r1
+        node-z: r3
+        protocols:
+          isis:
+            metric: 100
+      - prefix: 10.0.1.8/30
+        node-a: r2
+        node-z: r3
+        protocols:
+          isis: {}

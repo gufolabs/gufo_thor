@@ -83,6 +83,7 @@ Where `<name>` can be:
 
 * `simple` - Minimal setup with a web interface only.
 * `common` - Setup with widely-used features for monitoring and network management.
+* `lab1` - Setup with lab with 3 VyOS routers for NOC evaluation and testing.
 
 The thor.yml structure:
 ```

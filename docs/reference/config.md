@@ -2,8 +2,14 @@
 
 This topic describes `thor.yml` file format version `1.0`.
 
-`thor.yml` is [YAML][YAML] file defining [version](#version) and [project](#project) keys and
-[noc](#noc-section), [expose](#expose-section), and [services](#services-section) sections.
+`thor.yml` is [YAML][YAML] file defining:
+
+* [version](#version)
+* [project](#project)
+* [noc](#noc)
+* [expose](#expose)
+* [services](#services)
+* [labs](#labs)
 
 ## version
 
@@ -156,6 +162,191 @@ are scalable, so refer to the [NOC Services Reference][Services Reference].
 services:
     web:
         scale: 4
+```
+
+## Labs Section {#labs}
+
+Defines network labs. Each lab contains network nodes and links.
+
+Example:
+
+```yaml
+labs:
+  lab1:
+    nodes:
+      r1:
+        type: vyos
+        version: 1.4
+        router-id: 10.0.0.1
+      r2:
+        type: vyos
+        version: 1.4
+        router-id: 10.0.0.2
+    links:
+      - prefix: 10.0.1.0/30
+        node-a: r1
+        node-b: r2
+        protocols:
+          isis:
+            metric: 1000
+```
+
+`lab1` is the lab name. A configuration file can define multiple labs.
+
+### nodes {#labs-nodes}
+
+Defines the list of nodes in the lab. Node names are used as keys.
+
+```yaml
+labs:
+  lab1:
+    nodes:
+      r1:
+        type: vyos
+        version: 1.4
+        router-id: 10.0.0.1
+      r2:
+        type: vyos
+        version: 1.4
+        router-id: 10.0.0.2
+```
+
+#### type {#labs-nodes-type}
+
+Specifies the node type. Supported values:
+
+- `vyos` — VyOS virtual router.
+
+Example:
+
+```yaml
+labs:
+  lab1:
+    nodes:
+      r1:
+        type: vyos
+```
+
+#### version {#labs-nodes-version}
+
+Image version for the node.
+
+| Type | Version |
+| ---- | ------- |
+| vyos | 1.4     |
+
+Example:
+
+```yaml
+labs:
+  lab1:
+    nodes:
+      r1:
+        type: vyos
+        version: "1.4"
+```
+
+#### router-id {#labs-nodes-router-id}
+
+Specifies the router ID, assigned to the loopback interface.
+
+```yaml
+labs:
+  lab1:
+    nodes:
+      r1:
+        router-id: 10.0.0.1
+```
+
+### links {#labs-links}
+
+Defines the connections between nodes. Each link is described as an item in the list.
+
+```yaml
+labs:
+  lab1:
+    links:
+      - prefix: 10.0.1.0/30
+        node-a: r1
+        node-b: r2
+        protocols:
+          isis:
+            metric: 1000
+```
+
+#### prefix {#labs-links-prefix}
+
+Network prefix used for the link, typically a `/30` subnet.
+
+```yaml
+labs:
+  lab1:
+    links:
+      - prefix: 10.0.1.0/30
+```
+
+#### node-a {#labs-links-node-a}
+
+Starting node of the link.
+
+```yaml
+labs:
+  lab1:
+    links:
+      - node-a: r1
+```
+
+#### node-b {#labs-links-node-b}
+
+Ending node of the link.
+
+```yaml
+labs:
+  lab1:
+    links:
+      - node-b: r2
+```
+
+#### protocols {#labs-links-protocols}
+
+Defines enabled protocols on the link.
+
+```yaml
+labs:
+  lab1:
+    links:
+      - protocols:
+          isis:
+            metric: 1000
+```
+
+##### isis {#labs-links-protocols-isis}
+
+Enables the IS-IS protocol on the link.
+
+```yaml
+labs:
+  lab1:
+    links:
+      - prefix: 10.0.1.0/30
+        node-a: r1
+        node-b: r2
+        protocols:
+          isis:
+            metric: 1000
+```
+
+###### metric {#labs-links-protocols-isis-metric}
+
+Optional IS-IS metric for the link.
+
+```yaml
+labs:
+  lab1:
+    links:
+      - protocols:
+          isis:
+            metric: 1000
 ```
 
 [YAML]: https://yaml.org/

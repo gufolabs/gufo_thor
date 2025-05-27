@@ -18,6 +18,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ### Added
 
+* Network laboratories.
 * Kafka flushes every message on single-node installations.
 * `expose.web` setting.
 * `backup` volume.

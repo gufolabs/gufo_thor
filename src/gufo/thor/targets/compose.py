@@ -14,7 +14,8 @@ from typing import Any, Dict, List, Union
 import yaml
 
 # Gufo Thor modules
-from ..services.base import BaseService, loader
+from ..labs.base import BaseLab
+from ..services.base import BaseService
 from ..utils import ensure_directory, write_file
 from .base import BaseTarget
 
@@ -75,38 +76,16 @@ class ComposeTarget(BaseTarget):
         """Get dict of docker-compose.yml."""
         r = {
             "services": self._get_services_config(),
-            "networks": {
-                "noc": {
-                    "driver": "bridge",
-                }
-            },
+            "networks": self._get_networks_config(),
+            "volumes": self._get_volumes_config(),
         }
-        # Configure volumes
-        volumes: Dict[str, Dict[str, Any]] = {}
-        for svc in BaseService.resolve(self.config.services):
-            vc = svc.get_compose_volumes_config(
-                self.config, self.config.services.get(svc.name)
-            )
-            if not vc:
-                continue
-            for n, c in vc.items():
-                if n in volumes:
-                    volumes[n].update(c)
-                else:
-                    volumes[n] = c
-        if volumes:
-            r["volumes"] = volumes
+        self._apply_labs(r)
+        if not r["volumes"]:
+            del r["volumes"]
         return r
 
     def _get_services_config(self: "ComposeTarget") -> Dict[str, Any]:
         """Build services section of config."""
-        # Check for invalid services
-        invalid = {
-            svc for svc in self.config.services if not loader[svc].is_noc
-        }
-        if invalid:
-            msg = f"Invalid services: {', '.join(invalid)}"
-            raise ValueError(msg)
         # Resolve services
         return {
             svc.name: svc.get_compose_config(
@@ -114,6 +93,51 @@ class ComposeTarget(BaseTarget):
             )
             for svc in BaseService.resolve(self.config.services)
         }
+
+    def _get_networks_config(self: "ComposeTarget") -> Dict[str, Any]:
+        """Build networks section of config."""
+        return {
+            "noc": {
+                "driver": "bridge",
+            }
+        }
+
+    def _get_volumes_config(self: "ComposeTarget") -> Dict[str, Any]:
+        """Build volumes section of config."""
+        r: Dict[str, Dict[str, Any]] = {}
+        for svc in BaseService.resolve(self.config.services):
+            vc = svc.get_compose_volumes_config(
+                self.config, self.config.services.get(svc.name)
+            )
+            if not vc:
+                continue
+            for n, c in vc.items():
+                if n in r:
+                    r[n].update(c)
+                else:
+                    r[n] = c
+        return r
+
+    def _apply_labs(self, cfg: Dict[str, Any]) -> None:
+        """Apply labs section."""
+        if not self.config.labs:
+            return
+        if "services" not in cfg:
+            cfg["services"] = {}
+        networks = {}
+        for lab_name, lab_config in self.config.labs.items():
+            for node_name, node_config in lab_config.nodes.items():
+                svc_name = f"lab-{lab_name}-{node_name}"
+                lab = BaseLab.get(node_config.type)
+                cfg["services"][svc_name] = lab.get_compose_config(
+                    self.config, lab_config, node_config
+                )
+            for n, _ in enumerate(lab_config.links):
+                networks[f"{lab_config.name}-l{n}"] = {"driver": "bridge"}
+        if networks:
+            if "networks" not in cfg:
+                cfg["networks"] = {}
+            cfg["networks"].update(networks)
 
     def _configure_service_discovery(
         self: "ComposeTarget",

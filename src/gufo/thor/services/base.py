@@ -470,6 +470,19 @@ class BaseService(ABC):
         return self.service_discovery
 
     @staticmethod
+    def get(name: str) -> "BaseService":
+        """
+        Get service instance by name.
+
+        Args:
+            name: Service name.
+
+        Returns:
+            BaseService instance.
+        """
+        return loader[name]
+
+    @staticmethod
     def resolve(services: Iterable[str]) -> List["BaseService"]:
         """
         Resolve services to all dependencies.
@@ -481,7 +494,7 @@ class BaseService(ABC):
             Iterable of all basic services and their dependencies.
         """
         resolved: Set[BaseService] = set()
-        wave = {loader[svc] for svc in services}
+        wave = {BaseService.get(svc) for svc in services}
         while wave:
             current = wave.pop()
             resolved.add(current)
@@ -534,6 +547,6 @@ class BaseService(ABC):
         write_file(path, data)
 
 
-loader: Loader[BaseService] = Loader[BaseService](
+loader = Loader[BaseService](
     base="gufo.thor.services", exclude=("base", "noc")
 )
