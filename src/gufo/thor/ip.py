@@ -6,6 +6,7 @@
 """IP address manipulation primitives."""
 
 DEFAULT = "0.0.0.0"  # noqa: S104
+DEFAULT_PREFIX = "0.0.0.0/0"
 MAX_IPV4_MASK = 32
 
 
@@ -91,7 +92,7 @@ class IPv4Prefix(object):
             raise ValueError(msg) from e
         self._addr = IPv4Address(n)
         mask = int(m)
-        if mask < 1 or mask > MAX_IPV4_MASK:
+        if mask < 0 or mask > MAX_IPV4_MASK:
             msg = "invalid mask"
             raise ValueError(msg)
         self._mask = mask
@@ -109,3 +110,13 @@ class IPv4Prefix(object):
     def mask(self) -> int:
         """Get mask of prefix."""
         return self._mask
+
+    @staticmethod
+    def default() -> "IPv4Prefix":
+        """Get default IPv4 address."""
+        return IPv4Prefix(DEFAULT_PREFIX)
+
+    def __add__(self, v: int) -> "IPv4Prefix":
+        """Add integer value to prefix."""
+        new_net = self.network + v
+        return IPv4Prefix(f"{new_net!s}/{self.mask}")

@@ -8,6 +8,7 @@ This topic describes `thor.yml` file format version `1.0`.
 * [project](#project)
 * [noc](#noc)
 * [expose](#expose)
+* [pools](#pools)
 * [services](#services)
 * [labs](#labs)
 
@@ -125,6 +126,25 @@ expose:
     open_browser: true
 ```
 
+## Pools Section { #pools }
+
+This section contains a pools definitions. Key is pool name.
+
+``` yaml
+pools:
+  subnet: 10.0.2.0/24
+```
+
+### subnet { #pools-subnet }
+
+Subnet allocated to pool connection network. [pool-gw](#labs-nodes-pool-gw) and
+pool services' addresses will be allocated from this subnet.
+
+``` yaml
+pools:
+  subnet: 10.0.2.0/24
+```
+
 ## Services Section { #services }
 
 This section contains a list of services to start. Services can be specified as
@@ -173,6 +193,7 @@ Example:
 ```yaml
 labs:
   lab1:
+    pool: test
     nodes:
       r1:
         type: vyos
@@ -192,6 +213,18 @@ labs:
 ```
 
 `lab1` is the lab name. A configuration file can define multiple labs.
+
+### pool {#labs-pool }
+
+If lab is attached to dedicated pool, `pool` must refer to one of [pools](#pools).
+If pool is set, one of the nodes must be designated as [pool-gw](#labs-nodes-pool-gw)
+
+```yaml
+labs:
+  lab1:
+    pool: test
+```
+
 
 ### nodes {#labs-nodes}
 
@@ -257,6 +290,19 @@ labs:
       r1:
         router-id: 10.0.0.1
 ```
+
+#### pool-gw {#labs-nodes-pool-gw}
+
+Node will serve as designated gateway to pools. Only one node of lab may be marked as `pool-gw`.
+
+```yaml
+labs:
+  lab1:
+    nodes:
+      r1:
+        pool-gw: true
+```
+
 
 ### links {#labs-links}
 

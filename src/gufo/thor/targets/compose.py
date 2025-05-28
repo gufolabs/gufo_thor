@@ -96,11 +96,17 @@ class ComposeTarget(BaseTarget):
 
     def _get_networks_config(self: "ComposeTarget") -> Dict[str, Any]:
         """Build networks section of config."""
-        return {
+        r: Dict[str, Dict[str, Any]] = {
             "noc": {
                 "driver": "bridge",
             }
         }
+        for pool_name, pool in self.config.pools.items():
+            r[f"pool-{pool_name}"] = {
+                "driver": "bridge",
+                "ipam": {"config": [{"subnet": str(pool.subnet)}]},
+            }
+        return r
 
     def _get_volumes_config(self: "ComposeTarget") -> Dict[str, Any]:
         """Build volumes section of config."""
@@ -133,7 +139,7 @@ class ComposeTarget(BaseTarget):
                     self.config, lab_config, node_config
                 )
             for n, _ in enumerate(lab_config.links):
-                networks[f"{lab_config.name}-l{n}"] = {"driver": "bridge"}
+                networks[f"lab-{lab_config.name}-l{n}"] = {"driver": "bridge"}
         if networks:
             if "networks" not in cfg:
                 cfg["networks"] = {}

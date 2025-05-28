@@ -6,16 +6,18 @@ interfaces {
     {%- endif %}
     {%- for iface in eth_interfaces %}
     ethernet {{ iface.name }} {
-        description "{{ iface.description }}"
         address {{ iface.address }}
+        description "{{ iface.description }}"
         ipv6 {
-            no-default-link-local
+            address {
+                no-default-link-local
+            }
         }
     }
     {%- endfor %}
 }
 system {
-    host-name {{ hostname }}
+    host-name '{{ hostname }}'
     ipv6 {
         disable
     }
@@ -37,12 +39,19 @@ protocols {
         }
         {%- endif %}
         {%- endfor %}
-        interface lo {
-            passive
-       }
-       level level-2
-       metric-style wide
-       net {{ isis_net }}
+        level level-2
+        log-adjacency-changes
+        metric-style wide
+        net {{ isis_net }}
+        redistribute {
+            ipv4 {
+                connected {
+                    level-2 {
+                        metric 2
+                    }
+                }
+            }
+        }
     }
     {%- endif %}
 }

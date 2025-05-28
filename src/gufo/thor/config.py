@@ -29,7 +29,7 @@ from .ip import IPv4Address, IPv4Prefix
 
 # Gufo Thor modules
 from .log import logger
-from .validator import as_int, as_ipv4, as_str, errors
+from .validator import as_int, as_ipv4, as_ipv4_prefix, as_str, errors
 
 LOCALHOST = "127.0.0.1"
 DEFAULT_WEB_PORT = 32777
@@ -202,6 +202,36 @@ class ExposeConfig(object):
 
 
 @dataclass
+class PoolConfig(object):
+    """
+    The `pools` section of config.
+
+    Attributes:
+        name: Pool name.
+        subnet: Allocated subnet.
+    """
+
+    name: str
+    subnet: IPv4Prefix
+
+    @staticmethod
+    def from_dict(name: str, data: Dict[str, Any]) -> "PoolConfig":
+        """
+        Generate PoolConfig instance from a dictionary.
+
+        Args:
+            name: Pool name.
+            data: Incoming data.
+
+        Returns:
+            A configured PoolConfig instance.
+        """
+        return PoolConfig(
+            name=name, subnet=as_ipv4_prefix(data, "subnet", required=True)
+        )
+
+
+@dataclass
 class ServiceConfig(object):
     """
     The `services` section of the config.
@@ -251,6 +281,7 @@ class LabNodeConfig(object):
     type: str
     version: Optional[str] = None
     router_id: Optional[IPv4Address] = None
+    pool_gw: bool = False
 
     @staticmethod
     def from_dict(
@@ -271,6 +302,7 @@ class LabNodeConfig(object):
             type=as_str(data, "type", required=True),
             version=as_str(data, "version", required=False),
             router_id=as_ipv4(data, "router-id", required=False),
+            pool_gw=bool(data.get("pool-gw")),
         )
 
 
@@ -351,12 +383,14 @@ class LabConfig(object):
     Attributes:
         name: lab name.
         nodes: Nodes configuration.
+        pool: Lab pool.
+
     """
 
     name: str
-    # pool
     nodes: Dict[str, LabNodeConfig]
     links: List[LabLinkConfig]
+    pool: Optional[str] = None
 
     @staticmethod
     def from_dict(name: str, data: Dict[str, Any]) -> "LabConfig":
@@ -370,6 +404,7 @@ class LabConfig(object):
         Returns:
             A configured LabConfig instance.
         """
+        pool = as_str(data, "pool", required=False)
         with errors.context(name):
             # Process nodes
             nodes: Dict[str, LabNodeConfig] = {}
@@ -380,6 +415,22 @@ class LabConfig(object):
                         nodes[node_name] = LabNodeConfig.from_dict(
                             node_name, y
                         )
+                # Validate nodes
+                if pool:
+                    n_gw = sum(1 for n in nodes.values() if n.pool_gw)
+                    if not n_gw:
+                        with errors.context(".."):
+                            errors.error(
+                                "`pool-gw` must be set on one of the nodes"
+                            )
+                    elif n_gw > 1:
+                        p_gw = [n for n in nodes.values() if n.pool_gw]
+                        p_gw_list = ", ".join(n.name for n in p_gw)
+                        for n in p_gw:
+                            with errors.context(["nodes", n.name, "pool-gw"]):
+                                errors.error(
+                                    f"multiple pool-gw set ({p_gw_list})"
+                                )
             # Process links
             links: List[LabLinkConfig] = []
             with errors.context("links"):
@@ -390,6 +441,7 @@ class LabConfig(object):
                 name=name,
                 nodes=nodes,
                 links=links,
+                pool=pool,
             )
 
     def check(self) -> None:
@@ -431,6 +483,7 @@ class Config(object):
     project: Optional[str]
     noc: NocConfig
     expose: ExposeConfig
+    pools: Dict[str, PoolConfig]
     services: Dict[str, ServiceConfig]
     cli: CliConfig
     labs: Dict[str, LabConfig]
@@ -476,6 +529,22 @@ class Config(object):
             if cfg is None:
                 return ExposeConfig.default()
             return ExposeConfig.from_dict(cfg)
+
+    @staticmethod
+    def _parse_pools(data: Dict[str, Any]) -> Dict[str, PoolConfig]:
+        with errors.context("pools"):
+            cfg = data.get("pools")
+            if not cfg:
+                return {}
+            if not isinstance(cfg, dict):
+                errors.error("must be dict")
+                return {}
+            r = {}
+            for pool_name, pool_cfg in cfg.items():
+                pn = str(pool_name)
+                with errors.context(pn):
+                    r[pool_name] = PoolConfig.from_dict(pn, pool_cfg)
+            return r
 
     @staticmethod
     def _parse_services(data: Dict[str, Any]) -> Dict[str, ServiceConfig]:
@@ -530,13 +599,21 @@ class Config(object):
         cfg = Config._parse_yaml(data)
         noc_cfg = Config._parse_noc(cfg)
         expose_cfg = Config._parse_expose(cfg)
+        pools_cfg = Config._parse_pools(cfg)
         services_cfg = Config._parse_services(cfg)
         labs_cfg = Config._parse_labs(cfg)
+        # Check labs refers to proper pools
+        for lab_name, lab in labs_cfg.items():
+            with errors.context(["labs", lab_name, "pool"]):
+                if lab.pool and lab.pool not in pools_cfg:
+                    errors.error(f"unknown pool `{lab.pool}`")
+        # Die on errors
         errors.check()
         return Config(
             project=cfg.get("project"),
             noc=noc_cfg,
             expose=expose_cfg,
+            pools=pools_cfg,
             services=services_cfg,
             labs=labs_cfg,
             cli=CliConfig(),
@@ -554,6 +631,7 @@ class Config(object):
             project=None,
             noc=NocConfig.default(),
             expose=ExposeConfig.default(),
+            pools={},
             services={},
             labs={},
             cli=CliConfig(),

@@ -11,9 +11,10 @@ Attributes:
 """
 
 # Python modules
+from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Optional, Set, Type, TypedDict, Union
 
 # Third-party modules
 import jinja2
@@ -23,6 +24,48 @@ from gufo.loader import Loader
 # Gufo Thor modules
 from ..config import Config, LabConfig, LabNodeConfig
 from ..utils import write_file
+
+
+@dataclass
+class EthIfaceSettings(object):
+    """
+    Ethernet interface settings.
+
+    Attributes:
+        name: Interface name.
+        address: IPv4 address.
+        description: Interface description.
+        is_isis: IS-IS is configured on interface.
+        isis_metric: IS-IS metric for interface, if not empty.
+    """
+
+    name: str
+    address: str
+    description: str
+    is_isis: bool = False
+    isis_metric: Optional[int] = None
+
+
+class ConfigCtx(TypedDict):
+    """
+    Config template context.
+
+    Attributes:
+        hostname: Hostname, may be empty.
+        router_id: router-id, may be empty.
+        has_protocols: True, if any of protocols set,
+            False otherwise.
+        has_isis: IS-IS protocol is configured.
+        isis_net: IS-IS network, empty if `has_isis` is False.
+        eth_interfaces: List of configured ethernet interfaces.
+    """
+
+    hostname: str
+    router_id: str
+    has_protocols: bool
+    has_isis: bool
+    isis_net: str
+    eth_interfaces: List[EthIfaceSettings]
 
 
 class BaseLab(object):
@@ -60,11 +103,15 @@ class BaseLab(object):
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
     ) -> List[str]:
         """Get volumes settings."""
-        return [
-            f"{lab_config.name}-l{n}"
+        r: List[str] = []
+        r += [
+            f"lab-{lab_config.name}-l{n}"
             for n, link in enumerate(lab_config.links)
             if node_config.name in {link.node_a, link.node_z}
         ]
+        if node_config.pool_gw and lab_config.pool:
+            r.append(f"pool-{lab_config.pool}")
+        return r
 
     def get_compose_volumes(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
@@ -113,6 +160,95 @@ class BaseLab(object):
         data = template.render(**kwargs)
         # Write file
         write_file(path, data)
+
+    @classmethod
+    def get_eth_interface_name(cls, n: int) -> str:
+        """
+        Generate name for ethernet interface.
+
+        Args:
+            n: Interface number (zero-based)
+
+        Returns:
+            interface name
+        """
+        return f"eth{n}"
+
+    @classmethod
+    def get_config_context(
+        cls,
+        config: Config,
+        lab_config: LabConfig,
+        node_config: LabNodeConfig,
+    ) -> ConfigCtx:
+        """
+        Get context to render config.
+
+        Args:
+            config: Full config.
+            lab_config: Full lab config.
+            node_config: Current node's config.
+
+        Returns:
+            Context to render templates.
+        """
+        # Filter my links
+        my_links = [
+            link
+            for link in lab_config.links
+            if node_config.name in {link.node_a, link.node_z}
+        ]
+        # Get interfaces
+        eth_interfaces: List[EthIfaceSettings] = []
+        for link in my_links:
+            n_eth = len(eth_interfaces)
+            delta = 1 if link.node_a == node_config.name else 2
+            addr = (link.prefix.network + delta).to_prefix(link.prefix.mask)
+            is_isis = "isis" in link.protocols
+            isis_metric: Optional[int] = (
+                link.protocols["isis"].metric if is_isis else None
+            )
+            other_peer = (
+                link.node_z if link.node_a == node_config.name else link.node_a
+            )
+            eth_interfaces.append(
+                EthIfaceSettings(
+                    name=cls.get_eth_interface_name(n_eth),
+                    address=str(addr),
+                    description=f"to {other_peer}",
+                    is_isis=is_isis,
+                    isis_metric=isis_metric,
+                )
+            )
+        # Pool-gw
+        if node_config.pool_gw and lab_config.pool:
+            eth_interfaces.append(
+                EthIfaceSettings(
+                    name=cls.get_eth_interface_name(len(eth_interfaces)),
+                    address=str(config.pools[lab_config.pool].subnet + 1),
+                    description=f"pool {lab_config.pool}",
+                    is_isis=False,
+                )
+            )
+        # Get all protocols
+        protocols: Set[str] = set()
+        for link in my_links:
+            for proto in link.protocols:
+                protocols.add(proto)
+        return {
+            "hostname": node_config.name,
+            "router_id": str(node_config.router_id)
+            if node_config.router_id
+            else "",
+            "has_protocols": bool(protocols),
+            "has_isis": "isis" in protocols,
+            "isis_net": (
+                node_config.router_id.as_isis_net()
+                if "isis" in protocols and node_config.router_id
+                else ""
+            ),
+            "eth_interfaces": eth_interfaces,
+        }
 
 
 loader = Loader[Type[BaseLab]](base="gufo.thor.labs", exclude=("base", "noc"))

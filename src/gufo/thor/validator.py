@@ -22,7 +22,7 @@ from typing import (
 )
 
 # Gufo Thor modules
-from .ip import IPv4Address
+from .ip import IPv4Address, IPv4Prefix
 
 
 @dataclass
@@ -89,10 +89,11 @@ class ErrorContext(object):
         Set current context.
 
         Path is appended to existing context.
+        `..` can be used to set level up.
 
         Examples:
             ``` python
-            with errors.context():
+            with errors.context("xxx"):
                 ...
             ```
         """
@@ -100,6 +101,14 @@ class ErrorContext(object):
             path = [path]
         if self._paths:
             path = self._paths[-1] + path
+        # Process `..`
+        while path and ".." in path:
+            idx = path.index("..")
+            if idx > 0:
+                path.pop(idx - 1)
+                path.pop(idx - 1)
+            else:
+                path.pop(0)
         self._paths.append(path)
         yield
         self._paths.pop(-1)
@@ -236,5 +245,46 @@ def as_ipv4(
         return IPv4Address(v)
     except ValueError:
         with errors.context(name):
-            errors.error("invalid integer")
+            errors.error("invalid address")
             return IPv4Address.default()
+
+
+@overload
+def as_ipv4_prefix(
+    data: Dict[str, Any], name: str, /, required: Literal[True]
+) -> IPv4Prefix: ...
+
+
+@overload
+def as_ipv4_prefix(
+    data: Dict[str, Any], name: str, /, required: Literal[False]
+) -> Optional[IPv4Prefix]: ...
+
+
+def as_ipv4_prefix(
+    data: Dict[str, Any], name: str, /, required: bool = True
+) -> Optional[IPv4Prefix]:
+    """
+    Extract IPv4Prefix from dict.
+
+    Args:
+        data: Data dict.
+        name: parameter name.
+        required: Set or non set error if key is missed.
+
+    Returns:
+        integer value, if possible.
+    """
+    v = data.get(name)
+    if v is None:
+        if required:
+            with errors.context(name):
+                errors.error("must be set")
+                return IPv4Prefix.default()
+        return None
+    try:
+        return IPv4Prefix(v)
+    except ValueError:
+        with errors.context(name):
+            errors.error("invalid prefix")
+            return IPv4Prefix.default()
