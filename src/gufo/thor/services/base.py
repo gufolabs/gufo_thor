@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: BaseService
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """
 BaseService definition.
@@ -120,6 +120,20 @@ class BaseService(ABC):
     expose_http_prefix: Optional[str] = None
     require_http_auth: bool = False
     rewrite_http_prefix: Optional[str] = None
+    is_pooled: bool = False
+    require_pool_network = False
+
+    def __init__(self) -> None:
+        self._pool: Optional[str] = None
+
+    def get_compose_name(self) -> str:
+        """Get service name for docker-compose."""
+        if self.is_pooled and not self._pool:
+            msg = f"Cannot use service {self.name} without pool"
+            raise ValueError(msg)
+        if self.is_pooled:
+            return f"{self.name}-{self._pool}"
+        return self.name
 
     def iter_dependencies(self: "BaseService") -> Iterable["BaseService"]:
         """
@@ -128,8 +142,22 @@ class BaseService(ABC):
         Returns:
             An iterable of strings which represent the names dependencies.
         """
-        if self.dependencies:
-            yield from self.dependencies
+        if not self.dependencies:
+            return
+        for svc in self.dependencies:
+            if svc.is_pooled:
+                if not self.is_pooled:
+                    msg = (
+                        f"non-pooled service {self.name} "
+                        f"cannot depend on pooled {svc.name}"
+                    )
+                    raise ValueError(msg)
+                if not self._pool:
+                    msg = f"Cannot use unbound pooled service {self.name}"
+                    raise ValueError(msg)
+                yield svc.as_pooled(self._pool)
+            else:
+                yield svc
 
     def get_compose_config(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
@@ -169,7 +197,7 @@ class BaseService(ABC):
             r["deploy"] = {"replicas": svc.scale if svc else 1}
         # depends_on
         deps = {
-            dep.name: {
+            dep.get_compose_name(): {
                 "condition": dep.get_compose_depends_condition(
                     config, svc
                 ).value
@@ -197,9 +225,7 @@ class BaseService(ABC):
         # networks
         networks = self.get_compose_networks(config, svc)
         if networks:
-            r["networks"] = {"noc": networks}
-        else:
-            r["networks"] = ["noc"]
+            r["networks"] = networks
         # ports
         ports = self.get_compose_ports(config, svc)
         if ports:
@@ -304,7 +330,7 @@ class BaseService(ABC):
 
     def get_compose_networks(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Dict[str, Any]:
         """
         Get docker-compose.yml `networks` section.
 
@@ -315,7 +341,13 @@ class BaseService(ABC):
         Returns:
             Networks dict, if not empty
         """
-        return None
+        r: Dict[str, Dict[str, Any]] = {"noc": {}}
+        if self.is_pooled and self.require_pool_network:
+            if not self._pool:
+                msg = "Pooled service {self.name} is used without pool"
+                raise ValueError(msg)
+            r[f"pool-{self._pool}"] = {}
+        return r
 
     def get_compose_volumes(
         self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
@@ -480,7 +512,28 @@ class BaseService(ABC):
         Returns:
             BaseService instance.
         """
-        return loader[name]
+        # Cached singletones
+        svc = _services.get(name)
+        if svc:
+            return svc
+        # Fetch service
+        if "-" in name:
+            svc_name, pool = name.split("-", 1)
+            svc = loader[svc_name]
+            if not svc.is_pooled:
+                msg = (
+                    f"Cannot use non-pooled service `{svc_name}` "
+                    f"with pool `{pool}`"
+                )
+                raise ValueError(msg)
+            svc = svc.as_pooled(pool)
+        else:
+            svc = loader[name]
+            if svc.is_pooled:
+                msg = f"Cannot use pooled service `{name}` without pool"
+                raise ValueError(msg)
+        _services[name] = svc
+        return svc
 
     @staticmethod
     def resolve(services: Iterable[str]) -> List["BaseService"]:
@@ -546,7 +599,22 @@ class BaseService(ABC):
         # Write file
         write_file(path, data)
 
+    def as_pooled(self, pool: str) -> "BaseService":
+        """Return instance bound to pool."""
+        if not self.is_pooled:
+            msg = f"Cannot use non-pooled service {self.name} with pool {pool}"
+            raise ValueError(msg)
+        key = f"{self.name}-{pool}"
+        svc = _services.get(key)
+        if svc:
+            return svc
+        svc = self.__class__()
+        svc._pool = pool
+        _services[key] = svc
+        return svc
+
 
 loader = Loader[BaseService](
     base="gufo.thor.services", exclude=("base", "noc")
 )
+_services: Dict[str, BaseService] = {}

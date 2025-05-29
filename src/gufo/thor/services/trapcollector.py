@@ -22,6 +22,8 @@ class TrapcollectorService(NocService):
 
     name = "trapcollector"
     dependencies = (datastream, kafka, migrate)
+    is_pooled = True
+    require_pool_network = True
 
 
 trapcollector = TrapcollectorService()

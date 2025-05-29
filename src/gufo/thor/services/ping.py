@@ -27,6 +27,8 @@ class PingService(NocService):
             "NET_RAW",
         ],
     }
+    is_pooled = True
+    require_pool_network = True
 
 
 ping = PingService()

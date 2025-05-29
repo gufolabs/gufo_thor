@@ -22,6 +22,8 @@ class SyslogcollectorService(NocService):
 
     name = "syslogcollector"
     dependencies = (datastream, kafka, migrate)
+    is_pooled = True
+    require_pool_network = True
 
 
 syslogcollector = SyslogcollectorService()

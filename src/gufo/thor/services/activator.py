@@ -22,6 +22,8 @@ class ActivatorService(NocService):
 
     name = "activator"
     dependencies = (kafka, migrate, sae)
+    is_pooled = True
+    require_pool_network = True
 
 
 activator = ActivatorService()

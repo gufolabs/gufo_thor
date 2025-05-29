@@ -18,6 +18,8 @@ class BhService(NocService):
     """bh service."""
 
     name = "bh"
+    is_pooled = True
+    require_pool_network = True
 
 
 bh = BhService()

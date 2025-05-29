@@ -88,8 +88,8 @@ class ComposeTarget(BaseTarget):
         """Build services section of config."""
         # Resolve services
         return {
-            svc.name: svc.get_compose_config(
-                self.config, self.config.services.get(svc.name)
+            svc.get_compose_name(): svc.get_compose_config(
+                self.config, self.config.services.get(svc.get_compose_name())
             )
             for svc in BaseService.resolve(self.config.services)
         }

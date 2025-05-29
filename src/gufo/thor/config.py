@@ -602,6 +602,13 @@ class Config(object):
         pools_cfg = Config._parse_pools(cfg)
         services_cfg = Config._parse_services(cfg)
         labs_cfg = Config._parse_labs(cfg)
+        # Check services refers to proper pools
+        for svc_name in services_cfg:
+            if "-" in svc_name:
+                _, pool = svc_name.split("-", 1)
+                if pool not in pools_cfg:
+                    with errors.context(["services", svc_name]):
+                        errors.error(f"invalid pool {pool}")
         # Check labs refers to proper pools
         for lab_name, lab in labs_cfg.items():
             with errors.context(["labs", lab_name, "pool"]):

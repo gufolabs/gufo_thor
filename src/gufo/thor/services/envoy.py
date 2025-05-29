@@ -105,9 +105,11 @@ class EnvoyService(BaseService):
         self: "EnvoyService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Any]]:
         """Get networks section."""
-        return {
-            "aliases": ["envoy", config.expose.domain_name],
-        }
+        r = super().get_compose_networks(config, svc)
+        if "noc" not in r:
+            r["noc"] = {}
+        r["noc"]["aliases"] = ["envoy", config.expose.domain_name]
+        return r
 
     def get_compose_ports(
         self: "EnvoyService", config: Config, svc: Optional[ServiceConfig]

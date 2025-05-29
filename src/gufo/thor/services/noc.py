@@ -72,12 +72,17 @@ class NocService(BaseService):
         return r if r else None
 
     def get_compose_environment(
-        self: BaseService, config: Config, svc: Optional[ServiceConfig]
+        self: "NocService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, str]]:
         """Get environment section."""
-        r: Dict[str, str] = {}
+        r: Dict[str, str] = super().get_compose_environment(config, svc) or {}
         if config.noc.custom:
             r["NOC_PATH_CUSTOM_PATH"] = "/opt/noc_custom"
+        if self.is_pooled:
+            if not self._pool:
+                msg = f"Cannot use pooled service {self.name} without pool"
+                raise ValueError(msg)
+            r["NOC_POOL"] = self._pool
         return r if r else None
 
     def prepare_compose_config(
