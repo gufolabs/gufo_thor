@@ -18,6 +18,7 @@ class MetricsService(NocService):
     """metrics service."""
 
     name = "metrics"
+    require_slots = True
 
 
 metrics = MetricsService()

@@ -29,6 +29,7 @@ class PingService(NocService):
     }
     is_pooled = True
     require_pool_network = True
+    require_slots = True
 
 
 ping = PingService()

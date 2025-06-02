@@ -5,6 +5,9 @@
 # ---------------------------------------------------------------------
 """IP address manipulation primitives."""
 
+# Python modules
+from typing import Iterable, Optional
+
 DEFAULT = "0.0.0.0"  # noqa: S104
 DEFAULT_PREFIX = "0.0.0.0/0"
 MAX_IPV4_MASK = 32
@@ -120,3 +123,23 @@ class IPv4Prefix(object):
         """Add integer value to prefix."""
         new_net = self.network + v
         return IPv4Prefix(f"{new_net!s}/{self.mask}")
+
+    def first_free(self, used: Iterable[IPv4Address]) -> Optional[IPv4Address]:
+        """
+        Find first free address in prefix.
+
+        Args:
+            used: Iterable of used IP addresses.
+
+        Returns:
+            First free address, None if no free addresses.
+        """
+        exclude = set(used)
+        c = self._addr + 1  # @todo: Separate handing for /31 networks
+        while c in exclude:
+            c += 1
+        return c
+
+    def to_prefix(self, addr: IPv4Address) -> "IPv4Prefix":
+        """Add mask to address."""
+        return IPv4Prefix(f"{addr}/{self._mask}")

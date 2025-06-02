@@ -101,16 +101,16 @@ class BaseLab(object):
 
     def get_compose_networks(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
-    ) -> List[str]:
+    ) -> Dict[str, Dict[str, Any]]:
         """Get volumes settings."""
-        r: List[str] = []
-        r += [
-            f"lab-{lab_config.name}-l{n}"
-            for n, link in enumerate(lab_config.links)
-            if node_config.name in {link.node_a, link.node_z}
-        ]
+        r: Dict[str, Dict[str, Any]] = {}
+        for n, link in enumerate(lab_config.links):
+            if node_config.name in {link.node_a, link.node_z}:
+                r[f"lab-{lab_config.name}-l{n}"] = {
+                    "interface_name": f"eth{len(r)}"
+                }
         if node_config.pool_gw and lab_config.pool:
-            r.append(f"pool-{lab_config.pool}")
+            r[f"pool-{lab_config.pool}"] = {"interface_name": f"eth{len(r)}"}
         return r
 
     def get_compose_volumes(
@@ -222,10 +222,16 @@ class BaseLab(object):
             )
         # Pool-gw
         if node_config.pool_gw and lab_config.pool:
+            lab_pool = config.pools[lab_config.pool]
+            addr = (
+                lab_pool.subnet.to_prefix(lab_pool.address.gw)
+                if lab_pool.address.gw
+                else (lab_pool.subnet + 1)
+            )
             eth_interfaces.append(
                 EthIfaceSettings(
                     name=cls.get_eth_interface_name(len(eth_interfaces)),
-                    address=str(config.pools[lab_config.pool].subnet + 1),
+                    address=str(addr),
                     description=f"pool {lab_config.pool}",
                     is_isis=False,
                 )

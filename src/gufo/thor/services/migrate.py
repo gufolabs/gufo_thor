@@ -11,12 +11,10 @@ Attributes:
 """
 
 # Python modules
-
-# Gufo Thor modules
 from typing import Dict, List, Optional
 
-from gufo.thor.config import Config, ServiceConfig
-
+# Gufo Thor modules
+from ..config import Config, ServiceConfig
 from .base import ComposeDependsCondition
 from .clickhouse import clickhouse
 from .consul import consul
@@ -75,7 +73,18 @@ class MigrateService(NocService):
         Additionally set NOC_MIGRATE_SLOTS_PATH.
         """
         r = super().get_compose_environment(config, svc) or {}
-        r["NOC_MIGRATE_SLOTS_PATH"] = "/etc/slots.cfg"
+        # Calculate pools
+        for pool_name in config.pools:
+            r[f"NOC_MIGRATE_POOL_{pool_name}"] = pool_name
+        # Calculate slots
+        for service in self.resolve(config.services):
+            if service.require_slots:
+                sn = service.get_compose_name()
+                if sn in config.services:
+                    scale = config.services[sn].scale
+                else:
+                    scale = 1
+                r[f"NOC_MIGRATE_SLOTS_{sn.replace('-', '_')}"] = str(scale)
         return r
 
 

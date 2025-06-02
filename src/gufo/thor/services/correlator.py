@@ -24,6 +24,7 @@ class CorrelatorService(NocService):
     name = "correlator"
     dependencies = (kafka, migrate, mongo, postgres)
     is_pooled = True
+    require_slots = True
 
 
 correlator = CorrelatorService()

@@ -346,7 +346,7 @@ class BaseService(ABC):
             if not self._pool:
                 msg = "Pooled service {self.name} is used without pool"
                 raise ValueError(msg)
-            r[f"pool-{self._pool}"] = {}
+            r[f"pool-{self._pool}"] = {"gw_priority": 1}
         return r
 
     def get_compose_volumes(

@@ -18,6 +18,7 @@ class TgsenderService(NocService):
     """tgsender service."""
 
     name = "tgsender"
+    require_slots = True
 
 
 tgsender = TgsenderService()

@@ -14,6 +14,7 @@ from typing import (
     Any,
     DefaultDict,
     Dict,
+    Iterable,
     List,
     Literal,
     Optional,
@@ -202,6 +203,58 @@ class ExposeConfig(object):
 
 
 @dataclass
+class PoolAddressConfig(object):
+    """
+    Pool addresses configuration.
+
+    Attributes:
+        gw: Gateway address for `pool-gw`.
+        syslog: Syslog collector address.
+        trap: SNMP trap address.
+    """
+
+    gw: Optional[IPv4Address] = None
+    syslog: Optional[IPv4Address] = None
+    trap: Optional[IPv4Address] = None
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "PoolAddressConfig":
+        """Get addresses config from dict."""
+        with errors.context("address"):
+            r = PoolAddressConfig(
+                gw=as_ipv4(data, "gw", required=False),
+                syslog=as_ipv4(data, "syslog", required=False),
+                trap=as_ipv4(data, "trap", required=False),
+            )
+            # Check for overlaps
+            used: DefaultDict[str, List[str]] = defaultdict(list)
+            if r.gw:
+                used[str(r.gw)].append("gw")
+            if r.syslog:
+                used[str(r.syslog)].append("syslog")
+            if r.trap:
+                used[str(r.trap)].append("trap")
+            for addr, names in used.items():
+                if len(names) > 1:
+                    for n in names:
+                        with errors.context(n):
+                            nl = ", ".join(x for x in names if n != x)
+                            errors.error(
+                                f"address {addr} is already used in {nl}"
+                            )
+            return r
+
+    def iter_used(self) -> Iterable[IPv4Address]:
+        """Iterate all used addresses."""
+        if self.gw:
+            yield self.gw
+        if self.syslog:
+            yield self.syslog
+        if self.trap:
+            yield self.trap
+
+
+@dataclass
 class PoolConfig(object):
     """
     The `pools` section of config.
@@ -213,6 +266,7 @@ class PoolConfig(object):
 
     name: str
     subnet: IPv4Prefix
+    address: PoolAddressConfig
 
     @staticmethod
     def from_dict(name: str, data: Dict[str, Any]) -> "PoolConfig":
@@ -226,9 +280,14 @@ class PoolConfig(object):
         Returns:
             A configured PoolConfig instance.
         """
-        return PoolConfig(
-            name=name, subnet=as_ipv4_prefix(data, "subnet", required=True)
+        r = PoolConfig(
+            name=name,
+            subnet=as_ipv4_prefix(data, "subnet", required=True),
+            address=PoolAddressConfig.from_dict(data.get("address") or {}),
         )
+        if r.address.gw is None:
+            r.address.gw = r.subnet.first_free(r.address.iter_used())
+        return r
 
 
 @dataclass

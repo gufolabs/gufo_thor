@@ -23,6 +23,7 @@ class ClassifierService(NocService):
 
     name = "classifier"
     dependencies = (kafka, migrate, mongo, postgres)
+    require_slots = True
 
 
 classifier = ClassifierService()

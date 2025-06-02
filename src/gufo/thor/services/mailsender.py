@@ -18,6 +18,7 @@ class MailsenderService(NocService):
     """mailsender service."""
 
     name = "mailsender"
+    require_slots = True
 
 
 mailsender = MailsenderService()

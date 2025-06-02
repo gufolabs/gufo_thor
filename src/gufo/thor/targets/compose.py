@@ -43,24 +43,15 @@ class ComposeTarget(BaseTarget):
         etc = Path("etc")
         ensure_directory(etc)
         # Generate directories and configs
-        slots: Dict[str, int] = {}
         services = list(BaseService.resolve(self.config.services))
         for svc in services:
-            svc_cfg = self.config.services.get(svc.name)
-            # Process slots
-            if svc.require_slots:
-                slots[svc.name] = svc_cfg.scale if svc_cfg else 1
+            svc_cfg = self.config.services.get(svc.get_compose_name())
             # Create config
             svc.prepare_compose_config(self.config, svc_cfg, services)
             # Service discovery
             sd = svc.get_service_discovery(self.config, svc_cfg)
             if sd:
                 self._configure_service_discovery(svc.name, sd)
-        # Save slots
-        write_file(
-            etc / "slots.cfg",
-            "\n".join(f"{k}: {v}" for k, v in sorted(slots.items())),
-        )
 
     def render_config(self: "ComposeTarget") -> str:
         """
@@ -104,7 +95,14 @@ class ComposeTarget(BaseTarget):
         for pool_name, pool in self.config.pools.items():
             r[f"pool-{pool_name}"] = {
                 "driver": "bridge",
-                "ipam": {"config": [{"subnet": str(pool.subnet)}]},
+                "ipam": {
+                    "config": [
+                        {
+                            "subnet": str(pool.subnet),
+                            "gateway": str(pool.address.gw),
+                        }
+                    ]
+                },
             }
         return r
 

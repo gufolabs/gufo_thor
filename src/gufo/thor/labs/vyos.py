@@ -40,4 +40,4 @@ class VyOSLab(BaseLab):
         node_config: LabNodeConfig,
     ) -> None:
         ctx = self.get_config_context(config, lab_config, node_config)
-        self.render_file(conf_path, "boot.j2", **ctx)
+        self.render_file(conf_path, "config.boot.j2", **ctx)

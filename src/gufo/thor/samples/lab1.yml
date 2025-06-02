@@ -9,7 +9,19 @@ expose:
   web:
     port: 32777
   open_browser: true
-services: [web, card, shell]
+pools:
+  vyos:
+    subnet: 10.0.2.0/24
+    address:
+      syslog: 10.0.2.10
+      trap: 10.0.2.11
+services:
+  - web
+  - card
+  - discovery-vyos
+  - ping-vyos
+  - syslogcollector-vyos
+  - trapcollector-vyos
 labs:
   lab1:
     nodes:
@@ -17,6 +29,7 @@ labs:
         type: vyos
         version: "1.4"
         router-id: 10.0.0.1
+        pool-gw: true
       r2:
         type: vyos
         version: "1.4"
@@ -42,4 +55,5 @@ labs:
         node-a: r2
         node-z: r3
         protocols:
-          isis: {}
+          isis:
+            metric: 100

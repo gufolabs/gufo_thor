@@ -25,6 +25,7 @@ class DiscoveryService(NocService):
     name = "discovery"
     dependencies = (activator, chwriter, migrate, mongo, postgres)
     is_pooled = True
+    require_slots = True
 
 
 discovery = DiscoveryService()

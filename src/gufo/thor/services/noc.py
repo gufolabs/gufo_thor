@@ -1,13 +1,16 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: noc service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-24, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """NocService base class."""
 
 # Python Modules
+import os
+import stat
+from importlib import resources
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 # Third-party modules
 import yaml
@@ -23,8 +26,6 @@ class NocService(BaseService):
 
     is_noc = True
     name = "noc"
-    _config_prepared = False
-    _volumes_config_prepared = False
 
     def get_compose_image(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
@@ -97,7 +98,7 @@ class NocService(BaseService):
         NB: As the NocServices is the base class for a bunch of services,
         ensure, the configuration files are rendered only once.
         """
-        if self._config_prepared:
+        if not _prepared_flags.may_process_config():
             return  # Already configured from other subclass
         # Build default config
         cfg = {
@@ -123,16 +124,13 @@ class NocService(BaseService):
         # Ensure directories
         ensure_directory(Path("data", "crashinfo"))
         ensure_directory(Path("data", "backup"))
-        # Mark as ready
-        self._config_prepared = True
 
     def get_compose_volumes_config(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Dict[str, Any]]]:
         """Generate crashinfo and backup volume."""
-        if self._volumes_config_prepared:
+        if not _prepared_flags.may_process_volumes():
             return None  # Already prepared from other subclass
-        self._volumes_config_prepared = True
         return {
             "crashinfo": {
                 "driver": "local",
@@ -163,3 +161,26 @@ class NocHcService(NocService):
         "timeout": "2s",
         "retries": 3,
     }
+
+
+class _PreparedFlags(object):
+    """Global state to perform configuration only once."""
+
+    def __init__(self) -> None:
+        self._config: bool = True
+        self._volumes: bool = True
+
+    def may_process_config(self) -> bool:
+        """Check if config should be processed."""
+        v = self._config
+        self._config = False
+        return v
+
+    def may_process_volumes(self) -> bool:
+        """Check if config should be processed."""
+        v = self._volumes
+        self._volumes = False
+        return v
+
+
+_prepared_flags = _PreparedFlags()

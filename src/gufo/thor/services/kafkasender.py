@@ -18,6 +18,7 @@ class KafkasenderService(NocService):
     """kafkasender service."""
 
     name = "kafkasender"
+    require_slots = True
 
 
 kafkasender = KafkasenderService()
