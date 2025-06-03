@@ -106,11 +106,18 @@ class BaseLab(object):
         r: Dict[str, Dict[str, Any]] = {}
         for n, link in enumerate(lab_config.links):
             if node_config.name in {link.node_a, link.node_z}:
+                delta = 1 if link.node_a == node_config.name else 2
+                addr = link.prefix.network + delta
                 r[f"lab-{lab_config.name}-l{n}"] = {
-                    "interface_name": f"eth{len(r)}"
+                    "interface_name": f"eth{len(r)}",
+                    "ipv4_address": str(addr),
                 }
         if node_config.pool_gw and lab_config.pool:
-            r[f"pool-{lab_config.pool}"] = {"interface_name": f"eth{len(r)}"}
+            p_cfg = {
+                "interface_name": f"eth{len(r)}",
+                "ipv4_address": str(config.pools[lab_config.pool].address.gw),
+            }
+            r[f"pool-{lab_config.pool}"] = p_cfg
         return r
 
     def get_compose_volumes(

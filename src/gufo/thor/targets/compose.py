@@ -95,11 +95,14 @@ class ComposeTarget(BaseTarget):
         for pool_name, pool in self.config.pools.items():
             r[f"pool-{pool_name}"] = {
                 "driver": "bridge",
+                "internal": True,
+                "driver_opts": {
+                    "com.docker.network.bridge.inhibit_ipv4": "true"
+                },
                 "ipam": {
                     "config": [
                         {
                             "subnet": str(pool.subnet),
-                            "gateway": str(pool.address.gw),
                         }
                     ]
                 },
@@ -136,8 +139,22 @@ class ComposeTarget(BaseTarget):
                 cfg["services"][svc_name] = lab.get_compose_config(
                     self.config, lab_config, node_config
                 )
-            for n, _ in enumerate(lab_config.links):
-                networks[f"lab-{lab_config.name}-l{n}"] = {"driver": "bridge"}
+            for n, link in enumerate(lab_config.links):
+                link_cfg: Dict[str, Any] = {"driver": "bridge"}
+                if link.prefix:
+                    link_cfg.update(
+                        {
+                            "internal": True,
+                            "driver_opts": {
+                                "com.docker.network.bridge.inhibit_ipv4": (
+                                    "true"
+                                )
+                            },
+                            "ipam": {"config": [{"subnet": str(link.prefix)}]},
+                        }
+                    )
+
+                networks[f"lab-{lab_config.name}-l{n}"] = link_cfg
         if networks:
             if "networks" not in cfg:
                 cfg["networks"] = {}

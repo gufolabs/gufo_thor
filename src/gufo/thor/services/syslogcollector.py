@@ -49,6 +49,7 @@ class SyslogcollectorService(NocService):
         config: Config,
         svc: Optional[ServiceConfig],
     ) -> Optional[Dict[str, str]]:
+        """Set listen address."""
         env = super().get_compose_environment(config, svc) or {}
         if not self._pool:
             msg = f"Cannot use pooled service {self.name} without pool"

@@ -6,11 +6,8 @@
 """NocService base class."""
 
 # Python Modules
-import os
-import stat
-from importlib import resources
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 # Third-party modules
 import yaml
@@ -47,6 +44,21 @@ class NocService(BaseService):
         """Get command section."""
         if self.compose_command:
             return self.compose_command
+        if (
+            self.is_pooled
+            and self.require_pool_network
+            and self._pool
+            and config.pools[self._pool].address.gw
+        ):
+            pool_gw = config.pools[self._pool].address.gw
+            cmd = " && ".join(
+                (
+                    "ip route delete default",
+                    f"ip route add default via {pool_gw!s}",
+                    f"/usr/local/bin/python3 /opt/noc/services/{self.name}/service.py",
+                )
+            )
+            return f'sh -c "{cmd}"'
         return (
             f"/usr/local/bin/python3 /opt/noc/services/{self.name}/service.py"
         )
@@ -149,6 +161,23 @@ class NocService(BaseService):
                 },
             },
         }
+
+    def get_compose_extra(
+        self: "NocService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[Dict[str, Any]]:
+        """Set caps."""
+        r = super().get_compose_extra(config, svc) or {}
+        if (
+            self.is_pooled
+            and self.require_pool_network
+            and self._pool
+            and config.pools[self._pool].address.gw
+        ):
+            cap_add = r.get("cap_add", [])
+            if "NET_ADMIN" not in cap_add:
+                cap_add.append("NET_ADMIN")
+            r["cap_add"] = cap_add
+        return r if r else None
 
 
 class NocHcService(NocService):
