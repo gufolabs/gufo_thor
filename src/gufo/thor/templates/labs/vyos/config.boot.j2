@@ -21,6 +21,17 @@ system {
     ipv6 {
         disable
     }
+    {%- if has_users %}
+    login {
+        {%- for user in users %}
+        user {{ user.user }} {
+            authentication {
+                plaintext-password {{ user.password }}
+            }
+        }
+        {%- endfor %}
+    }
+    {%- endif %}
 }
 {%- if has_protocols %}
 protocols {
@@ -56,3 +67,16 @@ protocols {
     {%- endif %}
 }
 {% endif %}
+{% if has_users -%}
+service {
+    ssh {
+        access-control {
+            allow {
+                {% for user in users -%}
+                user {{ user.user }}
+                {%- endfor %}
+            }
+        }
+    }
+}
+{% endif -%}

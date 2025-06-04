@@ -333,6 +333,28 @@ class CliConfig(object):
 
 
 @dataclass
+class LabNodeUserCredentials(object):
+    """
+    User credentials.
+
+    Attributes:
+        user: Local user name.
+        password: Plain-text password.
+    """
+
+    user: str
+    password: str
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "LabNodeUserCredentials":
+        """Get user credentials from dict."""
+        return LabNodeUserCredentials(
+            user=as_str(data, "user", required=True),
+            password=as_str(data, "password", required=True),
+        )
+
+
+@dataclass
 class LabNodeConfig(object):
     """The `labs.nodes` section of config."""
 
@@ -341,6 +363,7 @@ class LabNodeConfig(object):
     version: Optional[str] = None
     router_id: Optional[IPv4Address] = None
     pool_gw: bool = False
+    users: Optional[List[LabNodeUserCredentials]] = None
 
     @staticmethod
     def from_dict(
@@ -356,12 +379,23 @@ class LabNodeConfig(object):
         Returns:
             LabNodeConfig instance.
         """
+        users_cfg = data.get("users")
+        users: List[LabNodeUserCredentials] = []
+        if users_cfg:
+            if isinstance(users_cfg, list):
+                with errors.context("users"):
+                    for n, u in enumerate(users_cfg):
+                        with errors.context(str(n)):
+                            users.append(LabNodeUserCredentials.from_dict(u))
+            else:
+                errors.error("must be list")
         return LabNodeConfig(
             name=name,
             type=as_str(data, "type", required=True),
             version=as_str(data, "version", required=False),
             router_id=as_ipv4(data, "router-id", required=False),
             pool_gw=bool(data.get("pool-gw")),
+            users=users or None,
         )
 
 

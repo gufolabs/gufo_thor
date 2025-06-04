@@ -261,6 +261,8 @@ class BaseLab(object):
                 else ""
             ),
             "eth_interfaces": eth_interfaces,
+            "has_users": bool(node_config.users),
+            "users": node_config.users or [],
         }
 
 
