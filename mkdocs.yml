@@ -15,7 +15,7 @@ nav:
   - Reference:
       - Overview: reference/index.md
       - Command Line: reference/cli.md
-      - Config: reference/config.md
+      - Config: reference/
       - Configuration Templates: reference/templates.md
       - Code: reference/code/
   - Developers' Guide:
