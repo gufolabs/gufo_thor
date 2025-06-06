@@ -52,18 +52,6 @@ class MigrateService(NocService):
             return self.compose_command
         return "/bin/true"
 
-    def get_compose_volumes(
-        self: "MigrateService", config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
-        """
-        Get volumes settings for docker compose.
-
-        Additionaly map slots configuration.
-        """
-        r = super().get_compose_volumes(config, svc) or []
-        r.append("./etc/slots.cfg:/etc/slots.cfg:ro")
-        return r
-
     def get_compose_environment(
         self: "MigrateService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, str]]:
