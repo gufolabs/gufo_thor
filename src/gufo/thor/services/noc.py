@@ -115,6 +115,7 @@ class NocService(BaseService):
         # Build default config
         cfg = {
             "installation_name": config.noc.installation_name,
+            "clickhouse": {"ro_user": "default"},
             "pg": {
                 "db": "noc",
                 "user": "noc",
