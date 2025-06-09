@@ -154,6 +154,29 @@ labs:
           - password: secret1
 ```
 
+### snmp { #nodes-snmp }
+Set up snmp credentials. Contains a list of items.
+
+``` yaml
+labs:
+  lab1:
+    nodes:
+      r1:
+        snmp:
+          - version: v2c
+            community: public
+```
+
+#### version { #nodes-snmp-version }
+
+SNMP protocol version. Following versions are supported:
+
+- `v2c`
+
+#### community { #nodes-snmp-comminity }
+
+SNMP community for SNMP v2c. Requred, when version is set to `v2c`.
+
 ## links {#links}
 
 Defines the connections between nodes. Each link is described as an item in the list.

@@ -67,8 +67,20 @@ protocols {
     {%- endif %}
 }
 {% endif %}
-{% if has_users -%}
+{% if has_users or has_snmp -%}
 service {
+    {% if has_snmp -%}
+    snmp {
+        {% for community in snmp -%}
+        {% if community.version == "v2c" -%}
+        community {{ community.community }} {
+            authorization ro
+        }
+        {% endif -%}
+        {%- endfor %}
+    }
+    {% endif -%}
+    {% if has_users -%}
     ssh {
         access-control {
             allow {
@@ -78,5 +90,6 @@ service {
             }
         }
     }
+    {% endif -%}
 }
 {% endif -%}

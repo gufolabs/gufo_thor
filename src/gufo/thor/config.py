@@ -355,6 +355,17 @@ class LabNodeUserCredentials(object):
 
 
 @dataclass
+class LabNodeSnmpV2cCredentials(TypedDict):
+    """SNMP v2c Credentials."""
+
+    version: Literal["v2c"]
+    community: str
+
+
+LabNodeSnmpCredentials = LabNodeSnmpV2cCredentials
+
+
+@dataclass
 class LabNodeConfig(object):
     """The `labs.nodes` section of config."""
 
@@ -364,6 +375,7 @@ class LabNodeConfig(object):
     router_id: Optional[IPv4Address] = None
     pool_gw: bool = False
     users: Optional[List[LabNodeUserCredentials]] = None
+    snmp: Optional[List[LabNodeSnmpCredentials]] = None
 
     @staticmethod
     def from_dict(
@@ -382,13 +394,37 @@ class LabNodeConfig(object):
         users_cfg = data.get("users")
         users: List[LabNodeUserCredentials] = []
         if users_cfg:
-            if isinstance(users_cfg, list):
-                with errors.context("users"):
+            with errors.context("users"):
+                if isinstance(users_cfg, list):
                     for n, u in enumerate(users_cfg):
                         with errors.context(str(n)):
                             users.append(LabNodeUserCredentials.from_dict(u))
-            else:
-                errors.error("must be list")
+                else:
+                    errors.error("must be list")
+        # Snmp
+        snmp: List[LabNodeSnmpCredentials] = []
+        snmp_cfg = data.get("snmp")
+        if snmp_cfg:
+            with errors.context("snmp"):
+                if isinstance(snmp_cfg, list):
+                    for n, s in enumerate(snmp_cfg):
+                        with errors.context(str(n)):
+                            version = s.get("version")
+                            if not version:
+                                errors.error("must contain version")
+                            elif version == "v2c":
+                                snmp.append(
+                                    LabNodeSnmpV2cCredentials(
+                                        version="v2c",
+                                        community=as_str(
+                                            s, "community", required=True
+                                        ),
+                                    )
+                                )
+                            else:
+                                errors.error("version must be v2c")
+                else:
+                    errors.error("must be list")
         return LabNodeConfig(
             name=name,
             type=as_str(data, "type", required=True),
@@ -396,17 +432,8 @@ class LabNodeConfig(object):
             router_id=as_ipv4(data, "router-id", required=False),
             pool_gw=bool(data.get("pool-gw")),
             users=users or None,
+            snmp=snmp or None,
         )
-
-
-@dataclass
-class EmptyLinkProtocolConfig(object):
-    """Empty protocol configuration."""
-
-    @staticmethod
-    def default() -> "EmptyLinkProtocolConfig":
-        """Get default instance."""
-        return EmptyLinkProtocolConfig()
 
 
 @dataclass
