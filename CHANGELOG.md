@@ -21,6 +21,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * Network laboratories.
 * Kafka flushes every message on single-node installations.
 * `expose.web` setting.
+* `expose.mongo` and `expose.postgres` settings.
 * `backup` volume.
 
 ### Changed

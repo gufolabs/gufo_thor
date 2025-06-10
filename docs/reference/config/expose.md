@@ -30,6 +30,22 @@ expose:
         port: 32777
 ```
 
+## mongo { #mongo }
+Expose mongo to host:
+
+```
+expose:
+    mongo: 27017
+```
+
+## postgres { #postgres }
+Expose postgres to host:
+
+```
+expose:
+    postgres: 5432
+```
+
 ## open_browser { #open_browser }
 
 If set to `true`, open `https://<domain_name>:<port>/` in browser

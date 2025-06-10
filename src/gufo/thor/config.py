@@ -160,6 +160,8 @@ class ExposeConfig(object):
 
     domain_name: str = "go.getnoc.com"
     web: Optional[Listen] = None
+    mongo: Optional[Listen] = None
+    postgres: Optional[Listen] = None
     open_browser: bool = True
 
     @staticmethod
@@ -173,6 +175,7 @@ class ExposeConfig(object):
         Returns:
             A configured ExposeConfig instance.
         """
+        # @todo: Rewrite using with errors.context
         data = data.copy()
         # Decode web
         if "web" in data:
@@ -181,6 +184,11 @@ class ExposeConfig(object):
             data["web"] = Listen.from_dict(data["port"])
         else:
             data["web"] = Listen(address=LOCALHOST, port=DEFAULT_WEB_PORT)
+        # Decode mongo
+        if "mongo" in data:
+            data["mongo"] = Listen.from_dict(data["mongo"])
+        if "postgres" in data:
+            data["postgres"] = Listen.from_dict(data["postgres"])
         # Deprecated port option
         if data.get("port"):
             port = data.pop("port")

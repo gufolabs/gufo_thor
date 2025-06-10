@@ -10,7 +10,11 @@ Attributes:
     postgres: postgres service singleton.
 """
 
+# Python modules
+from typing import List, Optional
+
 # Gufo Thor modules
+from ..config import Config, ServiceConfig
 from .base import BaseService, ComposeDependsCondition
 
 
@@ -38,6 +42,15 @@ class PostgresService(BaseService):
         "POSTGRES_PASSWORD": "noc",
     }
     service_discovery = {"postgres": 5432}
+
+    def get_compose_ports(
+        self: "PostgresService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[List[str]]:
+        """Expose port."""
+        r = super().get_compose_ports(config, svc) or []
+        if config.expose.postgres:
+            r.append(config.expose.postgres.docker_compose_port(5432))
+        return r if r else None
 
 
 postgres = PostgresService()
