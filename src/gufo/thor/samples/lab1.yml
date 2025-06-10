@@ -18,6 +18,10 @@ pools:
 services:
   - web
   - card
+  - scheduler
+  - chwriter
+  - classifier-vyos
+  - correlator-vyos
   - discovery-vyos
   - ping-vyos
   - syslogcollector-vyos
@@ -30,14 +34,32 @@ labs:
         version: "1.4"
         router-id: 10.0.0.1
         pool-gw: true
+        users:
+          - user: vy1
+            password: secret1
+        snmp:
+          - version: v2c
+            community: public1
       r2:
         type: vyos
         version: "1.4"
         router-id: 10.0.0.2
+        users:
+          - user: vy2
+            password: secret2
+        snmp:
+          - version: v2c
+            community: public2
       r3:
         type: vyos
         version: "1.4"
         router-id: 10.0.0.3
+        users:
+          - user: vy3
+            password: secret3
+        snmp:
+          - version: v2c
+            community: public3
     links:
       - prefix: 10.0.1.0/30
         node-a: r1

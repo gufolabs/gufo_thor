@@ -2,6 +2,9 @@
 
 Defines network labs. Each lab contains network nodes and links.
 
+!!! warning
+    docker compose 2.36.0 or later requred
+
 Example:
 
 ```yaml

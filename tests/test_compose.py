@@ -310,8 +310,8 @@ networks:
 
 @pytest.mark.parametrize(
     "sample",
-    ["simple", "common"],
-    ids=["simple", "common"],
+    ["simple", "common", "lab1"],
+    ids=["simple", "common", "lab1"],
 )
 def test_render_config(sample: str) -> None:
     t = get_sample(sample)
