@@ -15,6 +15,7 @@ from typing import Any, Dict, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from .chwriter import chwriter
 from .datastream import datastream
 from .kafka import kafka
 from .migrate import migrate
@@ -25,7 +26,7 @@ class SyslogcollectorService(NocService):
     """syslogcollector service."""
 
     name = "syslogcollector"
-    dependencies = (datastream, kafka, migrate)
+    dependencies = (chwriter, datastream, kafka, migrate)
     is_pooled = True
     require_pool_network = True
 

@@ -11,7 +11,7 @@ Attributes:
 """
 
 # Python modules
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig

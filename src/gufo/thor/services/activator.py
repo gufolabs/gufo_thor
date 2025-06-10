@@ -11,6 +11,7 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .chwriter import chwriter
 from .kafka import kafka
 from .migrate import migrate
 from .noc import NocService
@@ -21,7 +22,7 @@ class ActivatorService(NocService):
     """activator service."""
 
     name = "activator"
-    dependencies = (kafka, migrate, sae)
+    dependencies = (chwriter, kafka, migrate, sae)
     is_pooled = True
     require_pool_network = True
 

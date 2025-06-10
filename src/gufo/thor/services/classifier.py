@@ -11,6 +11,7 @@ Attributes:
 """
 
 # Gufo Thor modules
+from .chwriter import chwriter
 from .kafka import kafka
 from .migrate import migrate
 from .mongo import mongo
@@ -22,7 +23,7 @@ class ClassifierService(NocService):
     """classifier service."""
 
     name = "classifier"
-    dependencies = (kafka, migrate, mongo, postgres)
+    dependencies = (chwriter, kafka, migrate, mongo, postgres)
     is_pooled = True
     require_slots = True
 

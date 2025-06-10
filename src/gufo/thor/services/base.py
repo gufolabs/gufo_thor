@@ -344,7 +344,7 @@ class BaseService(ABC):
         r: Dict[str, Dict[str, Any]] = {"noc": {}}
         if self.is_pooled and self.require_pool_network:
             if not self._pool:
-                msg = "Pooled service {self.name} is used without pool"
+                msg = f"Pooled service {self.name} is used without pool"
                 raise ValueError(msg)
             r[f"pool-{self._pool}"] = {}
         return r
@@ -564,8 +564,12 @@ class BaseService(ABC):
         """
         items: List[Tuple[str, str]] = []
         for svc in sorted(loader.values(), key=lambda x: x.name):
-            for d in svc.iter_dependencies():
-                items.append((svc.name, d.name))
+            svc_name = f"{svc.name}-default" if svc.is_pooled else svc.name
+            service = BaseService.get(svc_name)
+            for d in service.iter_dependencies():
+                items.append(
+                    (svc_name, f"{d.name}-default" if d.is_pooled else d.name)
+                )
         r = ["digraph {"] + [f"  {x} -> {y}" for y, x in sorted(items)] + ["}"]
         return "\n".join(r)
 

@@ -22,7 +22,13 @@ import jinja2
 from gufo.loader import Loader
 
 # Gufo Thor modules
-from ..config import Config, LabConfig, LabNodeConfig
+from ..config import (
+    Config,
+    LabConfig,
+    LabNodeConfig,
+    LabNodeSnmpCredentials,
+    LabNodeUserCredentials,
+)
 from ..utils import write_file
 
 
@@ -66,6 +72,10 @@ class ConfigCtx(TypedDict):
     has_isis: bool
     isis_net: str
     eth_interfaces: List[EthIfaceSettings]
+    has_users: bool
+    users: List[LabNodeUserCredentials]
+    has_snmp: bool
+    snmp: List[LabNodeSnmpCredentials]
 
 
 class BaseLab(object):

@@ -554,8 +554,8 @@ class LabConfig(object):
             # Process links
             links: List[LabLinkConfig] = []
             with errors.context("links"):
-                for n, x in enumerate(data.get("links", [])):
-                    with errors.context(str(n)):
+                for n_link, x in enumerate(data.get("links", [])):
+                    with errors.context(str(n_link)):
                         links.append(LabLinkConfig.from_dict(x))
             return LabConfig(
                 name=name,

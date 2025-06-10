@@ -103,7 +103,7 @@ class EnvoyService(BaseService):
 
     def get_compose_networks(
         self: "EnvoyService", config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Dict[str, Any]:
         """Get networks section."""
         r = super().get_compose_networks(config, svc)
         if "noc" not in r:

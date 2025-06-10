@@ -9,4 +9,18 @@ expose:
   web:
     port: 32777
   open_browser: true
-services: [web, card, discovery, activator, classifier, correlator, ping, shell]
+pools:
+  default:
+    subnet: 192.168.100.0/24
+services:
+  - web
+  - card
+  - scheduler
+  - discovery-default
+  - activator-default
+  - classifier-default
+  - correlator-default
+  - syslogcollector-default
+  - trapcollector-default
+  - ping-default
+  - shell

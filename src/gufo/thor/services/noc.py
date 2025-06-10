@@ -44,6 +44,9 @@ class NocService(BaseService):
         """Get command section."""
         if self.compose_command:
             return self.compose_command
+        cmd = (
+            f"/usr/local/bin/python3 /opt/noc/services/{self.name}/service.py"
+        )
         if (
             self.is_pooled
             and self.require_pool_network
@@ -55,13 +58,11 @@ class NocService(BaseService):
                 (
                     "ip route delete default",
                     f"ip route add default via {pool_gw!s}",
-                    f"/usr/local/bin/python3 /opt/noc/services/{self.name}/service.py",
+                    cmd,
                 )
             )
             return f'sh -c "{cmd}"'
-        return (
-            f"/usr/local/bin/python3 /opt/noc/services/{self.name}/service.py"
-        )
+        return cmd
 
     def get_compose_volumes(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
