@@ -488,13 +488,12 @@ class LabLinkConfig(object):
         protocols: LinkProtocolConfig = {}
         with errors.context("protocols"):
             for proto_name, proto_conf in data.get("protocols", {}).items():
-                match proto_name:
-                    case "isis":
-                        protocols["isis"] = IsisLinkProtocolConfig.from_dict(
-                            proto_conf
-                        )
-                    case _:
-                        errors.error("Unknown protocol")
+                if proto_name == "isis":
+                    protocols["isis"] = IsisLinkProtocolConfig.from_dict(
+                        proto_conf
+                    )
+                else:
+                    errors.error("Unknown protocol")
         return LabLinkConfig(
             prefix=IPv4Prefix(as_str(data, "prefix", required=True)),
             node_a=as_str(data, "node-a", required=True),
