@@ -15,11 +15,12 @@ from typing import (
     Iterator,
     List,
     Literal,
-    Never,
     Optional,
     Union,
     overload,
 )
+
+from typing_extensions import Never
 
 # Gufo Thor modules
 from .ip import IPv4Address, IPv4Prefix
