@@ -20,7 +20,9 @@ import sys
 from enum import IntEnum
 from functools import cached_property
 from pathlib import Path
-from typing import Callable, List, Never, Optional
+from typing import Callable, List, Optional
+
+from typing_extensions import Never
 
 # Gufo Thor modules
 from . import __version__
@@ -95,13 +97,28 @@ class Cli(object):
         subparsers.add_parser("stop", help="Stop NOC")
         # shell
         subparsers.add_parser("shell", help="Run shell")
-        # Restart
+        # restart
         restart_parser = subparsers.add_parser(
             "restart", help="Restart service"
         )
         restart_parser.add_argument(
             "services", nargs=argparse.ONE_OR_MORE, help="Service names"
         )
+        # backup
+        backup_parser = subparsers.add_parser(
+            "backup", help="Backup databases"
+        )
+        backup_parser.add_argument(
+            "list", action="store_true", help="List backups"
+        )
+        backup_parser.add_argument(
+            "postgres", action="store_true", help="Backup postgres database"
+        )
+        backup_parser.add_argument(
+            "mongo", action="store_true", help="Backup mongo database"
+        )
+        # restore
+        subparsers.add_parser("restore", help="Restore database")
         # Parse arguments
         ns = parser.parse_args(args)
         # Set up logging
