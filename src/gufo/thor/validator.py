@@ -15,12 +15,11 @@ from typing import (
     Iterator,
     List,
     Literal,
+    NoReturn,
     Optional,
     Union,
     overload,
 )
-
-from typing_extensions import Never
 
 # Gufo Thor modules
 from .ip import IPv4Address, IPv4Prefix
@@ -114,7 +113,7 @@ class ErrorContext(object):
         yield
         self._paths.pop(-1)
 
-    def die(self, msg: Optional[str] = None) -> Never:
+    def die(self, msg: Optional[str] = None) -> NoReturn:
         """
         Dump errors and stop execution.
 
