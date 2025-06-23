@@ -230,6 +230,25 @@ class EnvoyService(BaseService):
         logger.error("Failed to sign certificate")
         raise CancelExecution()
 
+    def _get_self_signed_certificate(
+        self: "EnvoyService", csr: bytes, private_key: bytes
+    ) -> bytes:
+        """
+        Generate self-signed certificate.
+
+        Args:
+            csr: CSR body in PEM format.
+            private_key: Private key in PEM format.
+
+        Returns:
+            Self-signed certificate.
+        """
+        from gufo.acme.clients.base import AcmeClient
+
+        return AcmeClient.get_self_signed_certificate(
+            csr, private_key, validity_days=3560
+        )
+
     def _rebuild_certificate(self: "EnvoyService", config: Config) -> None:
         """Rebuild SSL certificates."""
         from gufo.acme.clients.base import AcmeClient
@@ -237,22 +256,7 @@ class EnvoyService(BaseService):
         key_path = Path("etc", "envoy", "ssl", "noc.key")
         csr_path = Path("etc", "envoy", "ssl", "noc.csr")
         cert_path = Path("etc", "envoy", "ssl", "noc.crt")
-
-        di = DOMAINS.get(config.expose.domain_name)
-        if di is None:
-            logger.error(
-                "Certificate autogeneration is not supported for domain %s",
-                config.expose.domain_name,
-            )
-            logger.error(
-                "Either change expose.domain to one of: %s", ", ".join(DOMAINS)
-            )
-            logger.error(
-                "Or generate private key and place it into %s", key_path
-            )
-            logger.error("And signed certificate into %s", cert_path)
-            raise CancelExecution()
-        # Generate key
+        # Generate private key
         logger.warning("Generating private key: %s", key_path)
         private_key = AcmeClient.get_domain_private_key()
         write_file(key_path, private_key)
@@ -260,9 +264,28 @@ class EnvoyService(BaseService):
         logger.warning("Generating certificate signing request: %s", csr_path)
         csr = AcmeClient.get_domain_csr(config.expose.domain_name, private_key)
         write_file(csr_path, csr)
-        # Sign CSR
-        logger.warning("Signing certificate: %s", cert_path)
-        cert = self._get_signed_csr(di.csr_proxy, csr)
+        # Sign
+        di = DOMAINS.get(config.expose.domain_name)
+        if di:
+            # Use CSR Proxy
+            logger.warning("Signing certificate: %s", cert_path)
+            cert = self._get_signed_csr(di.csr_proxy, csr)
+        else:
+            # Self-signed certificate
+            logger.warning(
+                "Certificate signing for domain %s is not supported",
+                config.expose.domain_name,
+            )
+            logger.error(
+                "Either change expose.domain to one of: %s", ", ".join(DOMAINS)
+            )
+            logger.error("Or allow self-signed certificate in browser")
+            logger.error(
+                "Or replace certificates in `etc/envoy/ssl` "
+                "with properly signed one"
+            )
+            logger.warning("Generating self-signed certificate")
+            cert = self._get_self_signed_certificate(csr, private_key)
         write_file(cert_path, cert)
         # Write subj
         logger.warning("Writing %s", self.SUBJ_PATH)
