@@ -20,9 +20,7 @@ import sys
 from enum import IntEnum
 from functools import cached_property
 from pathlib import Path
-from typing import Callable, List, Optional
-
-from typing_extensions import Never
+from typing import Callable, List, NoReturn, Optional
 
 # Gufo Thor modules
 from . import __version__
@@ -51,7 +49,7 @@ class Cli(object):
     """`gufo-thor` CLI utility class."""
 
     @staticmethod
-    def die(msg: Optional[str] = None) -> Never:
+    def die(msg: Optional[str] = None) -> NoReturn:
         """Die with message."""
         if msg:
             print(msg)

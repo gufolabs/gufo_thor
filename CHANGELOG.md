@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md) guide.
 
+## 0.9.1 - 2025-06-24
+
+### Fixed
+
+* Use `NoReturn` instead of `Never` for Python 3.9 and 3.10 compatibility.
+
 ## 0.9.0 - 2025-06-23
 
 ### Added
