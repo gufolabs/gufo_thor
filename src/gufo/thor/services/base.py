@@ -578,7 +578,7 @@ class BaseService(ABC):
         cls: Type["BaseService"],
         path: Path,
         tpl: str,
-        **kwargs: Union[str, int, List[Any]],
+        **kwargs: Union[str, int, None, List[Any]],
     ) -> None:
         """
         Apply a context to the template and write to file.

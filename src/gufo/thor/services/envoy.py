@@ -187,6 +187,7 @@ class EnvoyService(BaseService):
             "envoy.yaml",
             domain_name=config.expose.domain_name,
             domain_name_and_port=domain_name_and_port,
+            mtls_ca_cert=config.expose.mtls_ca_cert,
             routes=routes,
             services=sorted({r.name for r in routes if not r.redirect_to}),
         )

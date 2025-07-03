@@ -96,6 +96,10 @@ static_resources:
                           headers_to_add:
                             - key: X-Original-URI
                               value: "%REQ(:path)%"
+                            {% if mtls_ca_cert -%}
+                            - key: X-Remote-Cert-Subject
+                              value: "%DOWNSTREAM_PEER_SUBJECT%"
+                            {%- endif %}
                         authorization_response:
                           allowed_upstream_headers:
                             patterns:
@@ -137,6 +141,15 @@ static_resources:
                       filename: "/etc/envoy/ssl/noc.crt"
                     private_key:
                       filename: "/etc/envoy/ssl/noc.key"
+                {% if mtls_ca_cert -%}
+                validation_context:
+                  trusted_ca:
+                    filename: "/etc/envoy/{{mtls_ca_cert}}"
+                  match_typed_subject_alt_names:
+                    - san_type: DNS
+                      matcher:
+                        exact: "{{ domain_name }}"
+                {%- endif %}
   clusters:
     # {% for svc in services %}
     - name: "{{ svc }}_cluster"

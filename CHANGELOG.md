@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md) guide.
 
+## [Unreleased]
+
+### Added
+
+* mTLS support.
+* `expose.mtls_ca_cert` setting.
+
 ## 0.9.1 - 2025-06-24
 
 ### Fixed
