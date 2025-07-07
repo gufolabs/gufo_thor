@@ -603,6 +603,21 @@ class BaseService(ABC):
         # Write file
         write_file(path, data)
 
+    @classmethod
+    def copy_from_assets(
+        cls: Type["BaseService"], path: Path, src: Path
+    ) -> None:
+        """
+        Copy file from assets.
+
+        Args:
+            path: Destination path.
+            src: Source path, relative to assets.
+        """
+        srv_path = Path("assets") / src
+        with open(srv_path) as fp:
+            write_file(path, fp.read())
+
     def as_pooled(self, pool: str) -> "BaseService":
         """Return instance bound to pool."""
         if not self.is_pooled:

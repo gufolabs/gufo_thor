@@ -157,7 +157,7 @@ class ExposeConfig(object):
         port: An HTTPS port of the NOC's user interface (deprecated).
         open_browser: Open browser on startup.
         mtls_ca_cert: When set, enables mTLS and defines CA certificate path,
-            relative to `etc/envoy`
+            relative to `assets`
     """
 
     domain_name: str = "go.getnoc.com"
@@ -196,7 +196,7 @@ class ExposeConfig(object):
         if "mtls_ca_cert" in data:
             # Check
             with errors.context("mtls_ca_cert"):
-                path = Path("etc", "envoy") / Path(data["mtls_ca_cert"])
+                path = Path("assets") / Path(data["mtls_ca_cert"])
                 if not path.exists():
                     errors.error(
                         f"File {path} is not found. "

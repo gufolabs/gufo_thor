@@ -38,6 +38,15 @@ expose:
     mongo: 27017
 ```
 
+## mtls_ca_cert { #mtls_ca_cert }
+Enable mTLS. Defines path to CA chain, relative to `assets`
+
+**Example**: Use `assets/ca.crt` as CA certificate.
+```
+expose:
+    mtls_ca_cert: ca.crt
+```
+
 ## postgres { #postgres }
 Expose postgres to host:
 

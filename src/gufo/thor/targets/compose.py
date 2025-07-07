@@ -42,6 +42,8 @@ class ComposeTarget(BaseTarget):
         # Create etc/
         etc = Path("etc")
         ensure_directory(etc)
+        # Create assets/
+        ensure_directory(Path("assets"))
         # Generate directories and configs
         services = list(BaseService.resolve(self.config.services))
         for svc in services:

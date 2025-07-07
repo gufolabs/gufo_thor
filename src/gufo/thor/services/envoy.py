@@ -187,13 +187,19 @@ class EnvoyService(BaseService):
             "envoy.yaml",
             domain_name=config.expose.domain_name,
             domain_name_and_port=domain_name_and_port,
-            mtls_ca_cert=config.expose.mtls_ca_cert,
+            enable_mtls=bool(config.expose.mtls_ca_cert),
             routes=routes,
             services=sorted({r.name for r in routes if not r.redirect_to}),
         )
         # Prepare TLS certificates
         if self._to_rebuild_certificate(config):
             self._rebuild_certificate(config)
+        # Update mTLS CA
+        if config.expose.mtls_ca_cert:
+            self.copy_from_assets(
+                Path("etc", "envoy", "ssl", "ca.crt"),
+                Path(config.expose.mtls_ca_cert),
+            )
 
     def _to_rebuild_certificate(self: "EnvoyService", config: Config) -> bool:
         """Check if SSL certificate must be rebuilt."""
