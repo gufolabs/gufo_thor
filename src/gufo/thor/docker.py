@@ -158,5 +158,16 @@ class Docker(object):
         logger.warning("Running shell")
         return self._commpose_command("run", "--rm", "shell")
 
+    def destroy(self: "Docker") -> bool:
+        """
+        Destroy installation.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        logger.warning("Destroying installation")
+        return self._commpose_command("down", "--volumes")
+
 
 docker = Docker()

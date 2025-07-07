@@ -28,6 +28,7 @@ from .config import Config
 from .docker import docker
 from .error import CancelExecution
 from .log import logger
+from .targets.base import BaseTarget
 
 NAME: str = "gufo-thor"
 DEFAULT_HTTPS_PORT = 443
@@ -117,6 +118,15 @@ class Cli(object):
         )
         # restore
         subparsers.add_parser("restore", help="Restore database")
+        # destroy
+        destroy_parser = subparsers.add_parser(
+            "destroy", help="Destroy installation and free resources"
+        )
+        destroy_parser.add_argument(
+            "--yes",
+            action="store_true",
+            help="Execute without explicit confirmation",
+        )
         # Parse arguments
         ns = parser.parse_args(args)
         # Set up logging
@@ -187,8 +197,14 @@ class Cli(object):
         path = Path("thor.yml")
         return Config.from_file(path)
 
-    def handle_prepare(self: "Cli", ns: argparse.Namespace) -> ExitCode:
-        """Prepare NOC configuration."""
+    @cached_property
+    def target(self: "Cli") -> BaseTarget:
+        """
+        Get target.
+
+        Returns:
+            Target instance.
+        """
         from gufo.thor.targets.base import loader
 
         # Read config
@@ -201,9 +217,12 @@ class Cli(object):
             logger.warning("Writing %s", path)
             with open(path, "w") as fp:
                 fp.write(sample)
-        # Prepare target
-        target = loader["compose"](self.config)
-        target.prepare()
+        # Get target
+        return loader["compose"](self.config)
+
+    def handle_prepare(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+        """Prepare NOC configuration."""
+        self.target.prepare()
         return ExitCode.OK
 
     def _get_ui_url(self: "Cli") -> str:
@@ -269,6 +288,32 @@ class Cli(object):
         if not docker.restart(*ns.services):
             return ExitCode.ERR
         return ExitCode.OK
+
+    def handle_destroy(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+        """Destroy installation."""
+        if not self.confirm(
+            "Destroy installation? All data will be lost!", ns=ns
+        ):
+            logger.warning("Cancelled!")
+            return ExitCode.ERR
+        r = self.handle_prepare(ns)
+        if r != ExitCode.OK:
+            return r
+        if not docker.destroy():
+            return ExitCode.ERR
+        return ExitCode.OK
+
+    def confirm(self: "Cli", question: str, ns: argparse.Namespace) -> bool:
+        """Ask for confirmation."""
+        if ns.yes:
+            return True
+        while True:
+            r = input(f"{question} [y/N]: ").strip().lower()
+            if not r or r == "n":
+                return False
+            if r == "y":
+                return True
+            logger.warning("Please respond `y` or `n`")
 
 
 def main() -> int:

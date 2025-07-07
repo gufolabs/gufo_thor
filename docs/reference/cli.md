@@ -55,3 +55,11 @@ To run NOC shell use:
 ```
 gufo-thor shell
 ```
+
+## Destroying Installation
+
+To destroy installation and free resources:
+
+```
+gufo-thor destroy
+```
