@@ -23,6 +23,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * `destroy` command.
 * Show gufo-thor version on startup.
 
+### Removed
+
+* Old python's docker-compose support.
+
 ## 0.9.1 - 2025-06-24
 
 ### Fixed

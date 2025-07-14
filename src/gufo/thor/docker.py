@@ -13,6 +13,7 @@ Attributes:
 
 # Python modules
 import json
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -31,12 +32,10 @@ class DockerConfig(object):
     Attributes:
         logging_driver: Current logging driver.
         server_version: Current docker server version.
-        has_compose_plugin: Compose plugin is installed.
     """
 
     logging_driver: str
     server_version: str
-    has_compose_plugin: bool
 
 
 class Docker(object):
@@ -61,7 +60,6 @@ class Docker(object):
             return DockerConfig(
                 logging_driver="json-file",
                 server_version="24.0.6",
-                has_compose_plugin=True,
             )
         return self._read_config()
 
@@ -88,9 +86,10 @@ class Docker(object):
         cfg = DockerConfig(
             logging_driver=data["LoggingDriver"],
             server_version=data["ServerVersion"],
-            has_compose_plugin=has_compose,
         )
         logger.warning("Docker %s found", cfg.server_version)
+        if not has_compose:
+            self.die("Compose plugin is not installed")
         return cfg
 
     @cached_property
