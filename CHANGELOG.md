@@ -28,6 +28,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * Use `NoReturn` instead of `Never` for Python 3.9 and 3.10 compatibility.
 
+### Changed
+
+* static: Do not expose config and crashinfo volumes
+
 ## 0.9.0 - 2025-06-23
 
 ### Added

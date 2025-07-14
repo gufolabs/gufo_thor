@@ -50,6 +50,13 @@ class StaticService(NocService):
         Avoid /ui/pkg to be overriden.
         """
         r = super().get_compose_volumes(config, svc) or []
+        # Filter out settings and crashinfo
+        if r:
+            r = [
+                x
+                for x in r
+                if not x.startswith(("./etc/noc/settings.yml:", "crashinfo:"))
+            ]
         if config.noc.path:
             # Preserve /ui/pkg to not be overriden with repo
             r.append("/opt/noc/ui/pkg")
