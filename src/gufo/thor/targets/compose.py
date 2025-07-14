@@ -14,6 +14,8 @@ from typing import Any, Dict, List, Union
 import yaml
 
 # Gufo Thor modules
+from gufo.thor import __version__
+
 from ..labs.base import BaseLab
 from ..services.base import BaseService
 from ..utils import ensure_directory, write_file
@@ -32,6 +34,7 @@ class ComposeTarget(BaseTarget):
 
     def prepare(self: "ComposeTarget") -> None:
         """Generate docker-compose.yml, data directories, and configs."""
+        print(f"gufo-thor {__version__}")
         # Generate docker-compose.yml
         write_file(Path("docker-compose.yml"), self.render_config())
         # Generate .env
