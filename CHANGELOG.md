@@ -12,6 +12,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Unreleased]
 
+### Fixed
+
+* Do not show trace when docker daemon is not running.
+
 ### Added
 
 * mTLS support.

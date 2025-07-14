@@ -17,6 +17,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from functools import cached_property
+from typing import NoReturn
 
 # Gufo Thor modules
 from .log import logger
@@ -40,6 +41,12 @@ class DockerConfig(object):
 
 class Docker(object):
     """Docker wrapper."""
+
+    @staticmethod
+    def die(msg: str) -> NoReturn:
+        """Show error message and die."""
+        print(msg)
+        sys.exit(1)
 
     @cached_property
     def _config(self: "Docker") -> DockerConfig:
@@ -66,9 +73,12 @@ class Docker(object):
             Parsed config.
         """
         logger.warning("Reading docker config")
-        r = subprocess.check_output(
-            ["docker", "info", "--format", "{{ json . }}"]
-        )
+        try:
+            r = subprocess.check_output(
+                ["docker", "info", "--format", "{{ json . }}"]
+            )
+        except subprocess.CalledProcessError:
+            self.die("Docker is not running. Please run docker.")
         data = json.loads(r)
         # Check plugins
         client_plugins = data["ClientInfo"]["Plugins"]
