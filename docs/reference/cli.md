@@ -48,6 +48,20 @@ To stop NOC use:
 gufo-thor stop
 ```
 
+## Restarting Process
+
+To restart NOC process use:
+
+```
+gufo-thor restart <process name>
+```
+
+**Example:**
+
+```
+gufo-thor restart web
+```
+
 ## Running Shell
 
 To run NOC shell use:
@@ -62,6 +76,26 @@ To show NOC processes' statistics use:
 
 ```
 gufo-thor stats
+```
+
+## Show Process' Logs
+
+To show NOC process' logs use:
+
+```
+gufo-thor logs <process name>
+```
+
+**Example:**
+
+```
+gufo-thor logs web
+```
+
+To use logs in follow mode:
+
+```
+gufo-thor logs -f <process name>
 ```
 
 ## Destroying Installation

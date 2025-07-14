@@ -20,6 +20,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * mTLS support.
 * `expose.mtls_ca_cert` setting.
+* `logs` command.
 * `stats` command.
 * `destroy` command.
 * Show gufo-thor version on startup.

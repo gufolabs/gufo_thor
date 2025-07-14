@@ -94,6 +94,14 @@ class Cli(object):
         )
         # down
         subparsers.add_parser("stop", help="Stop NOC")
+        # logs
+        logs_parser = subparsers.add_parser("logs", help="Show process' logs")
+        logs_parser.add_argument(
+            "-f", "--follow", action="store_true", help="Follow logs"
+        )
+        logs_parser.add_argument(
+            "services", nargs=argparse.ONE_OR_MORE, help="Service names"
+        )
         # shell
         subparsers.add_parser("shell", help="Run shell")
         # stats
@@ -292,11 +300,21 @@ class Cli(object):
         return ExitCode.OK
 
     def handle_stats(self: "Cli", ns: argparse.Namespace) -> ExitCode:
-        """Show stats"""
+        """Show stats."""
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
             return r
         if not docker.stats():
+            return ExitCode.ERR
+        return ExitCode.OK
+
+    def handle_logs(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+        """Show logs."""
+        r = self.handle_prepare(ns)
+        if r != ExitCode.OK:
+            return r
+        print(ns)
+        if not docker.logs(*ns.services, _follow=ns.follow):
             return ExitCode.ERR
         return ExitCode.OK
 
