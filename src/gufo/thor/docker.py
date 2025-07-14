@@ -102,7 +102,9 @@ class Docker(object):
         """
         return self._config.logging_driver
 
-    def _commpose_command(self: "Docker", *args: str) -> bool:
+    def _commpose_command(
+        self: "Docker", *args: str, _exec: bool = False
+    ) -> bool:
         """
         Run compose subcommand.
 
@@ -110,11 +112,10 @@ class Docker(object):
             True: if command executed successfully.
             False: otherwise.
         """
-        if self._config.has_compose_plugin:
-            cmd = ["docker", "compose"]
-        else:
-            cmd = ["docker-compose"]
+        cmd = ["docker", "compose"]
         cmd.extend(args)
+        if _exec:
+            return os.execvp(cmd[0], cmd)
         try:
             subprocess.check_call(cmd)
             return True
@@ -130,7 +131,7 @@ class Docker(object):
             False: otherwise.
         """
         logger.warning("Starting containers")
-        return self._commpose_command("up", "-d")
+        return self._commpose_command("up", "-d", _exec=True)
 
     def stop(self: "Docker") -> bool:
         """
@@ -141,7 +142,7 @@ class Docker(object):
             False: otherwise.
         """
         logger.warning("Stopping containers")
-        return self._commpose_command("stop")
+        return self._commpose_command("stop", _exec=True)
 
     def restart(self: "Docker", *args: str) -> bool:
         """
@@ -154,7 +155,7 @@ class Docker(object):
         logger.warning("Restarting containers: %s", ", ".join(args))
         return self._commpose_command(
             *("stop", *args)
-        ) and self._commpose_command(*("up", "-d", *args))
+        ) and self._commpose_command(*("up", "-d", *args), _exec=True)
 
     def shell(self: "Docker") -> bool:
         """
@@ -176,7 +177,7 @@ class Docker(object):
             False: otherwise.
         """
         logger.warning("Destroying installation")
-        return self._commpose_command("down", "--volumes")
+        return self._commpose_command("down", "--volumes", _exec=True)
 
 
 docker = Docker()

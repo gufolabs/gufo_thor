@@ -23,6 +23,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * `destroy` command.
 * Show gufo-thor version on startup.
 
+### Changed
+
+* Use `exec` to replace process' image when possible.
+
 ### Removed
 
 * Old python's docker-compose support.
