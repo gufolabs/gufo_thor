@@ -166,7 +166,17 @@ class Docker(object):
             False: otherwise.
         """
         logger.warning("Running shell")
-        return self._commpose_command("run", "--rm", "shell")
+        return self._commpose_command("run", "--rm", "shell", _exec=True)
+
+    def stats(self: "Docker") -> bool:
+        """
+        Show container stats.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        return self._commpose_command("stats", _exec=True)
 
     def destroy(self: "Docker") -> bool:
         """

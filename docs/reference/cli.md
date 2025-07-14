@@ -56,6 +56,14 @@ To run NOC shell use:
 gufo-thor shell
 ```
 
+## Show Stats
+
+To show NOC processes' statistics use:
+
+```
+gufo-thor stats
+```
+
 ## Destroying Installation
 
 To destroy installation and free resources:

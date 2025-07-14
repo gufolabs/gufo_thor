@@ -96,6 +96,8 @@ class Cli(object):
         subparsers.add_parser("stop", help="Stop NOC")
         # shell
         subparsers.add_parser("shell", help="Run shell")
+        # stats
+        subparsers.add_parser("stats", help="Show container stats")
         # restart
         restart_parser = subparsers.add_parser(
             "restart", help="Restart service"
@@ -286,6 +288,15 @@ class Cli(object):
         if r != ExitCode.OK:
             return r
         if not docker.restart(*ns.services):
+            return ExitCode.ERR
+        return ExitCode.OK
+
+    def handle_stats(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+        """Show stats"""
+        r = self.handle_prepare(ns)
+        if r != ExitCode.OK:
+            return r
+        if not docker.stats():
             return ExitCode.ERR
         return ExitCode.OK
 
