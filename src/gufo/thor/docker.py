@@ -115,7 +115,7 @@ class Docker(object):
         cmd = ["docker", "compose"]
         cmd.extend(args)
         if _exec:
-            return os.execvp(cmd[0], cmd)
+            return os.execvp(cmd[0], cmd)  # noqa: S606
         try:
             subprocess.check_call(cmd)
             return True

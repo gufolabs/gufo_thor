@@ -215,6 +215,14 @@ class BaseService(ABC):
         Returns:
             dict of the docker-compose configuration.
         """
+
+        def set_if(
+            key: str, value: Union[None, str, List[str], Dict[str, Any]]
+        ) -> None:
+            """Set key to `r` if value is not empty."""
+            if value:
+                r[key] = value
+
         # Basic settings
         r: Dict[str, Any] = {
             "image": self.get_compose_image(config, svc),
@@ -224,56 +232,37 @@ class BaseService(ABC):
         if self.allow_scale:
             r["deploy"] = {"replicas": svc.scale if svc else 1}
         # depends_on
-        deps = {
-            dep.get_compose_name(): {
-                "condition": dep.get_compose_depends_condition(
-                    config, svc
-                ).value
-            }
-            for dep in self.iter_dependencies()
-        }
-        if deps:
-            r["depends_on"] = deps
+        set_if(
+            "depends_on",
+            {
+                dep.get_compose_name(): {
+                    "condition": dep.get_compose_depends_condition(
+                        config, svc
+                    ).value
+                }
+                for dep in self.iter_dependencies()
+            },
+        )
         # working_dir
-        wd = self.get_compose_working_dir(config, svc)
-        if wd:
-            r["working_dir"] = wd
+        set_if("working_dir", self.get_compose_working_dir(config, svc))
         # command
-        cmd = self.get_compose_command(config, svc)
-        if cmd:
-            r["command"] = cmd
+        set_if("command", self.get_compose_command(config, svc))
         # entrypoint
-        entrypoint = self.get_compose_entrypoint(config, svc)
-        if entrypoint:
-            r["entrypoint"] = entrypoint
+        set_if("entrypoint", self.get_compose_entrypoint(config, svc))
         # volumes
-        volumes = self.get_compose_volumes(config, svc)
-        if volumes:
-            r["volumes"] = volumes
+        set_if("volumes", self.get_compose_volumes(config, svc))
         # networks
-        networks = self.get_compose_networks(config, svc)
-        if networks:
-            r["networks"] = networks
+        set_if("networks", self.get_compose_networks(config, svc))
         # ports
-        ports = self.get_compose_ports(config, svc)
-        if ports:
-            r["ports"] = ports
+        set_if("ports", self.get_compose_ports(config, svc))
         # environment
-        env = self.get_compose_environment(config, svc)
-        if env:
-            r["environment"] = env
+        set_if("environment", self.get_compose_environment(config, svc))
         # healthcheck
-        healthcheck = self.get_compose_healthcheck(config, svc)
-        if healthcheck:
-            r["healthcheck"] = healthcheck
+        set_if("healthcheck", self.get_compose_healthcheck(config, svc))
         # logging
-        logging = self.get_compose_logging(config, svc)
-        if logging:
-            r["logging"] = logging
+        set_if("logging", self.get_compose_logging(config, svc))
         # labels
-        labels = self.get_compose_labels(config, svc)
-        if labels:
-            r["labels"] = labels
+        set_if("labels", self.get_compose_labels(config, svc))
         # extra
         extra = self.get_compose_extra(config, svc)
         if extra:
