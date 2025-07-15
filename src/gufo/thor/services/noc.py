@@ -15,7 +15,7 @@ import yaml
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
 from ..utils import ensure_directory, merge_dict, write_file
-from .base import BaseService, ComposeDependsCondition
+from .base import BaseService, ComposeDependsCondition, Role
 
 
 class NocService(BaseService):
@@ -23,6 +23,7 @@ class NocService(BaseService):
 
     is_noc = True
     name = "noc"
+    role = Role.APP
 
     def get_compose_image(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]

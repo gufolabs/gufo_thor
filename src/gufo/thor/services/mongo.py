@@ -15,7 +15,7 @@ from typing import List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
-from .base import BaseService, ComposeDependsCondition
+from .base import BaseService, ComposeDependsCondition, Role
 
 
 class MongoService(BaseService):
@@ -35,6 +35,7 @@ class MongoService(BaseService):
     compose_volumes = ["mongo_data:/data/db", "backup:/data/backup"]
     compose_volumes_config = {"mongo_data": {}}
     service_discovery = {"mongo": 27017}
+    role = Role.DB
 
     def get_compose_ports(
         self: "MongoService", config: Config, svc: Optional[ServiceConfig]

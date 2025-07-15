@@ -25,6 +25,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * `destroy` command.
 * `upgrade` command.
 * Show gufo-thor version on startup.
+* `noc.role` and `noc.pool` container labels.
 
 ### Changed
 

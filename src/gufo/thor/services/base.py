@@ -46,6 +46,28 @@ class ComposeDependsCondition(Enum):
     COMPLETED_SUCCESSFULLY = "service_completed_successfully"
 
 
+class Role(Enum):
+    """
+    Process' role in NOC.
+
+    Attributes:
+        OTHER: Unspecified role.
+        APP: NOC application.
+        DB: NOC database.
+        UTILS: Various utilities.
+    """
+
+    OTHER = "other"
+    APP = "app"
+    DB = "db"
+    UTILS = "utils"
+
+    @classmethod
+    def default(cls) -> "Role":
+        """Get default value."""
+        return cls.OTHER
+
+
 class BaseService(ABC):
     """
     Base class for the service declaration.
@@ -80,6 +102,9 @@ class BaseService(ABC):
         compose_environment: `environment` section, if any.
             Override `get_compose_environment`
             to implement custom behavior.
+        compose_labels: `labels` section, if any.
+            Override `get_compose_labels`
+            to implement custom behavior.
         compose_extra: Additional parameters to be merged
             with the compose config.
             Override `get_compose_extra`
@@ -113,6 +138,7 @@ class BaseService(ABC):
     compose_volumes: Optional[List[str]] = None
     compose_volumes_config: Optional[Dict[str, Dict[str, Any]]] = None
     compose_environment: Optional[Dict[str, str]] = None
+    compose_labels: Optional[List[str]] = None
     compose_extra: Optional[Dict[str, Any]] = None
     service_discovery: Optional[Dict[str, Union[int, Dict[str, Any]]]] = None
     allow_scale: bool = False
@@ -122,6 +148,7 @@ class BaseService(ABC):
     rewrite_http_prefix: Optional[str] = None
     is_pooled: bool = False
     require_pool_network = False
+    role: Role = Role.default()
 
     def __init__(self) -> None:
         self._pool: Optional[str] = None
@@ -178,6 +205,7 @@ class BaseService(ABC):
         * `get_compose_environment` - to build `environments` section.
         * `get_compose_healthcheck` - to build `healthcheck` section.
         * `get_compose_extra` to add the extra parameters to the result.
+        * `get_compose_labels` to add the extra labels to the result.
         * `get_compose_logging` - to build `logging` section.
 
         Args:
@@ -242,6 +270,10 @@ class BaseService(ABC):
         logging = self.get_compose_logging(config, svc)
         if logging:
             r["logging"] = logging
+        # labels
+        labels = self.get_compose_labels(config, svc)
+        if labels:
+            r["labels"] = labels
         # extra
         extra = self.get_compose_extra(config, svc)
         if extra:
@@ -440,6 +472,26 @@ class BaseService(ABC):
         if docker.logging_driver == "json-file":
             return {"options": {"max-size": "10m", "max-file": "3"}}
         return None
+
+    def get_compose_labels(
+        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[List[str]]:
+        """
+        Get docker-compose.yml `labels` section.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            List of labels, if not empty.
+        """
+        labels = [f"noc.role={self.role.value}"]
+        if self.is_pooled and self._pool:
+            labels.append(f"noc.pool={self._pool}")
+        if self.compose_labels:
+            labels.extend(self.compose_labels)
+        return labels
 
     def get_compose_extra(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]

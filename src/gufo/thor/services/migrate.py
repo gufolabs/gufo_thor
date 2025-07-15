@@ -15,7 +15,7 @@ from typing import Dict, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
-from .base import ComposeDependsCondition
+from .base import ComposeDependsCondition, Role
 from .clickhouse import clickhouse
 from .consul import consul
 from .kafka import kafka
@@ -39,6 +39,7 @@ class MigrateService(NocService):
     dependencies = (clickhouse, consul, kafka, mongo, postgres)
     compose_depends_condition = ComposeDependsCondition.COMPLETED_SUCCESSFULLY
     compose_command = "./scripts/deploy/migrate.sh"
+    role = Role.UTILS
 
     def get_compose_command(
         self: "MigrateService", config: Config, svc: Optional[ServiceConfig]

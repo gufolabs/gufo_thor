@@ -11,7 +11,7 @@ Attributes:
 """
 
 # Gufo Thor modules
-from .base import BaseService, ComposeDependsCondition
+from .base import BaseService, ComposeDependsCondition, Role
 
 
 class ClickhouseService(BaseService):
@@ -45,6 +45,7 @@ class ClickhouseService(BaseService):
         },
     }
     service_discovery = {"clickhouse": 8123}
+    role = Role.DB
 
 
 clickhouse = ClickhouseService()
