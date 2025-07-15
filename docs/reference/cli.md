@@ -98,6 +98,14 @@ To use logs in follow mode:
 gufo-thor logs -f <process name>
 ```
 
+## Upgrading NOC
+
+To upgrade NOC to a new version use:
+
+```
+gufo-thor upgrade
+```
+
 ## Destroying Installation
 
 To destroy installation and free resources:

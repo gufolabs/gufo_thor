@@ -137,6 +137,8 @@ class Cli(object):
             action="store_true",
             help="Execute without explicit confirmation",
         )
+        # upgrade
+        subparsers.add_parser("upgrade", help="Update NOC")
         # Parse arguments
         ns = parser.parse_args(args)
         # Set up logging
@@ -313,7 +315,6 @@ class Cli(object):
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
             return r
-        print(ns)
         if not docker.logs(*ns.services, _follow=ns.follow):
             return ExitCode.ERR
         return ExitCode.OK
@@ -330,6 +331,19 @@ class Cli(object):
             return r
         if not docker.destroy():
             return ExitCode.ERR
+        return ExitCode.OK
+
+    def handle_upgrade(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+        """Upgrade NOC."""
+        r = self.handle_prepare(ns)
+        if r != ExitCode.OK:
+            return r
+        logger.warning("Cleaning containers")
+        docker.down()
+        logger.warning("Pulling new images")
+        if not docker.pull():
+            return ExitCode.ERR
+        logger.warning("Running migrate")
         return ExitCode.OK
 
     def confirm(self: "Cli", question: str, ns: argparse.Namespace) -> bool:

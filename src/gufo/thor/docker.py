@@ -197,5 +197,25 @@ class Docker(object):
         logger.warning("Destroying installation")
         return self._commpose_command("down", "--volumes", _exec=True)
 
+    def pull(self: "Docker") -> bool:
+        """
+        Pull containers.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        return self._commpose_command("pull", _exec=True)
+
+    def down(self: "Docker", *args: str) -> bool:
+        """
+        Down services' containers.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        return self._commpose_command(*("down", *args))
+
 
 docker = Docker()

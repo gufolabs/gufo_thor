@@ -23,6 +23,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * `logs` command.
 * `stats` command.
 * `destroy` command.
+* `upgrade` command.
 * Show gufo-thor version on startup.
 
 ### Changed
