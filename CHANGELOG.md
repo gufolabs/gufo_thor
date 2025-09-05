@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md) guide.
 
+## [Unreleased]
+
+### Changed
+
+* Docker container labels `noc.role` and `noc.pool` now are prefixed with `com.gufolabs.`.
+
 ## 0.10.0 - 2025-06-24
 
 ### Fixed

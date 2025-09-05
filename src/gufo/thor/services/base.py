@@ -28,6 +28,8 @@ from ..config import Config, ServiceConfig
 from ..docker import docker
 from ..utils import write_file
 
+LABEL_NS = "com.gufolabs"
+
 
 class ComposeDependsCondition(Enum):
     """
@@ -475,9 +477,9 @@ class BaseService(ABC):
         Returns:
             List of labels, if not empty.
         """
-        labels = [f"noc.role={self.role.value}"]
+        labels = [f"{LABEL_NS}.noc.role={self.role.value}"]
         if self.is_pooled and self._pool:
-            labels.append(f"noc.pool={self._pool}")
+            labels.append(f"{LABEL_NS}.noc.pool={self._pool}")
         if self.compose_labels:
             labels.extend(self.compose_labels)
         return labels
