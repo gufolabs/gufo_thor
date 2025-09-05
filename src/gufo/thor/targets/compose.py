@@ -21,6 +21,8 @@ from ..services.base import BaseService
 from ..utils import ensure_directory, write_file
 from .base import BaseTarget
 
+DOT_PATH = Path(".")
+
 
 class ComposeTarget(BaseTarget):
     """
@@ -74,10 +76,13 @@ class ComposeTarget(BaseTarget):
             "services": self._get_services_config(),
             "networks": self._get_networks_config(),
             "volumes": self._get_volumes_config(),
+            "secrets": self._get_secrets_config(),
         }
         self._apply_labs(r)
-        if not r["volumes"]:
-            del r["volumes"]
+        # Remove empty sections
+        for k in list(r):
+            if not r[k]:
+                del r[k]
         return r
 
     def _get_services_config(self: "ComposeTarget") -> Dict[str, Any]:
@@ -128,6 +133,20 @@ class ComposeTarget(BaseTarget):
                     r[n].update(c)
                 else:
                     r[n] = c
+        return r
+
+    def _get_secrets_config(self) -> Dict[str, Any]:
+        """Build secrets section of config."""
+        r: Dict[str, Dict[str, Any]] = {}
+        for svc in BaseService.resolve(self.config.services):
+            secrets = svc.get_compose_secrets(
+                self.config, self.config.services.get(svc.name)
+            )
+            if not secrets:
+                continue
+            for s in secrets:
+                s.ensure_secret()
+                r[s.name] = {"file": str(DOT_PATH / s.path)}
         return r
 
     def _apply_labs(self, cfg: Dict[str, Any]) -> None:

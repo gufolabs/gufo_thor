@@ -12,6 +12,11 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Unreleased]
 
+### Added
+
+* Secrets management.
+* Generate unique `secret_key` on first start.
+
 ### Changed
 
 * Docker container labels `noc.role` and `noc.pool` now are prefixed with `com.gufolabs.`.

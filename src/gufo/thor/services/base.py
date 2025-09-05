@@ -26,6 +26,7 @@ from gufo.loader import Loader
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
 from ..docker import docker
+from ..secret import Secret
 from ..utils import write_file
 
 LABEL_NS = "com.gufolabs"
@@ -107,6 +108,9 @@ class BaseService(ABC):
         compose_labels: `labels` section, if any.
             Override `get_compose_labels`
             to implement custom behavior.
+        compose_secrets: `secrets` section, if any.
+            Override `get_compose_secrets`
+            to implement custom behavior.
         compose_extra: Additional parameters to be merged
             with the compose config.
             Override `get_compose_extra`
@@ -141,6 +145,7 @@ class BaseService(ABC):
     compose_volumes_config: Optional[Dict[str, Dict[str, Any]]] = None
     compose_environment: Optional[Dict[str, str]] = None
     compose_labels: Optional[List[str]] = None
+    compose_secrets: Optional[List[Secret]] = None
     compose_extra: Optional[Dict[str, Any]] = None
     service_discovery: Optional[Dict[str, Union[int, Dict[str, Any]]]] = None
     allow_scale: bool = False
@@ -208,6 +213,7 @@ class BaseService(ABC):
         * `get_compose_healthcheck` - to build `healthcheck` section.
         * `get_compose_extra` to add the extra parameters to the result.
         * `get_compose_labels` to add the extra labels to the result.
+        * `get_compose_secrets to add the extra secrets to the result.
         * `get_compose_logging` - to build `logging` section.
 
         Args:
@@ -265,6 +271,10 @@ class BaseService(ABC):
         set_if("logging", self.get_compose_logging(config, svc))
         # labels
         set_if("labels", self.get_compose_labels(config, svc))
+        # secrets
+        secrets = self.get_compose_secrets(config, svc)
+        if secrets:
+            set_if("secrets", [x.name for x in secrets])
         # extra
         extra = self.get_compose_extra(config, svc)
         if extra:
@@ -483,6 +493,23 @@ class BaseService(ABC):
         if self.compose_labels:
             labels.extend(self.compose_labels)
         return labels
+
+    def get_compose_secrets(
+        self, config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[List[Secret]]:
+        """
+        Get docker-compose.yml `secrets` section.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            List of secrets, if not empty.
+        """
+        if self.compose_secrets:
+            return self.compose_secrets
+        return None
 
     def get_compose_extra(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]

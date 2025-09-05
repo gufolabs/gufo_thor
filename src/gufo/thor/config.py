@@ -27,9 +27,10 @@ from typing import (
 import yaml
 
 from .ip import IPv4Address, IPv4Prefix
+from .log import logger
 
 # Gufo Thor modules
-from .log import logger
+from .secret import Secret
 from .validator import as_int, as_ipv4, as_ipv4_prefix, as_str, errors
 
 LOCALHOST = "127.0.0.1"
@@ -73,6 +74,12 @@ class NocConfig(object):
         Returns:
             A configured NocConfig instance.
         """
+        # Check secrets
+        cfg = data.get("config")
+        if cfg:
+            with errors.context("config"):
+                for s in Secret.iter_secrets():
+                    s.check_config(cfg)
         return NocConfig(**data)
 
     @staticmethod

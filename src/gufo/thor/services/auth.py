@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
-# Gufo Thor: login service
+# Gufo Thor: auth service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """
 login service.
@@ -11,6 +11,7 @@ Attributes:
 """
 
 # Gufo Thor modules
+from ..secret import secret_key
 from .envoy import envoy
 from .kafka import kafka
 from .migrate import migrate
@@ -28,6 +29,7 @@ class AuthService(NocHcService):
     compose_command = (
         "/usr/local/bin/python3 /opt/noc/services/login/service.py"
     )
+    compose_secrets = [secret_key]
 
 
 auth = AuthService()
