@@ -16,6 +16,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * Docker container labels `noc.role` and `noc.pool` now are prefixed with `com.gufolabs.`.
 
+### Infrastructure
+
+* gufo-loader 1.0.4
+
 ## 0.10.0 - 2025-06-24
 
 ### Fixed
