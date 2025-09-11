@@ -11,6 +11,7 @@ Attributes:
 """
 
 # Gufo Thor modules
+from ..secret import secret_key
 from .envoy import envoy
 from .migrate import migrate
 from .mongo import mongo
@@ -26,6 +27,7 @@ class LoginService(NocHcService):
     dependencies = (envoy, migrate, mongo, postgres, static)
     allow_scale = True
     expose_http_prefix = "/api/login/"
+    compose_secrets = [secret_key]
 
 
 login = LoginService()
