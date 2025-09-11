@@ -11,6 +11,7 @@ Attributes:
 """
 
 # Python Modules
+import copy
 import operator
 from abc import ABC
 from enum import Enum
@@ -18,9 +19,9 @@ from importlib import resources
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
 
+# Third-party modules
 import jinja2
 
-# Third-party modules
 from gufo.loader import Loader
 
 # Gufo Thor modules
@@ -455,6 +456,8 @@ class BaseService(ABC):
         Returns:
             Dict of healthcheck, if not empty
         """
+        if self.compose_healthcheck:
+            return copy.deepcopy(self.compose_healthcheck)
         return self.compose_healthcheck
 
     def get_compose_logging(

@@ -20,6 +20,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 ### Changed
 
 * Docker container labels `noc.role` and `noc.pool` now are prefixed with `com.gufolabs.`.
+* docker-compose.yml: Do not use yaml aliases for healthchecks.
 
 ### Infrastructure
 
