@@ -19,6 +19,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ### Changed
 
+* expose.web: listen on all interfaces by default, if domain differs from `go.getnoc.com`.
 * Docker container labels `noc.role` and `noc.pool` now are prefixed with `com.gufolabs.`.
 * docker-compose.yml: Do not use yaml aliases for healthchecks.
 

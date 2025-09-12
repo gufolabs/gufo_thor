@@ -33,7 +33,9 @@ from .log import logger
 from .secret import Secret
 from .validator import as_int, as_ipv4, as_ipv4_prefix, as_str, errors
 
+DEFAULT_DOMAIN = "go.getnoc.com"
 LOCALHOST = "127.0.0.1"
+WILDCARD = "0.0.0.0"  # noqa:S104
 DEFAULT_WEB_PORT = 32777
 
 
@@ -167,7 +169,7 @@ class ExposeConfig(object):
             relative to `assets`
     """
 
-    domain_name: str = "go.getnoc.com"
+    domain_name: str = DEFAULT_DOMAIN
     web: Optional[Listen] = None
     mongo: Optional[Listen] = None
     postgres: Optional[Listen] = None
@@ -189,7 +191,15 @@ class ExposeConfig(object):
         data = data.copy()
         # Decode web
         if "web" in data:
-            data["web"] = Listen.from_dict(data["web"])
+            web_cfg = data["web"]
+            # Alter defaults for non-default domains
+            if (
+                "address" not in web_cfg
+                and data.get("domain_name", "") != DEFAULT_DOMAIN
+            ):
+                # Bind to all addresses for non-default domain
+                web_cfg["address"] = WILDCARD
+            data["web"] = Listen.from_dict(web_cfg)
         elif "port" in data:
             data["web"] = Listen.from_dict(data["port"])
         else:
