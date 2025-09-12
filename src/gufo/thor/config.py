@@ -318,14 +318,11 @@ class PoolConfig(object):
         Returns:
             A configured PoolConfig instance.
         """
-        r = PoolConfig(
+        return PoolConfig(
             name=name,
             subnet=as_ipv4_prefix(data, "subnet", required=True),
             address=PoolAddressConfig.from_dict(data.get("address") or {}),
         )
-        if r.address.gw is None:
-            r.address.gw = r.subnet.first_free(r.address.iter_used())
-        return r
 
 
 @dataclass
@@ -771,6 +768,9 @@ class Config(object):
             with errors.context(["labs", lab_name, "pool"]):
                 if lab.pool and lab.pool not in pools_cfg:
                     errors.error(f"unknown pool `{lab.pool}`")
+                elif lab.pool and pools_cfg[lab.pool].address.gw is None:
+                    p = pools_cfg[lab.pool]
+                    p.address.gw = p.subnet.first_free(p.address.iter_used())
         # Die on errors
         errors.check()
         return Config(

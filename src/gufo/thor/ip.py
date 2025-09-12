@@ -27,6 +27,10 @@ class IPv4Address(object):
         """Convert to str."""
         return self._addr
 
+    def __repr__(self) -> str:
+        """repr() implementation."""
+        return f"<{self.__class__.__name__} {self._addr} at 0x{id(self):x}>"
+
     def __int__(self) -> int:
         """Convert to integer."""
         v = 0
@@ -103,6 +107,11 @@ class IPv4Prefix(object):
     def __str__(self) -> str:
         """Convert to str."""
         return f"{self._addr!s}/{self.mask}"
+
+    def __repr__(self) -> str:
+        """repr() implementation."""
+        cname = self.__class__.__name__
+        return f"<{cname} {self._addr!s}/{self.mask} at 0x{id(self):x}>"
 
     @property
     def network(self) -> IPv4Address:

@@ -12,6 +12,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Unreleased]
 
+## Fixed
+
+* #20: Fix default routes for pool services if pool is not attached to lab.
+
 ### Added
 
 * Secrets management.
