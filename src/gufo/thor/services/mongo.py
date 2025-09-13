@@ -34,7 +34,7 @@ class MongoService(BaseService):
     compose_command = "--wiredTigerCacheSizeGB 1.5 --bind_ip_all"
     compose_volumes = ["mongo_data:/data/db", "backup:/data/backup"]
     compose_volumes_config = {"mongo_data": {}}
-    service_discovery = {"mongo": 27017}
+    service_port = 27017
     role = Role.DB
 
     def get_compose_ports(

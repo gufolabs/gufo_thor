@@ -19,6 +19,7 @@ from gufo.loader import Loader
 
 # Gufo Thor modules
 from ..config import Config
+from ..services.base import BaseService
 
 
 class BaseTarget(ABC):
@@ -33,6 +34,7 @@ class BaseTarget(ABC):
 
     def __init__(self: "BaseTarget", config: Config) -> None:
         self.config = config
+        self.services = list(BaseService.resolve(self.config.services))
 
     @abstractmethod
     def prepare(self: "BaseTarget") -> None:

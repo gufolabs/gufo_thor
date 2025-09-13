@@ -1,14 +1,15 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: ComposeTarget
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-24, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """docker compose target."""
 
 # Python modules
 import json
+from operator import attrgetter
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Set, Union, cast
 
 # Third-party mofules
 import yaml
@@ -16,8 +17,8 @@ import yaml
 # Gufo Thor modules
 from gufo.thor import __version__
 
+from ..artefact import ArtefactMountPoint
 from ..labs.base import BaseLab
-from ..services.base import BaseService
 from ..utils import ensure_directory, write_file
 from .base import BaseTarget
 
@@ -37,6 +38,17 @@ class ComposeTarget(BaseTarget):
     def prepare(self: "ComposeTarget") -> None:
         """Generate docker-compose.yml, data directories, and configs."""
         print(f"gufo-thor {__version__}")
+        # Prepare services and service discovery
+        consul = next(svc for svc in self.services if svc.name == "consul")
+        if consul:
+            from ..services.consul import ConsulService
+
+            consul = cast(ConsulService, consul)
+            for svc in self.services:
+                svc_cfg = self.config.services.get(svc.get_compose_name())
+                if svc.service_port:
+                    consul.register_service(svc.name, svc.service_port)
+                svc.prepare_compose_config(self.config, svc_cfg, self.services)
         # Generate docker-compose.yml
         write_file(Path("docker-compose.yml"), self.render_config())
         # Generate .env
@@ -44,21 +56,8 @@ class ComposeTarget(BaseTarget):
         if self.config.project is not None:
             env_data.append(f"COMPOSE_PROJECT_NAME={self.config.project}")
         write_file(Path(".env"), "\n".join(env_data))
-        # Create etc/
-        etc = Path("etc")
-        ensure_directory(etc)
         # Create assets/
         ensure_directory(Path("assets"))
-        # Generate directories and configs
-        services = list(BaseService.resolve(self.config.services))
-        for svc in services:
-            svc_cfg = self.config.services.get(svc.get_compose_name())
-            # Create config
-            svc.prepare_compose_config(self.config, svc_cfg, services)
-            # Service discovery
-            sd = svc.get_service_discovery(self.config, svc_cfg)
-            if sd:
-                self._configure_service_discovery(svc.name, sd)
 
     def render_config(self: "ComposeTarget") -> str:
         """
@@ -70,13 +69,14 @@ class ComposeTarget(BaseTarget):
         s: str = yaml.safe_dump(self._get_config_dict(), sort_keys=False)
         return s
 
-    def _get_config_dict(self: "ComposeTarget") -> Dict[str, Any]:
+    def _get_config_dict(self) -> Dict[str, Any]:
         """Get dict of docker-compose.yml."""
         r = {
             "services": self._get_services_config(),
             "networks": self._get_networks_config(),
             "volumes": self._get_volumes_config(),
             "secrets": self._get_secrets_config(),
+            "configs": self._get_configs_config(),
         }
         self._apply_labs(r)
         # Remove empty sections
@@ -92,7 +92,7 @@ class ComposeTarget(BaseTarget):
             svc.get_compose_name(): svc.get_compose_config(
                 self.config, self.config.services.get(svc.get_compose_name())
             )
-            for svc in BaseService.resolve(self.config.services)
+            for svc in self.services
         }
 
     def _get_networks_config(self: "ComposeTarget") -> Dict[str, Any]:
@@ -122,7 +122,7 @@ class ComposeTarget(BaseTarget):
     def _get_volumes_config(self: "ComposeTarget") -> Dict[str, Any]:
         """Build volumes section of config."""
         r: Dict[str, Dict[str, Any]] = {}
-        for svc in BaseService.resolve(self.config.services):
+        for svc in self.services:
             vc = svc.get_compose_volumes_config(
                 self.config, self.config.services.get(svc.name)
             )
@@ -138,7 +138,7 @@ class ComposeTarget(BaseTarget):
     def _get_secrets_config(self) -> Dict[str, Any]:
         """Build secrets section of config."""
         r: Dict[str, Dict[str, Any]] = {}
-        for svc in BaseService.resolve(self.config.services):
+        for svc in self.services:
             secrets = svc.get_compose_secrets(
                 self.config, self.config.services.get(svc.name)
             )
@@ -147,6 +147,22 @@ class ComposeTarget(BaseTarget):
             for s in secrets:
                 s.ensure_secret()
                 r[s.name] = {"file": str(DOT_PATH / s.path)}
+        return r
+
+    def _get_configs_config(self) -> Dict[str, Any]:
+        """Build configs section of config."""
+        mounts: Set[ArtefactMountPoint] = set()
+        for svc in self.services:
+            configs = svc.get_compose_configs(
+                self.config, self.config.services.get(svc.name)
+            )
+            if not configs:
+                continue
+            for cfg in configs:
+                mounts.update(cfg.iter_mounts())
+        r: Dict[str, Any] = {}
+        for mount in sorted(mounts, key=attrgetter("name")):
+            r[mount.name] = {"file": str(mount.local_path)}
         return r
 
     def _apply_labs(self, cfg: Dict[str, Any]) -> None:
@@ -183,40 +199,3 @@ class ComposeTarget(BaseTarget):
             if "networks" not in cfg:
                 cfg["networks"] = {}
             cfg["networks"].update(networks)
-
-    def _configure_service_discovery(
-        self: "ComposeTarget",
-        name: str,
-        sd: Dict[str, Union[int, Dict[str, Any]]],
-    ) -> None:
-        """Prepare service discovery config."""
-        sd_root = Path("etc", "consul")
-        ensure_directory(sd_root)
-        for svc_name, sd_cfg in sd.items():
-            cfg: Dict[str, Any] = {
-                "name": svc_name,
-                "address": name,
-            }
-            if isinstance(sd_cfg, int):
-                # Port
-                port = sd_cfg
-                cfg.update(
-                    {
-                        "port": port,
-                        "checks": [
-                            {
-                                "id": f"tcp-{svc_name}-{port}",
-                                "interval": "1s",
-                                "tcp": f"{name}:{port}",
-                                "timeout": "1s",
-                            }
-                        ],
-                    }
-                )
-            else:
-                cfg.update(sd_cfg)
-                if "port" not in cfg:
-                    msg = "port is not set"
-                    raise ValueError(msg)
-            path = sd_root / f"{svc_name}-{cfg['port']}.json"
-            write_file(path, json.dumps({"service": cfg}))

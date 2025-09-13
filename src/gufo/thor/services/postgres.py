@@ -41,7 +41,7 @@ class PostgresService(BaseService):
         "POSTGRES_USER": "noc",
         "POSTGRES_PASSWORD": "noc",
     }
-    service_discovery = {"postgres": 5432}
+    service_port = 5432
     role = Role.DB
 
     def get_compose_ports(

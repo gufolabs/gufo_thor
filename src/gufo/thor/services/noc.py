@@ -13,9 +13,12 @@ from typing import Any, Dict, List, Optional
 import yaml
 
 # Gufo Thor modules
+from ..artefact import Artefact
 from ..config import Config, ServiceConfig
-from ..utils import ensure_directory, merge_dict, write_file
+from ..utils import ensure_directory, merge_dict
 from .base import BaseService, ComposeDependsCondition, Role
+
+noc_settings = Artefact("settings", Path("etc", "noc", "settings.yml"))
 
 
 class NocService(BaseService):
@@ -24,6 +27,12 @@ class NocService(BaseService):
     is_noc = True
     name = "noc"
     role = Role.APP
+    compose_environment = {
+        "NOC_CONFIG": "yaml:///etc/noc/settings.yml,env:///NOC"
+    }
+    compose_configs = [
+        noc_settings.at(Path("/", "etc", "noc", "settings.yml"))
+    ]
 
     def get_compose_image(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
@@ -74,10 +83,7 @@ class NocService(BaseService):
         Mount repo and custom when necessary.
         """
         # Config + crashinfo
-        r: List[str] = [
-            "./etc/noc/settings.yml:/opt/noc/etc/settings.yml:ro",
-            "crashinfo:/var/lib/noc/cp/crashinfo/new",
-        ]
+        r: List[str] = ["crashinfo:/var/lib/noc/cp/crashinfo/new"]
         # Mount NOC repo inside an image
         if config.noc.path:
             r.append(f"{config.noc.path}:/opt/noc:cached")
@@ -135,7 +141,7 @@ class NocService(BaseService):
         if config.noc.config:
             cfg = merge_dict(cfg, config.noc.config)
         # Write
-        write_file(Path("etc", "noc", "settings.yml"), yaml.dump(cfg))
+        noc_settings.write(yaml.dump(cfg))
         # Ensure directories
         ensure_directory(Path("data", "crashinfo"))
         ensure_directory(Path("data", "backup"))

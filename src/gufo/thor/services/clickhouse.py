@@ -44,7 +44,7 @@ class ClickhouseService(BaseService):
             }
         },
     }
-    service_discovery = {"clickhouse": 8123}
+    service_port = 8123
     role = Role.DB
 
 

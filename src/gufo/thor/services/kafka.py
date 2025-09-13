@@ -23,7 +23,7 @@ class KafkaService(BaseService):
         "kafka_data:/bitnami/data/",
     ]
     compose_volumes_config = {"kafka_data": {}}
-    service_discovery = {"kafka": 9093}
+    service_port = 9093
     compose_environment = {
         "KAFKA_CFG_NODE_ID": "0",
         "KAFKA_CFG_PROCESS_ROLES": "controller,broker",

@@ -16,7 +16,6 @@ import operator
 from abc import ABC
 from enum import Enum
 from importlib import resources
-from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
 
 # Third-party modules
@@ -25,6 +24,7 @@ import jinja2
 from gufo.loader import Loader
 
 # Gufo Thor modules
+from ..artefact import Artefact
 from ..config import Config, ServiceConfig
 from ..docker import docker
 from ..secret import Secret
@@ -112,13 +112,13 @@ class BaseService(ABC):
         compose_secrets: `secrets` section, if any.
             Override `get_compose_secrets`
             to implement custom behavior.
+        compose_configs: `configs` section, if any.
+            Override `get_compose_configs`
+            to implement custom behavior.
         compose_extra: Additional parameters to be merged
             with the compose config.
             Override `get_compose_extra`
             to implement custom behavior.
-        service_discovery: Optional name -> port mappings.
-            Override `get_service_discovery` to implement
-            custom behavior.
         allow_scale: If the service allows running multiple
             instances.
         require_slots: If the service requires slots creation.
@@ -129,6 +129,8 @@ class BaseService(ABC):
             http auth proxy.
         rewrite_http_prefix: If set, rewrite matched http prefix
             before passing request to upstream.
+        service_port: If set, register service to port in service
+            discovery.
     """
 
     name: str
@@ -147,13 +149,14 @@ class BaseService(ABC):
     compose_environment: Optional[Dict[str, str]] = None
     compose_labels: Optional[List[str]] = None
     compose_secrets: Optional[List[Secret]] = None
+    compose_configs: Optional[List[Artefact]] = None
     compose_extra: Optional[Dict[str, Any]] = None
-    service_discovery: Optional[Dict[str, Union[int, Dict[str, Any]]]] = None
     allow_scale: bool = False
     require_slots: bool = False
     expose_http_prefix: Optional[str] = None
     require_http_auth: bool = False
     rewrite_http_prefix: Optional[str] = None
+    service_port: Optional[int] = None
     is_pooled: bool = False
     require_pool_network = False
     role: Role = Role.default()
@@ -215,6 +218,7 @@ class BaseService(ABC):
         * `get_compose_extra` to add the extra parameters to the result.
         * `get_compose_labels` to add the extra labels to the result.
         * `get_compose_secrets to add the extra secrets to the result.
+        * `get_compose_configs to add the extra configs to the result.
         * `get_compose_logging` - to build `logging` section.
 
         Args:
@@ -226,7 +230,10 @@ class BaseService(ABC):
         """
 
         def set_if(
-            key: str, value: Union[None, str, List[str], Dict[str, Any]]
+            key: str,
+            value: Union[
+                None, str, List[str], Dict[str, Any], List[Dict[str, Any]]
+            ],
         ) -> None:
             """Set key to `r` if value is not empty."""
             if value:
@@ -276,6 +283,19 @@ class BaseService(ABC):
         secrets = self.get_compose_secrets(config, svc)
         if secrets:
             set_if("secrets", [x.name for x in secrets])
+        # configs
+        configs = self.get_compose_configs(config, svc)
+        if configs:
+            rr: List[Dict[str, Any]] = []
+            for cfg in configs:
+                for mount in cfg.iter_mounts():
+                    rr.append(
+                        {
+                            "source": mount.name,
+                            "target": str(mount.container_path),
+                        }
+                    )
+            set_if("configs", sorted(rr, key=operator.itemgetter("source")))
         # extra
         extra = self.get_compose_extra(config, svc)
         if extra:
@@ -514,6 +534,23 @@ class BaseService(ABC):
             return self.compose_secrets
         return None
 
+    def get_compose_configs(
+        self, config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[List[Artefact]]:
+        """
+        Get docker-compose.yml `configs` section.
+
+        Args:
+            config: Gufo Thor config instance
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            List of configs, if not empty.
+        """
+        if self.compose_configs:
+            return self.compose_configs
+        return None
+
     def get_compose_extra(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Any]]:
@@ -538,8 +575,6 @@ class BaseService(ABC):
         """
         Prepare service configs.
 
-        Called after the `get_compose_dirs`
-
         Args:
             config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
@@ -558,21 +593,6 @@ class BaseService(ABC):
             svc: Service's config from `services` part, if any.
         """
         return self.expose_http_prefix
-
-    def get_service_discovery(
-        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, Union[int, Dict[str, Any]]]]:
-        """
-        Get name to port mappings for service discovery.
-
-        Args:
-            config: Gufo Thor config instance
-            svc: Service's config from `services` part, if any.
-
-        Returns:
-            Service name -> port mappings
-        """
-        return self.service_discovery
 
     @staticmethod
     def get(name: str) -> "BaseService":
@@ -647,19 +667,20 @@ class BaseService(ABC):
         return "\n".join(r)
 
     @classmethod
-    def render_file(
+    def render(
         cls: Type["BaseService"],
-        path: Path,
         tpl: str,
         **kwargs: Union[str, int, None, List[Any]],
-    ) -> None:
+    ) -> str:
         """
         Apply a context to the template and write to file.
 
         Args:
-            path: File path
             tpl: Template name (relative to `gufo.thor.templates`)
             kwargs: Template context
+
+        Returns:
+            Rendered template
         """
         # Load template
         # Warning: joinpath() accepts only one
@@ -672,24 +693,7 @@ class BaseService(ABC):
             .read_text()
         )
         template = jinja2.Template(data)
-        data = template.render(**kwargs)
-        # Write file
-        write_file(path, data)
-
-    @classmethod
-    def copy_from_assets(
-        cls: Type["BaseService"], path: Path, src: Path
-    ) -> None:
-        """
-        Copy file from assets.
-
-        Args:
-            path: Destination path.
-            src: Source path, relative to assets.
-        """
-        srv_path = Path("assets") / src
-        with open(srv_path) as fp:
-            write_file(path, fp.read())
+        return template.render(**kwargs)
 
     def as_pooled(self, pool: str) -> "BaseService":
         """Return instance bound to pool."""

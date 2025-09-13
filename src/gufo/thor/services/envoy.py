@@ -22,11 +22,19 @@ from typing import Any, Dict, List, Optional
 import certifi
 
 # Gufo Thor modules
+from ..artefact import Artefact
 from ..config import Config, ServiceConfig
 from ..error import CancelExecution
 from ..log import logger
 from ..utils import write_file
 from .base import BaseService
+
+envoy_settings = Artefact("envoy-settings", Path("etc", "envoy", "envoy.yaml"))
+envoy_cert = Artefact("envoy-cert", Path("etc", "envoy", "ssl", "noc.crt"))
+envoy_key = Artefact("envoy-key", Path("etc", "envoy", "ssl", "noc.key"))
+envoy_ca_cert = Artefact(
+    "envoy-ca-cert", Path("etc", "envoy", "ssl", "ca.crt")
+)
 
 HTTP_OK = 200
 HTTPS = 443
@@ -96,7 +104,11 @@ class EnvoyService(BaseService):
     #     "timeout": "2s",
     #     "retries": 3,
     # }
-    compose_volumes = ["./etc/envoy/:/etc/envoy/:ro"]
+    compose_configs = [
+        envoy_settings.at(Path("/", "etc", "envoy", "envoy.yaml")),
+        envoy_cert.at(Path("/", "etc", "envoy", "ssl", "noc.crt")),
+        envoy_key.at(Path("/", "etc", "envoy", "ssl", "noc.key")),
+    ]
     SUBJ_PATH = Path("etc", "envoy", "ssl", "domain_name.txt")
     RSA_KEY_SIZE = 4096
     CERT_DAYS = 3650
@@ -181,24 +193,23 @@ class EnvoyService(BaseService):
             + f"---{not bool(x.redirect_to)}",
         )
         # Add desktop redirect, if necessary
-        #
-        self.render_file(
-            Path("etc", "envoy", "envoy.yaml"),
-            "envoy.yaml",
-            domain_name=config.expose.domain_name,
-            domain_name_and_port=domain_name_and_port,
-            enable_mtls=bool(config.expose.mtls_ca_cert),
-            routes=routes,
-            services=sorted({r.name for r in routes if not r.redirect_to}),
+        envoy_settings.write(
+            self.render(
+                "envoy.yaml",
+                domain_name=config.expose.domain_name,
+                domain_name_and_port=domain_name_and_port,
+                enable_mtls=bool(config.expose.mtls_ca_cert),
+                routes=routes,
+                services=sorted({r.name for r in routes if not r.redirect_to}),
+            )
         )
         # Prepare TLS certificates
         if self._to_rebuild_certificate(config):
             self._rebuild_certificate(config)
         # Update mTLS CA
         if config.expose.mtls_ca_cert:
-            self.copy_from_assets(
-                Path("etc", "envoy", "ssl", "ca.crt"),
-                Path(config.expose.mtls_ca_cert),
+            envoy_ca_cert.copy_from(
+                Path("assets") / config.expose.mtls_ca_cert
             )
 
     def _to_rebuild_certificate(self: "EnvoyService", config: Config) -> bool:
@@ -260,13 +271,11 @@ class EnvoyService(BaseService):
         """Rebuild SSL certificates."""
         from gufo.acme.clients.base import AcmeClient
 
-        key_path = Path("etc", "envoy", "ssl", "noc.key")
         csr_path = Path("etc", "envoy", "ssl", "noc.csr")
-        cert_path = Path("etc", "envoy", "ssl", "noc.crt")
         # Generate private key
-        logger.warning("Generating private key: %s", key_path)
+        logger.warning("Generating private key: %s", envoy_key.local_path)
         private_key = AcmeClient.get_domain_private_key()
-        write_file(key_path, private_key)
+        envoy_key.write(private_key.decode())
         # Create CSR
         logger.warning("Generating certificate signing request: %s", csr_path)
         csr = AcmeClient.get_domain_csr(config.expose.domain_name, private_key)
@@ -275,7 +284,7 @@ class EnvoyService(BaseService):
         di = DOMAINS.get(config.expose.domain_name)
         if di:
             # Use CSR Proxy
-            logger.warning("Signing certificate: %s", cert_path)
+            logger.warning("Signing certificate: %s", envoy_cert.local_path)
             cert = self._get_signed_csr(di.csr_proxy, csr)
         else:
             # Self-signed certificate
@@ -293,11 +302,22 @@ class EnvoyService(BaseService):
             )
             logger.warning("Generating self-signed certificate")
             cert = self._get_self_signed_certificate(csr, private_key)
-        write_file(cert_path, cert)
+        envoy_cert.write(cert.decode())
         # Write subj
         logger.warning("Writing %s", self.SUBJ_PATH)
         with open(self.SUBJ_PATH, "w") as fp:
             fp.write(self.get_cert_subj(config))
+
+    def get_compose_configs(
+        self, config: Config, svc: Optional[ServiceConfig]
+    ) -> Optional[List[Artefact]]:
+        """Generate configs."""
+        r = super().get_compose_configs(config, svc) or []
+        if config.expose.mtls_ca_cert:
+            r.append(
+                envoy_ca_cert.at(Path("/", "etc", "envoy", "ssl", "ca.crt"))
+            )
+        return r or None
 
 
 envoy = EnvoyService()
