@@ -15,6 +15,7 @@ from typing import List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from ..secret import postgres_password
 from .base import BaseService, ComposeDependsCondition, Role
 
 
@@ -39,10 +40,12 @@ class PostgresService(BaseService):
     compose_environment = {
         "POSTGRES_DB": "noc",
         "POSTGRES_USER": "noc",
-        "POSTGRES_PASSWORD": "noc",
+        "POSTGRES_PASSWORD_FILE": "/run/secrets/pg-password",
     }
     service_port = 5432
     role = Role.DB
+    compose_secrets = [postgres_password]
+    compose_secrets_for_dependencies = [postgres_password]
 
     def get_compose_ports(
         self: "PostgresService", config: Config, svc: Optional[ServiceConfig]

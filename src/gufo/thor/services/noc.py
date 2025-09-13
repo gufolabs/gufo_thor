@@ -127,7 +127,6 @@ class NocService(BaseService):
             "pg": {
                 "db": "noc",
                 "user": "noc",
-                "password": "noc",
             },
             "web": {
                 "theme": config.noc.theme,

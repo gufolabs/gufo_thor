@@ -38,6 +38,7 @@ class ComposeTarget(BaseTarget):
     def prepare(self: "ComposeTarget") -> None:
         """Generate docker-compose.yml, data directories, and configs."""
         print(f"gufo-thor {__version__}")
+        self.migrate()
         # Prepare services and service discovery
         consul = next(svc for svc in self.services if svc.name == "consul")
         if consul:
@@ -199,3 +200,15 @@ class ComposeTarget(BaseTarget):
             if "networks" not in cfg:
                 cfg["networks"] = {}
             cfg["networks"].update(networks)
+
+    def migrate(self) -> None:
+        """Migrate configs."""
+        from ..services.noc import noc_settings
+
+        first_install = not noc_settings.local_path.exists()
+        if not first_install:
+            # Migrate default postgres password
+            from ..secret import postgres_password
+
+            if not postgres_password.path.exists():
+                postgres_password.set_secret("noc")

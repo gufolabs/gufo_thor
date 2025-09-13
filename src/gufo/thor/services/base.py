@@ -112,6 +112,8 @@ class BaseService(ABC):
         compose_secrets: `secrets` section, if any.
             Override `get_compose_secrets`
             to implement custom behavior.
+        compose_secrets_for_dependencies: Additional secrets
+            which must be added to dependant services.
         compose_configs: `configs` section, if any.
             Override `get_compose_configs`
             to implement custom behavior.
@@ -149,6 +151,7 @@ class BaseService(ABC):
     compose_environment: Optional[Dict[str, str]] = None
     compose_labels: Optional[List[str]] = None
     compose_secrets: Optional[List[Secret]] = None
+    compose_secrets_for_dependencies: Optional[List[Secret]] = None
     compose_configs: Optional[List[Artefact]] = None
     compose_extra: Optional[Dict[str, Any]] = None
     allow_scale: bool = False
@@ -530,9 +533,13 @@ class BaseService(ABC):
         Returns:
             List of secrets, if not empty.
         """
+        r: List[Secret] = []
         if self.compose_secrets:
-            return self.compose_secrets
-        return None
+            r += self.compose_secrets
+        for rs in self.iter_dependencies():
+            if rs.compose_secrets_for_dependencies:
+                r += rs.compose_secrets_for_dependencies
+        return r or None
 
     def get_compose_configs(
         self, config: Config, svc: Optional[ServiceConfig]

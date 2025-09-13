@@ -86,6 +86,8 @@ class Secret(object):
     def iter_secrets(cls) -> "Iterable[Secret]":
         """Iterate over all secrets."""
         yield secret_key
+        yield postgres_password
 
 
 secret_key = Secret("secret-key", config_path="secret_key")
+postgres_password = Secret("pg-password", config_path="pg.password")
