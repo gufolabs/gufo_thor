@@ -464,7 +464,9 @@ class BaseService(ABC):
         Returns:
             Dict of environment, if not empty
         """
-        return self.compose_environment
+        if self.compose_environment:
+            return self.compose_environment.copy()
+        return None
 
     def get_compose_healthcheck(
         self: "BaseService", config: Config, svc: Optional[ServiceConfig]
