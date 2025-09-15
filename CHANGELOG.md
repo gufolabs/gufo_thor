@@ -12,11 +12,19 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Upcoming]
 
+## Fixed
+
+* migrate container no longer pollutes environment of other containers
+
 ## Changed
 
 * Configs are deployed using docker's `configs` section. 
 * NOC's config are mounted in /etc/noc/settings.yml.
 * Move postgres' password to secrets.
+
+## Infrastructure
+
+* Gufo ACME 0.6.0
 
 ## 0.11.0 - 2025-09-12
 
