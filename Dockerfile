@@ -4,6 +4,8 @@ WORKDIR /workspaces/gufo_thor
 RUN \
     set -x \
     && apt-get update \
+    && apt-get -y dist-upgrade \
+    && apt-get -y autoremove\
     && apt-get install -y --no-install-recommends git\
     && pip install --upgrade pip\
     && pip install --upgrade build\
