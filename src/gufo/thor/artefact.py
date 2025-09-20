@@ -96,13 +96,13 @@ class Artefact(object):
         if not self.local_path.exists():
             msg = f"Artefact {self.name}: file {self.local_path} is not exists"
             raise ValueError(msg)
-        if self.local_path.is_file(follow_symlinks=False):
+        if self.local_path.is_file():
             yield ArtefactMountPoint(
                 name=self.name,
                 local_path=self.local_path,
                 container_path=self._container_path,
             )
-        elif self.local_path.is_dir(follow_symlinks=False):
+        elif self.local_path.is_dir():
             for p in self.local_path.rglob("*"):
                 # @todo: Apply ignores
                 rel = p.relative_to(self.local_path)
