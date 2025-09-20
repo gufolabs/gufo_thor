@@ -21,11 +21,6 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: true
-      matrix:
-        # Use only one version
-        python-version: ["3.9"]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -33,7 +28,7 @@ jobs:
       - name: Set Up Python {{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.9"
 
       # Cache dependencies
       - name: Cache Dependencies

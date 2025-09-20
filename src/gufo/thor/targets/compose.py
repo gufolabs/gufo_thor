@@ -6,10 +6,9 @@
 """docker compose target."""
 
 # Python modules
-import json
 from operator import attrgetter
 from pathlib import Path
-from typing import Any, Dict, List, Set, Union, cast
+from typing import Any, Dict, List, Set, cast
 
 # Third-party mofules
 import yaml

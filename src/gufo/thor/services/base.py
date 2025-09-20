@@ -28,7 +28,6 @@ from ..artefact import Artefact
 from ..config import Config, ServiceConfig
 from ..docker import docker
 from ..secret import Secret
-from ..utils import write_file
 
 LABEL_NS = "com.gufolabs"
 
