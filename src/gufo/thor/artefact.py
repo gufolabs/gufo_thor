@@ -81,6 +81,24 @@ class Artefact(object):
         a._container_path = container_path
         return a
 
+    def _has_symlinks(self, path: Path) -> bool:
+        """
+        Check path passing via symlinks.
+
+        Python 3.13 offers `follow_symlinks` option,
+        but for previous versions we need to check
+        explicitly.
+
+        Args:
+            path: File or directory path.
+
+        Returns:
+            True: if path contains symlinks.
+            False: otherwise.
+        """
+        path = path.absolute()
+        return any(parent.is_symlink() for parent in [path, *path.parents])
+
     def iter_mounts(self) -> Iterable[ArtefactMountPoint]:
         """
         Iterate over artefacts's mount points.
@@ -95,6 +113,9 @@ class Artefact(object):
             raise ValueError(msg)
         if not self.local_path.exists():
             msg = f"Artefact {self.name}: file {self.local_path} is not exists"
+            raise ValueError(msg)
+        if self._has_symlinks(self.local_path):
+            msg = f"Artefact {self.name}: must be file or directory"
             raise ValueError(msg)
         if self.local_path.is_file():
             yield ArtefactMountPoint(
