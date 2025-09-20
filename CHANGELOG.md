@@ -24,6 +24,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## Infrastructure
 
+* Codecov integration.
 * Install security patches into devcontainer.
 * Gufo ACME 0.6.0
 * IPython 9.4.0
