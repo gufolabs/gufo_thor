@@ -144,9 +144,7 @@ def test_migrate_deps(svc: str) -> None:
             "Depends on `clickhouse`, must depend on `migrate`"
         )
     if kafka in deps:
-        assert migrate in deps, (
-            "Depends on `liftbridge`, must depend on `migrate`"
-        )
+        assert migrate in deps, "Depends on `kafka`, must depend on `migrate`"
 
 
 @pytest.mark.parametrize("svc", ALL_SERVICES)

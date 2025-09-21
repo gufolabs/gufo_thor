@@ -35,6 +35,9 @@ class ArtefactMountPoint(object):
         return hash(self.name)
 
 
+DEFAULT_LOCAL_BASE = Path(".")
+
+
 class Artefact(object):
     """
     Artefact.
@@ -52,9 +55,14 @@ class Artefact(object):
         local_path: Artefact path on thor's local filesystem.
     """
 
+    _local_base = DEFAULT_LOCAL_BASE
+
     def __init__(self, name: str, local_path: Path) -> None:
         self.name = name
-        self.local_path = local_path
+        if self._is_test() and self._local_base is DEFAULT_LOCAL_BASE:
+            msg = "_set_local_base() must be called for tests"
+            raise RuntimeError(msg)
+        self.local_path = self._local_base / local_path
         self._container_path: Optional[Path] = None
 
     def __repr__(self) -> str:
@@ -158,3 +166,31 @@ class Artefact(object):
         """
         with open(src) as fp:
             self.write(fp.read())
+
+    @classmethod
+    def _set_local_base(cls, path: Optional[Path] = None) -> None:
+        """
+        Set new local base path.
+
+        Must be used strictly under the tests.
+
+        Args:
+            path: New local base.
+        """
+        if not cls._is_test():
+            msg = "_set_local_base must be called under the tests"
+            raise RuntimeError(msg)
+        cls._local_base = path or DEFAULT_LOCAL_BASE
+
+    @staticmethod
+    def _is_test() -> bool:
+        """
+        Check if code executed in the test suite.
+
+        Returns:
+            True: If is in test suite.
+            False: Otherwise.
+        """
+        import sys
+
+        return "pytest" in sys.modules
