@@ -23,6 +23,7 @@ from typing import (
 
 # Gufo Thor modules
 from .ip import IPv4Address, IPv4Prefix
+from .utils import is_test
 
 
 @dataclass
@@ -125,6 +126,8 @@ class ErrorContext(object):
         print("Config errors found:")
         for err in self._errors:
             print(str(err))
+        if is_test():
+            raise RuntimeError("\n".join(str(x) for x in self._errors))
         sys.exit(1)
 
 
@@ -288,3 +291,17 @@ def as_ipv4_prefix(
         with errors.context(name):
             errors.error("invalid prefix")
             return IPv4Prefix.default()
+
+
+@contextmanager
+def override_errors() -> Iterator[ErrorContext]:
+    """
+    Temporary replace errors.
+
+    Used for tests.
+    """
+    global errors  # noqa:PLW0603
+    prev_errors = errors
+    errors = ErrorContext()
+    yield errors
+    errors = prev_errors
