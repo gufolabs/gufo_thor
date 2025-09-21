@@ -28,8 +28,8 @@ making the process straightforward.
 To use Thor, make sure you have the following software packages installed:
 
 - Docker
-- docker-compose or the compose plugin
-- Python 3.8+
+- compose plugin
+- Python 3.9+
 
 ## Installation
 

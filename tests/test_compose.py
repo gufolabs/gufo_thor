@@ -306,15 +306,14 @@ networks:
       - subnet: 172.20.0.0/24
         gateway: 172.20.0.1
 """
+SAMPLES = ["simple", "common", "lab1"]
+SAMPLE_IDS = ["simple", "common", "lab1"]
 
 
-@pytest.mark.parametrize(
-    "sample",
-    ["simple", "common", "lab1"],
-    ids=["simple", "common", "lab1"],
-)
+@pytest.mark.parametrize("sample", SAMPLES, ids=SAMPLE_IDS)
 def test_render_config(sample: str) -> None:
     t = get_sample(sample)
     cfg = Config.from_yaml(t)
     target = ComposeTarget(cfg)
     target.render_config()
+    target.prepare()

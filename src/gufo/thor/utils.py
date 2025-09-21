@@ -8,6 +8,7 @@
 # Python modules
 import os
 import shutil
+import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
@@ -91,3 +92,14 @@ def merge_dict(x: Dict[str, Any], y: Dict[str, Any]) -> Dict[str, Any]:
         else:
             r[k] = y[k]
     return r
+
+
+def is_test() -> bool:
+    """
+    Check if code executed in the test suite.
+
+    Returns:
+        True: If is in test suite.
+        False: Otherwise.
+    """
+    return "pytest" in sys.modules

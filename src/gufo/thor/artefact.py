@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Iterable, Optional
 
 # Gufo Thor modules
-from .utils import write_file
+from .utils import is_test, write_file
 
 
 @dataclass
@@ -59,7 +59,7 @@ class Artefact(object):
 
     def __init__(self, name: str, local_path: Path) -> None:
         self.name = name
-        if self._is_test() and self._local_base is DEFAULT_LOCAL_BASE:
+        if is_test() and self._local_base is DEFAULT_LOCAL_BASE:
             msg = "_set_local_base() must be called for tests"
             raise RuntimeError(msg)
         self.local_path = self._local_base / local_path
@@ -177,20 +177,7 @@ class Artefact(object):
         Args:
             path: New local base.
         """
-        if not cls._is_test():
+        if not is_test():
             msg = "_set_local_base must be called under the tests"
             raise RuntimeError(msg)
         cls._local_base = path or DEFAULT_LOCAL_BASE
-
-    @staticmethod
-    def _is_test() -> bool:
-        """
-        Check if code executed in the test suite.
-
-        Returns:
-            True: If is in test suite.
-            False: Otherwise.
-        """
-        import sys
-
-        return "pytest" in sys.modules

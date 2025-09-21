@@ -26,7 +26,7 @@ from ..artefact import Artefact
 from ..config import Config, ServiceConfig
 from ..error import CancelExecution
 from ..log import logger
-from ..utils import write_file
+from ..utils import is_test, write_file
 from .base import BaseService
 
 envoy_settings = Artefact("envoy-settings", Path("etc", "envoy", "envoy.yaml"))
@@ -271,18 +271,16 @@ class EnvoyService(BaseService):
         """Rebuild SSL certificates."""
         from gufo.acme.clients.base import AcmeClient
 
-        csr_path = Path("etc", "envoy", "ssl", "noc.csr")
         # Generate private key
         logger.warning("Generating private key: %s", envoy_key.local_path)
         private_key = AcmeClient.get_domain_private_key()
         envoy_key.write(private_key.decode())
         # Create CSR
-        logger.warning("Generating certificate signing request: %s", csr_path)
+        logger.warning("Generating certificate signing request")
         csr = AcmeClient.get_domain_csr(config.expose.domain_name, private_key)
-        write_file(csr_path, csr)
         # Sign
         di = DOMAINS.get(config.expose.domain_name)
-        if di:
+        if di and not is_test():
             # Use CSR Proxy
             logger.warning("Signing certificate: %s", envoy_cert.local_path)
             cert = self._get_signed_csr(di.csr_proxy, csr)
@@ -304,9 +302,7 @@ class EnvoyService(BaseService):
             cert = self._get_self_signed_certificate(csr, private_key)
         envoy_cert.write(cert.decode())
         # Write subj
-        logger.warning("Writing %s", self.SUBJ_PATH)
-        with open(self.SUBJ_PATH, "w") as fp:
-            fp.write(self.get_cert_subj(config))
+        write_file(self.SUBJ_PATH, self.get_cert_subj(config))
 
     def get_compose_configs(
         self, config: Config, svc: Optional[ServiceConfig]
