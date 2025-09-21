@@ -13,3 +13,4 @@ dist/
 *.dist-info/
 __pycache__
 var/
+coverage.xml
