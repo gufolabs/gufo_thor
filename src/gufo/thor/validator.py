@@ -60,13 +60,35 @@ class ErrorContext(object):
         self._errors: List[ErrorPoint] = []
         self._paths: List[List[str]] = []
 
+    def copy(self) -> "ErrorContext":
+        """Create copy of ErrorContext."""
+        r = ErrorContext()
+        r._errors = self._errors.copy()
+        r._paths = self._paths.copy()
+        return r
+
+    def from_errors(self, ctx: "ErrorContext") -> None:
+        """Restore state from error context."""
+        self._errors = ctx._errors.copy()
+        self._paths = ctx._paths.copy()
+
+    def has_errors(self) -> bool:
+        """
+        Check if errors are present.
+
+        Returns:
+            True: If there is errors.
+            False: Otherwise
+        """
+        return bool(self._errors)
+
     def check(self) -> None:
         """
         Check there is no errors.
 
         Die with message if they are.
         """
-        if self._errors:
+        if self.has_errors():
             self.die()
 
     def error(self, message: str, /, path: Optional[List[str]] = None) -> None:
@@ -294,14 +316,12 @@ def as_ipv4_prefix(
 
 
 @contextmanager
-def override_errors() -> Iterator[ErrorContext]:
+def override_errors() -> Iterator[None]:
     """
     Temporary replace errors.
 
     Used for tests.
     """
-    global errors  # noqa:PLW0603
-    prev_errors = errors
-    errors = ErrorContext()
-    yield errors
-    errors = prev_errors
+    prev = errors.copy()
+    yield None
+    errors.from_errors(prev)

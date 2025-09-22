@@ -15,8 +15,16 @@ from gufo.thor.validator import (
     ErrorContext,
     ErrorPoint,
     as_str,
+    errors,
     override_errors,
 )
+
+
+def test_die() -> None:
+    ctx = ErrorContext()
+    with pytest.raises(RuntimeError) as exc_info:
+        ctx.die("test")
+    assert exc_info.value.args[0] == "test"
 
 
 @pytest.mark.parametrize(
@@ -70,7 +78,7 @@ def test_error_context_with_die(
     assert exc_info.value.args[0] == expected
 
 
-def test_error_level_up() -> None:
+def test_error_level_up1() -> None:
     ctx = ErrorContext()
     with (
         ctx.context("a"),
@@ -82,6 +90,20 @@ def test_error_level_up() -> None:
     with pytest.raises(RuntimeError) as exc_info:
         ctx.check()
     assert exc_info.value.args[0] == "a.c: test"
+
+
+def test_error_level_up2() -> None:
+    ctx = ErrorContext()
+    with (
+        ctx.context(".."),
+        ctx.context("a"),
+        ctx.context("b"),
+        ctx.context("c"),
+    ):
+        ctx.error("test")
+    with pytest.raises(RuntimeError) as exc_info:
+        ctx.check()
+    assert exc_info.value.args[0] == "a.b.c: test"
 
 
 @pytest.mark.parametrize(
@@ -98,8 +120,16 @@ def test_as_str(
 
 
 def test_as_str_required() -> None:
-    with override_errors() as ctx:
+    with override_errors():
         as_str({}, "x", required=True)
         with pytest.raises(RuntimeError) as exc_info:
-            ctx.check()
+            errors.check()
         assert exc_info.value.args[0] == "x: must be set"
+
+
+def test_override_errors() -> None:
+    assert not errors.has_errors()
+    with override_errors():
+        errors.error("test")
+        assert errors.has_errors()
+    assert not errors.has_errors()
