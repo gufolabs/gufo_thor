@@ -25,7 +25,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Set Up Python {{ matrix.python-version }}
+      - name: Set Up Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./.pip
-          key: ${{ runner.os }}-lint-{{ matrix.python-version }}-${{ hashFiles('./pyproject.toml') }}
+          key: ${{ runner.os }}-lint-3.10-${{ hashFiles('./pyproject.toml') }}
 
       - name: Upgrade Pip
         run: python -m pip install --upgrade pip
@@ -69,7 +69,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./.pip
-          key: ${{ runner.os }}-tests-coverage-{{ matrix.python-version }}-${{ hashFiles('./pyproject.toml') }}
+          key: ${{ runner.os }}-tests-coverage-3.13-${{ hashFiles('./pyproject.toml') }}
 
       - name: Upgrade Pip
         run: python -m pip install --upgrade pip
@@ -119,10 +119,7 @@ jobs:
         run: pip install -IU -e .[deps,test]
 
       - name: Run Tests
-        run: coverage run -m pytest -v
-
-      - name: Coverage Report
-        run: coverage report
+        run: pytest -v tests/
 
   publish:
     runs-on: ubuntu-24.04
