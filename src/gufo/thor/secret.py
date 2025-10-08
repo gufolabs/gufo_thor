@@ -106,6 +106,7 @@ class Secret(object):
         """Exit on context manager."""
         if self.path.exists():
             self.path.unlink()
+        return None
 
 
 secret_key = Secret("secret-key", config_path="secret_key")
