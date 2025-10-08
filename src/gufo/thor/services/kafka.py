@@ -18,7 +18,7 @@ class KafkaService(BaseService):
     """kafka service."""
 
     name = "kafka"
-    compose_image = "bitnami/kafka:3.6.2"
+    compose_image = "bitnamilegacy/kafka:3.6.2"
     compose_volumes = [
         "kafka_data:/bitnami/data/",
     ]
