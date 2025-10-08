@@ -8,7 +8,8 @@
 # Python modules
 import secrets
 from pathlib import Path
-from typing import Any, Dict, Iterable, Optional
+from types import TracebackType
+from typing import Any, Dict, Iterable, Optional, Type
 
 # Gufo Thor modules
 from .utils import write_file
@@ -87,6 +88,24 @@ class Secret(object):
         """Iterate over all secrets."""
         yield secret_key
         yield postgres_password
+
+    def __enter__(self) -> "Secret":
+        """
+        Context manager.
+
+        Remove secret's persistent artefacts on exit.
+        """
+        return self
+
+    def __exit__(
+        self,
+        type_: Optional[Type[BaseException]],
+        value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> Optional[bool]:
+        """Exit on context manager."""
+        if self.path.exists():
+            self.path.unlink()
 
 
 secret_key = Secret("secret-key", config_path="secret_key")
