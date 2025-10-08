@@ -16,16 +16,16 @@ from gufo.thor.secret import SECRETS_PREFIX, Secret
 from gufo.thor.validator import errors, override_errors
 
 DEFAULT_SECRET_LEN = 43  # 32 bytes in base64
-TEST_SECRET_NAME = "test_secret"
+TEST_NAME = "test_123"
 
 
 def test_path() -> None:
-    with Secret(TEST_SECRET_NAME) as secret:
-        assert secret.path == SECRETS_PREFIX / TEST_SECRET_NAME
+    with Secret(TEST_NAME) as secret:
+        assert secret.path == SECRETS_PREFIX / TEST_NAME
 
 
 def test_set_secret() -> None:
-    with Secret(TEST_SECRET_NAME) as secret:
+    with Secret(TEST_NAME) as secret:
         key = secret.generate()
         secret.set_secret(key)
         with open(secret.path) as fp:
@@ -34,7 +34,7 @@ def test_set_secret() -> None:
 
 
 def test_generate_secret() -> None:
-    with Secret(TEST_SECRET_NAME) as secret:
+    with Secret(TEST_NAME) as secret:
         seen: Set[str] = set()
         for _ in range(10):
             s = secret.generate()
@@ -44,7 +44,7 @@ def test_generate_secret() -> None:
 
 
 def test_ensure_secret() -> None:
-    with Secret(TEST_SECRET_NAME) as secret:
+    with Secret(TEST_NAME) as secret:
         secret.ensure_secret()
         with open(secret.path) as fp:
             data = fp.read()
@@ -71,7 +71,7 @@ def test_check_config(
     config_path: Optional[str], data: Dict[str, Any], has_errors: bool
 ) -> None:
     with (
-        Secret(TEST_SECRET_NAME, config_path=config_path) as secret,
+        Secret(TEST_NAME, config_path=config_path) as secret,
         override_errors(),
     ):
         secret.check_config(data)
