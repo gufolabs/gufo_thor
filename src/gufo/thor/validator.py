@@ -150,7 +150,7 @@ class ErrorContext(object):
             print(str(err))
         if is_test():
             raise RuntimeError("\n".join(str(x) for x in self._errors))
-        sys.exit(1)
+        sys.exit(1)  # pragma: no cover
 
 
 # Singletone
@@ -186,8 +186,7 @@ def as_str(
             with errors.context(name):
                 errors.error("must be set")
                 return ""
-        else:
-            return None
+        return None
     return str(v)
 
 
@@ -223,8 +222,7 @@ def as_int(
             with errors.context(name):
                 errors.error("must be set")
                 return 0
-        else:
-            return None
+        return None
     try:
         return int(v)
     except ValueError:

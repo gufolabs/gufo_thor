@@ -31,6 +31,10 @@ class IPv4Address(object):
         """repr() implementation."""
         return f"<{self.__class__.__name__} {self._addr} at 0x{id(self):x}>"
 
+    def __eq__(self, value: object) -> bool:
+        """== implementation."""
+        return isinstance(value, IPv4Address) and self._addr == value._addr
+
     def __int__(self) -> int:
         """Convert to integer."""
         v = 0
@@ -112,6 +116,14 @@ class IPv4Prefix(object):
         """repr() implementation."""
         cname = self.__class__.__name__
         return f"<{cname} {self._addr!s}/{self.mask} at 0x{id(self):x}>"
+
+    def __eq__(self, value: object) -> bool:
+        """== implementation."""
+        return (
+            isinstance(value, IPv4Prefix)
+            and self._addr == value._addr
+            and self._mask == value._mask
+        )
 
     @property
     def network(self) -> IPv4Address:

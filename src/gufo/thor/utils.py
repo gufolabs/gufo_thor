@@ -35,7 +35,7 @@ def write_file(
         False: if file wasn't changed.
     """
     ensure_directory(path.parent)
-    if os.path.exists(path):
+    if path.exists():
         with open(path) as fp:
             fdata = fp.read()
             if fdata == content:
