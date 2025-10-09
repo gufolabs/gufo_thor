@@ -10,9 +10,8 @@ from typing import Any, Dict, List, Optional, Union
 # Third party modules
 import pytest
 
-from gufo.thor.ip import IPv4Address, IPv4Prefix
-
 # Gufo Thor modules
+from gufo.thor.ip import IPv4Address, IPv4Prefix
 from gufo.thor.validator import (
     ErrorContext,
     ErrorPoint,

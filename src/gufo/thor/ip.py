@@ -35,6 +35,10 @@ class IPv4Address(object):
         """== implementation."""
         return isinstance(value, IPv4Address) and self._addr == value._addr
 
+    def __hash__(self) -> int:
+        """hash() implementation."""
+        return hash(self._addr)
+
     def __int__(self) -> int:
         """Convert to integer."""
         v = 0
@@ -117,6 +121,10 @@ class IPv4Prefix(object):
         cname = self.__class__.__name__
         return f"<{cname} {self._addr!s}/{self.mask} at 0x{id(self):x}>"
 
+    def __hash__(self) -> int:
+        """hash() implementation."""
+        return hash(str(self))
+
     def __eq__(self, value: object) -> bool:
         """== implementation."""
         return (
@@ -145,6 +153,14 @@ class IPv4Prefix(object):
         new_net = self.network + v
         return IPv4Prefix(f"{new_net!s}/{self.mask}")
 
+    def __contains__(self, item: IPv4Address) -> bool:
+        """`in` implementation."""
+        if not isinstance(item, IPv4Address):
+            return False
+        start = int(self._addr)
+        size = 2 ** (32 - self._mask)
+        return start <= int(item) < start + size
+
     def first_free(self, used: Iterable[IPv4Address]) -> Optional[IPv4Address]:
         """
         Find first free address in prefix.
@@ -157,9 +173,12 @@ class IPv4Prefix(object):
         """
         exclude = set(used)
         c = self._addr + 1  # @todo: Separate handing for /31 networks
-        while c in exclude:
-            c += 1
-        return c
+        while c in self:
+            if c in exclude:
+                c += 1
+            else:
+                return c
+        return None
 
     def to_prefix(self, addr: IPv4Address) -> "IPv4Prefix":
         """Add mask to address."""
