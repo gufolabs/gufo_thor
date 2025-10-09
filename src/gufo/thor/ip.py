@@ -158,7 +158,7 @@ class IPv4Prefix(object):
         if not isinstance(item, IPv4Address):
             return False
         start = int(self._addr)
-        size = 2 ** (32 - self._mask)
+        size: int = 2 ** (32 - self._mask)
         return start <= int(item) < start + size
 
     def first_free(self, used: Iterable[IPv4Address]) -> Optional[IPv4Address]:
