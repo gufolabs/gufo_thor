@@ -5,7 +5,7 @@
 # ---------------------------------------------------------------------
 
 # Python modules
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Iterable, Optional
 
 # Third party modules
 import pytest
