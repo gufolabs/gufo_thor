@@ -8,7 +8,7 @@
 import sys
 from contextlib import contextmanager
 from functools import wraps
-from typing import Callable, Iterator, ParamSpec, TypeVar
+from typing import Iterator
 
 # Gufo Thor modules
 from gufo.thor.validator import errors
@@ -48,11 +48,7 @@ def override_errors() -> Iterator[None]:
         errors.from_errors(prev)
 
 
-P = ParamSpec("P")
-R = TypeVar("R")
-
-
-def isolated_errors(fn: Callable[P, R]) -> Callable[P, R]:
+def isolated_errors(fn):
     """
     Decorator to denote tests which can create errors.
 
@@ -63,7 +59,7 @@ def isolated_errors(fn: Callable[P, R]) -> Callable[P, R]:
     """
 
     @wraps(fn)
-    def inner(*args: P.args, **kwargs: P.kwargs) -> R:
+    def inner(*args, **kwargs):
         with override_errors():
             return fn(*args, **kwargs)
 
