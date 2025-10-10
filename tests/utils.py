@@ -8,7 +8,7 @@
 import sys
 from contextlib import contextmanager
 from functools import wraps
-from typing import Iterator
+from typing import Any, Iterator
 
 # Gufo Thor modules
 from gufo.thor.validator import errors
@@ -59,7 +59,7 @@ def isolated_errors(fn):
     """
 
     @wraps(fn)
-    def inner(*args, **kwargs):
+    def inner(*args: Any, **kwargs: Any):
         with override_errors():
             return fn(*args, **kwargs)
 
