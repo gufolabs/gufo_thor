@@ -13,6 +13,9 @@ on:
       - "*.md"
     branches:
       - master
+permissions:
+  contents: write
+  pull-requests: write
 jobs:
   build-push:
     name: "Build & Push Docs"
@@ -22,6 +25,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set Up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
       # Cache dependencies
       - name: Cache Dependencies
         uses: actions/cache@v4
@@ -29,12 +37,13 @@ jobs:
           path: ./.pip
           key: ${{ runner.os }}-docs-${{ hashFiles('./pyproject.toml') }}
 
+      - name: Upgrade Pip
+        run: python -m pip install --upgrade pip
+
       # Install dependencies
       - name: Install Dependencies
-        run: |
-          pip install -IU -e .[docs,deps]
+        run: pip install -IU -e .[docs,deps]
 
       # Build documentationn
       - name: Build & Deploy Docs
-        run: |
-          mkdocs gh-deploy --strict --force
+        run: mkdocs gh-deploy --strict --force
