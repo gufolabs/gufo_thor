@@ -25,6 +25,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## Infrastructure
 
+* Use Python 3.14 for devcontainer.
 * Codecov integration.
 * CodeQL scanning.
 * Install security patches into devcontainer.

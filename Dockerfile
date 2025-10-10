@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bullseye AS dev
+FROM python:3.14-slim-trixie AS dev
 COPY . /workspaces/gufo_thor
 WORKDIR /workspaces/gufo_thor
 RUN \
