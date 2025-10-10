@@ -5,6 +5,7 @@
 # ---------------------------------------------------------------------
 
 # Python modules
+import os
 from operator import attrgetter
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -13,7 +14,9 @@ from tempfile import TemporaryDirectory
 import pytest
 
 # Gufo Thor modules
-from gufo.thor.artefact import Artefact, ArtefactMountPoint
+from gufo.thor.artefact import DEFAULT_LOCAL_BASE, Artefact, ArtefactMountPoint
+
+from .utils import suppress_is_test
 
 
 def test_file_artefact() -> None:
@@ -155,3 +158,28 @@ def test_mount_hash():
 )
 def test_repr(artefact: Artefact, expected: str) -> None:
     assert repr(artefact) == expected
+
+
+def test_no_local_base_fail() -> None:
+    local_base = Artefact._local_base
+    Artefact._local_base = DEFAULT_LOCAL_BASE
+    try:
+        with pytest.raises(RuntimeError):
+            Artefact("test", Path("/", "tmp"))
+    finally:
+        Artefact._local_base = local_base
+
+
+def test_set_local_base_fail() -> None:
+    with suppress_is_test(), pytest.raises(RuntimeError):
+        Artefact._set_local_base()
+
+
+def test_iter_mounts_fail() -> None:
+    with TemporaryDirectory() as root:
+        p = Path(root) / "file.txt"
+        os.mkfifo(p)
+        artefact = Artefact("test", p)
+        mounted = artefact.at(Path("/", "var", "run", "link"))
+        with pytest.raises(ValueError):
+            list(mounted.iter_mounts())

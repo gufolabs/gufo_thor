@@ -311,15 +311,3 @@ def as_ipv4_prefix(
         with errors.context(name):
             errors.error("invalid prefix")
             return IPv4Prefix.default()
-
-
-@contextmanager
-def override_errors() -> Iterator[None]:
-    """
-    Temporary replace errors.
-
-    Used for tests.
-    """
-    prev = errors.copy()
-    yield None
-    errors.from_errors(prev)

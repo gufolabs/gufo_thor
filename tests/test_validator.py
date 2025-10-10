@@ -20,8 +20,9 @@ from gufo.thor.validator import (
     as_ipv4_prefix,
     as_str,
     errors,
-    override_errors,
 )
+
+from .utils import isolated_errors, override_errors
 
 
 def test_die() -> None:
@@ -123,12 +124,12 @@ def test_as_str(
         assert r == expected
 
 
+@isolated_errors
 def test_as_str_required() -> None:
-    with override_errors():
-        as_str({}, "x", required=True)
-        with pytest.raises(RuntimeError) as exc_info:
-            errors.check()
-        assert exc_info.value.args[0] == "x: must be set"
+    as_str({}, "x", required=True)
+    with pytest.raises(RuntimeError) as exc_info:
+        errors.check()
+    assert exc_info.value.args[0] == "x: must be set"
 
 
 def test_override_errors() -> None:
@@ -151,6 +152,7 @@ def test_override_errors() -> None:
         ({"x": "A"}, "x", True, 0, True),
     ],
 )
+@isolated_errors
 def test_as_int(
     data: Dict[str, Any],
     name: str,
@@ -158,13 +160,12 @@ def test_as_int(
     expected: Optional[int],
     has_errors: bool,
 ) -> None:
-    with override_errors():
-        r = as_int(data, name, required=required)
-        if expected is None:
-            assert r is None
-        else:
-            assert r == expected
-        assert errors.has_errors() is has_errors
+    r = as_int(data, name, required=required)
+    if expected is None:
+        assert r is None
+    else:
+        assert r == expected
+    assert errors.has_errors() is has_errors
 
 
 @pytest.mark.parametrize(
@@ -184,6 +185,7 @@ def test_as_int(
         ({"x": "A"}, "x", True, IPv4Address.default(), True),
     ],
 )
+@isolated_errors
 def test_as_ipv4(
     data: Dict[str, Any],
     name: str,
@@ -191,13 +193,12 @@ def test_as_ipv4(
     expected: Optional[IPv4Address],
     has_errors: bool,
 ) -> None:
-    with override_errors():
-        r = as_ipv4(data, name, required=required)
-        if expected is None:
-            assert r is None
-        else:
-            assert r == expected
-        assert errors.has_errors() is has_errors
+    r = as_ipv4(data, name, required=required)
+    if expected is None:
+        assert r is None
+    else:
+        assert r == expected
+    assert errors.has_errors() is has_errors
 
 
 @pytest.mark.parametrize(
@@ -217,6 +218,7 @@ def test_as_ipv4(
         ({"x": "A"}, "x", True, IPv4Prefix.default(), True),
     ],
 )
+@isolated_errors
 def test_as_ipv4_prefix(
     data: Dict[str, Any],
     name: str,
@@ -224,10 +226,9 @@ def test_as_ipv4_prefix(
     expected: Optional[IPv4Prefix],
     has_errors: bool,
 ) -> None:
-    with override_errors():
-        r = as_ipv4_prefix(data, name, required=required)
-        if expected is None:
-            assert r is None
-        else:
-            assert r == expected
-        assert errors.has_errors() is has_errors
+    r = as_ipv4_prefix(data, name, required=required)
+    if expected is None:
+        assert r is None
+    else:
+        assert r == expected
+    assert errors.has_errors() is has_errors
