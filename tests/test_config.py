@@ -33,7 +33,7 @@ from gufo.thor.validator import (
     errors,
 )
 
-from .utils import isolated_errors, override_errors
+from .utils import isolated_errors
 
 
 @isolated_errors
@@ -388,7 +388,7 @@ def test_isis_link_protocol_config2() -> None:
 
 @isolated_errors
 def test_lab_link_config() -> None:
-    cfg = LabLinkConfig.from_dict(
+    LabLinkConfig.from_dict(
         {
             "prefix": "10.0.0.0/30",
             "node-a": "r1",
