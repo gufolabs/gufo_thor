@@ -119,6 +119,10 @@ class Listen(object):
     address: str
     port: int
 
+    def __str__(self) -> str:
+        """str() implementation."""
+        return f"{self.address}:{self.port}"
+
     @staticmethod
     def from_dict(data: Union[dict[str, Any], int, str]) -> "Listen":
         """
@@ -137,6 +141,9 @@ class Listen(object):
                 addr, port = data.rsplit(":", 1)
                 return Listen(address=addr, port=int(port))
             return Listen(address=LOCALHOST, port=int(data))
+        if "port" not in data:
+            errors.error("port not set")
+            return Listen.default()
         return Listen(
             address=data.get("address", LOCALHOST), port=data["port"]
         )
@@ -152,6 +159,11 @@ class Listen(object):
             Port configuration for docker compose.
         """
         return f"{self.address}:{self.port}:{container_port}"
+
+    @classmethod
+    def default(cls) -> "Listen":
+        """Default value."""
+        return Listen(address=LOCALHOST, port=0)
 
 
 @dataclass
@@ -522,7 +534,7 @@ class LabLinkConfig(object):
                 else:
                     errors.error("Unknown protocol")
         return LabLinkConfig(
-            prefix=IPv4Prefix(as_str(data, "prefix", required=True)),
+            prefix=as_ipv4_prefix(data, "prefix", required=True),
             node_a=as_str(data, "node-a", required=True),
             node_z=as_str(data, "node-z", required=True),
             protocols=protocols,

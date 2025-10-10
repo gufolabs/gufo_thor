@@ -13,7 +13,9 @@ import pytest
 
 # Gufo Thor modules
 from gufo.thor.secret import SECRETS_PREFIX, Secret
-from gufo.thor.validator import errors, override_errors
+from gufo.thor.validator import errors
+
+from .utils import override_errors
 
 DEFAULT_SECRET_LEN = 43  # 32 bytes in base64
 TEST_NAME = "test_123"

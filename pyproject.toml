@@ -9,6 +9,7 @@ requires = [
 exclude_lines = [
   "if TYPE_CHECKING", # Disable type-checking imports
   "@(abc\\.)?abstract", # Ignore abstract methods
+  "# pragma: no cover", # Explicitly ignored
 ]
 include = ["src/*"]
 
@@ -91,6 +92,7 @@ max-complexity = 13
   "ANN101", # Missing type annotation for `{name}` in method
   "ANN201", # Missing return type annotation for public function {name}
   "ANN202", # Missing return type annotation for private function `{name}`
+  "ANN401", # Dynamically typed expressions (typing.Any) are disallowed in `...`
   "BLE001", # Do not catch blind exception: `Exception`
   "D100", # Missing docstring in public module
   "D101", # Missing docstring in public class

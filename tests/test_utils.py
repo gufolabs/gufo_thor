@@ -15,6 +15,8 @@ import pytest
 # Gufo Thor modules
 from gufo.thor.utils import ensure_directory, is_test, merge_dict, write_file
 
+from .utils import suppress_is_test
+
 
 def read_file(path: Path) -> str:
     with open(path) as fp:
@@ -91,4 +93,11 @@ def test_merge_dict(
 
 
 def test_is_test() -> None:
+    assert is_test() is True
+
+
+def test_suppress_is_test():
+    assert is_test() is True
+    with suppress_is_test():
+        assert is_test() is False
     assert is_test() is True
