@@ -76,6 +76,8 @@ class Route(object):
         disable_auth: Disable external authorization.
         prefix_rewite: Rewrite prefix, if set.
         redirect_to: Redirect to path, if matched.
+        no_cache: Add headers which disable caching.
+        is_service: Expose to `clusters` section.
     """
 
     name: str
@@ -83,12 +85,14 @@ class Route(object):
     disable_auth: bool
     prefix_rewrite: Optional[str] = None
     redirect_to: Optional[str] = None
+    no_cache: bool = False
+    is_service: bool = True
 
     @property
     def cluster(self: "Route") -> str:
         """Get cluster name."""
         if self.name == "/index.html":
-            return "web_cluster"
+            return "static_cluster"
         return f"{self.name}_cluster"
 
 
@@ -96,7 +100,7 @@ class EnvoyService(BaseService):
     """envoy service."""
 
     name = "envoy"
-    compose_image = "envoyproxy/envoy:v1.28.0"
+    compose_image = "envoyproxy/envoy:v1.36.0"
     # compose_depends_condition = ComposeDependsCondition.HEALTHY
     # compose_healthcheck = {
     #     "test": ["CMD", "envoy", "healthcheck", "--ping"],
@@ -147,51 +151,71 @@ class EnvoyService(BaseService):
             )
         # Generate routes
         routes: List[Route] = []
+        web_routes: List[Route] = []
         for s in services:
             prefix = s.get_expose_http_prefix(config, None)
             if not prefix:
                 continue
-            routes.append(
-                Route(
-                    name=s.name,
-                    prefix=prefix,
-                    disable_auth=not s.require_http_auth,
-                    prefix_rewrite=s.rewrite_http_prefix,
-                )
-            )
             if s.name == "web":
                 # Add redirect from legacy desktop
-                routes.append(
+                web_routes.append(
                     Route(
                         name="Redirect /main/desktop/ -> /index.html",
                         prefix="/main/desktop/",
                         disable_auth=True,
                         redirect_to="/index.html",
+                        is_service=False,
                     )
                 )
                 # Add redirect to desktop
-                routes.append(
+                web_routes.append(
                     Route(
                         name="Redirect / -> /index.html",
                         prefix="/",
                         disable_auth=True,
                         redirect_to="/index.html",
+                        is_service=False,
                     )
                 )
-                routes.append(
+                index_html = (
+                    f"/index.{config.noc.theme}.{config.noc.language}.html"
+                )
+                # Route to proper index
+                web_routes.append(
                     Route(
                         name="/index.html",
                         prefix="/index.html",
+                        prefix_rewrite=index_html,
                         disable_auth=True,
+                        no_cache=True,
+                        is_service=False,
                     )
                 )
+                web_routes.append(
+                    Route(
+                        name=s.name,
+                        prefix=prefix,
+                        disable_auth=not s.require_http_auth,
+                        prefix_rewrite=s.rewrite_http_prefix,
+                    )
+                )
+            else:
+                routes.append(
+                    Route(
+                        name=s.name,
+                        prefix=prefix,
+                        disable_auth=not s.require_http_auth,
+                        prefix_rewrite=s.rewrite_http_prefix,
+                    )
+                )
+
         routes = sorted(
             routes,
             key=lambda x: "---".join(
                 y if y else "zzzzzzzz" for y in x.prefix.split("/")
-            )
-            + f"---{not bool(x.redirect_to)}",
+            ),
         )
+        routes.extend(web_routes)
         # Add desktop redirect, if necessary
         envoy_settings.write(
             self.render(
@@ -200,7 +224,7 @@ class EnvoyService(BaseService):
                 domain_name_and_port=domain_name_and_port,
                 enable_mtls=bool(config.expose.mtls_ca_cert),
                 routes=routes,
-                services=sorted({r.name for r in routes if not r.redirect_to}),
+                services=sorted({r.name for r in routes if r.is_service}),
             )
         )
         # Prepare TLS certificates

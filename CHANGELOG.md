@@ -18,7 +18,9 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## Added
 
+* Bundled NOC UI support.
 * `noc.language` setting.
+* `noc.ui_path` setting.
 
 ## Changed
 
@@ -26,6 +28,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * NOC's config are mounted in /etc/noc/settings.yml.
 * Move postgres' password to secrets.
 * Use `bitnamilegacy` images for kafka.
+* Envoy 1.36.0
 
 ## Infrastructure
 

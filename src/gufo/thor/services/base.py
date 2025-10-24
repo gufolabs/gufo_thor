@@ -20,7 +20,6 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
 
 # Third-party modules
 import jinja2
-
 from gufo.loader import Loader
 
 # Gufo Thor modules
@@ -57,12 +56,14 @@ class Role(Enum):
         OTHER: Unspecified role.
         APP: NOC application.
         DB: NOC database.
+        ASSET: NOC assets.
         UTILS: Various utilities.
     """
 
     OTHER = "other"
     APP = "app"
     DB = "db"
+    ASSET = "asset"
     UTILS = "utils"
 
     @classmethod

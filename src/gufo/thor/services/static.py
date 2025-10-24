@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: static service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-24, Gufo Labs
+# Copyright (C) 2023-25, Gufo Labs
 # ---------------------------------------------------------------------
 """
 static service.
@@ -16,19 +16,19 @@ from typing import List, Optional
 # Gufo Thor modules
 from gufo.thor.config import Config, ServiceConfig
 
-from .base import ComposeDependsCondition
+from .base import BaseService, ComposeDependsCondition, Role
 from .envoy import envoy
-from .noc import NocService
+from .noc import NOC_IMAGE_BASE
 
 
-class StaticService(NocService):
+class StaticService(BaseService):
     """static service."""
 
     name = "static"
     dependencies = (envoy,)
     compose_command = (
         "/usr/local/bin/static-web-server "
-        "--health -x --root=/opt/noc/ui "
+        "--health -x --root=/www "
         "--host=0.0.0.0 --port=1200"
     )
     compose_depends_condition = ComposeDependsCondition.HEALTHY
@@ -40,22 +40,34 @@ class StaticService(NocService):
     }
     expose_http_prefix = "/ui/"
     rewrite_http_prefix = "/"
+    role = Role.ASSET
+
+    def get_compose_image(
+        self, config: Config, svc: Optional[ServiceConfig]
+    ) -> str:
+        """
+        Get image name.
+
+        Use tag from service's config, if any. Otherwise use tag
+        from global config.
+        """
+        tag = config.noc.tag
+        if svc and svc.tag:
+            tag = svc.tag
+        return f"{NOC_IMAGE_BASE}:{tag}"
 
     def get_compose_volumes(
-        self: "StaticService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """
         Get volumes section.
 
-        Avoid /ui/pkg to be overriden.
+        Mount repo and custom when necessary.
         """
-        r = super().get_compose_volumes(config, svc) or []
-        # Filter out settings and crashinfo
-        if r:
-            r = [x for x in r if not x.startswith("crashinfo:")]
-        if config.noc.path:
-            # Preserve /ui/pkg to not be overriden with repo
-            r.append("/opt/noc/ui/pkg")
+        r: List[str] = []
+        # Mount UI repo inside an image
+        if config.noc.ui_path:
+            r.append(f"{config.noc.ui_path}:/www:cached")
         return r if r else None
 
 
