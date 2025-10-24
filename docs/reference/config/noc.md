@@ -50,3 +50,21 @@ Run migrations on start. Has default value `True`.
 noc:
     migrate: true
 ```
+
+## theme { #theme }
+
+Web interface theme, one of: `noc`, `gray`. Has default value `noc`.
+
+``` yaml
+noc:
+    theme: noc
+```
+
+## language { #language }
+
+Web interface language, one of: `en`, `ru`.
+
+``` yaml
+noc:
+    language: en
+```

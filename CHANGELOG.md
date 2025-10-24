@@ -16,6 +16,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * migrate container no longer pollutes environment of other containers
 
+## Added
+
+* `noc.language` setting.
+
 ## Changed
 
 * Configs are deployed using docker's `configs` section. 
