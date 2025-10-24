@@ -33,6 +33,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * IPython 9.4.0
 * Jinja2 3.1.6
 * Ruff 0.14
+* devcontainer: Python debugger settings.
 
 ## 0.11.0 - 2025-09-12
 
