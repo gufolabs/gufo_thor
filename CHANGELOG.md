@@ -39,6 +39,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 * Ruff 0.14
 * devcontainer: Python debugger settings.
 * Use NOC images from ghcr.io/gufolabs/noc
+* Use Gufo Err for error reporting.
 
 ## 0.11.0 - 2025-09-12
 

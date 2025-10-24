@@ -22,6 +22,9 @@ from functools import cached_property
 from pathlib import Path
 from typing import Callable, List, NoReturn, Optional
 
+# Third-party modules
+from gufo.err import err
+
 # Gufo Thor modules
 from . import __version__
 from .config import Config
@@ -65,6 +68,8 @@ class Cli(object):
         Returns:
             ExitCode
         """
+        # Prepare error handler
+        err.setup(catch_all=True, format="extend")
         # Prepare command-line parser
         parser = argparse.ArgumentParser(
             prog=NAME, description="Simple NOC management tool"
