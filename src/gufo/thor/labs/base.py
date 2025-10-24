@@ -18,7 +18,6 @@ from typing import Any, Dict, List, Optional, Set, Type, TypedDict, Union
 
 # Third-party modules
 import jinja2
-
 from gufo.loader import Loader
 
 # Gufo Thor modules
