@@ -46,7 +46,7 @@ class NocService(BaseService):
         tag = config.noc.tag
         if svc and svc.tag:
             tag = svc.tag
-        return f"gufolabs/noc:{tag}"
+        return f"ghcr.io/gufolabs/noc:{tag}"
 
     def get_compose_command(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
