@@ -19,6 +19,7 @@ from ..utils import ensure_directory, merge_dict
 from .base import BaseService, ComposeDependsCondition, Role
 
 noc_settings = Artefact("settings", Path("etc", "noc", "settings.yml"))
+NOC_IMAGE_BASE = "ghcr.io/gufolabs/noc"
 
 
 class NocService(BaseService):
@@ -46,7 +47,7 @@ class NocService(BaseService):
         tag = config.noc.tag
         if svc and svc.tag:
             tag = svc.tag
-        return f"gufolabs/noc:{tag}"
+        return f"{NOC_IMAGE_BASE}:{tag}"
 
     def get_compose_command(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
@@ -124,6 +125,7 @@ class NocService(BaseService):
         cfg = {
             "installation_name": config.noc.installation_name,
             "clickhouse": {"ro_user": "default"},
+            "language": config.noc.language,
             "pg": {
                 "db": "noc",
                 "user": "noc",
