@@ -319,8 +319,8 @@ def test_service_image(
 
 CONF_NOC_PATH = """
 noc:
-  path: /tmp/noc
-  ui_path: /tmp/noc-ui
+  path: /home/joe/noc
+  ui_path: /home/joe/noc-ui
 services: [static, web]
 """
 
@@ -332,11 +332,11 @@ services: [static, web]
             web,
             CONF_NOC_PATH,
             [
-                "/tmp/noc:/opt/noc:cached",
+                "/home/joe/noc:/opt/noc:cached",
                 "crashinfo:/var/lib/noc/cp/crashinfo/new",
             ],
         ),
-        (static, CONF_NOC_PATH, ["/tmp/noc-ui:/www:cached"]),
+        (static, CONF_NOC_PATH, ["/home/joe/noc-ui:/www:cached"]),
         (envoy, CONF_NOC_PATH, None),
     ],
 )
