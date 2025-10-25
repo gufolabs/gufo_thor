@@ -42,6 +42,18 @@ static_resources:
                             # {% if route.prefix_rewrite %}
                             prefix_rewrite: "{{ route.prefix_rewrite }}"
                             # {% endif %}
+                          # {% if route.no_cache %}
+                          response_headers_to_add:
+                          - header:
+                              key: "Cache-Control"
+                              value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+                          - header:
+                              key: "Pragma"
+                              value: "no-cache"
+                          - header:
+                              key: "Expires"
+                              value: "0"
+                          # {% endif %}
                           # {% if route.disable_auth %}
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
@@ -81,6 +93,7 @@ static_resources:
                   - name: envoy.filters.http.ext_authz
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+                      transport_api_version: V3
                       http_service:
                         server_uri:
                           uri: "http://login:1200/api/auth/auth/"
@@ -88,12 +101,13 @@ static_resources:
                           timeout: 0.5s
                         path_prefix: /api/auth/auth/?uri=
                         authorization_request:
-                          allowed_headers:
-                            patterns:
-                              - exact: private-token
-                              - exact: authorization
-                              - exact: cookie
                           headers_to_add:
+                            - key: private-token
+                              value: "%REQ(private-token)%"
+                            - key: authorization
+                              value: "%REQ(authorization)%"
+                            - key: cookie
+                              value: "%REQ(cookie)%"
                             - key: X-Original-URI
                               value: "%REQ(:path)%"
                             {% if enable_mtls -%}
