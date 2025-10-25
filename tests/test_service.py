@@ -5,7 +5,7 @@
 # ---------------------------------------------------------------------
 
 # Python modules
-from typing import List
+from typing import List, Optional
 
 # Third-party modules
 import pytest
@@ -26,6 +26,7 @@ from gufo.thor.services.kafka import kafka
 from gufo.thor.services.login import login
 from gufo.thor.services.migrate import migrate
 from gufo.thor.services.mongo import mongo
+from gufo.thor.services.noc import NOC_IMAGE_BASE
 from gufo.thor.services.postgres import postgres
 from gufo.thor.services.scheduler import scheduler
 from gufo.thor.services.static import static
@@ -289,3 +290,64 @@ def test_deps_dot() -> None:
     dot = BaseService.get_deps_dot()
     print(dot)
     assert dot == DEPS_DOT
+
+
+ALTER_RELEASE_TAG = "release-25.2"
+CONF_NOC_TAG = f"""
+noc:
+  tag: "{ALTER_RELEASE_TAG}"
+services: [web,static]
+"""
+
+
+@pytest.mark.parametrize(
+    ("service", "conf", "expected"),
+    [
+        (web, None, f"{NOC_IMAGE_BASE}:master"),
+        (static, None, f"{NOC_IMAGE_BASE}:master"),
+        (web, CONF_NOC_TAG, f"{NOC_IMAGE_BASE}:{ALTER_RELEASE_TAG}"),
+        (static, CONF_NOC_TAG, f"{NOC_IMAGE_BASE}:{ALTER_RELEASE_TAG}"),
+    ],
+)
+def test_service_image(
+    service: BaseService, conf: Optional[str], expected: str
+) -> None:
+    config = Config.from_yaml(conf) if conf else Config.default()
+    img = service.get_compose_image(config, None)
+    assert img == expected
+
+
+CONF_NOC_PATH = """
+noc:
+  path: /tmp/noc
+  ui_path: /tmp/noc-ui
+services: [static, web]
+"""
+
+
+@pytest.mark.parametrize(
+    ("service", "conf", "expected"),
+    [
+        (
+            web,
+            CONF_NOC_PATH,
+            [
+                "/tmp/noc:/opt/noc:cached",
+                "crashinfo:/var/lib/noc/cp/crashinfo/new",
+            ],
+        ),
+        (static, CONF_NOC_PATH, ["/tmp/noc-ui:/www:cached"]),
+        (envoy, CONF_NOC_PATH, None),
+    ],
+)
+def test_service_volumes(
+    service: BaseService, conf: Optional[str], expected: Optional[List[str]]
+) -> None:
+    config = Config.from_yaml(conf) if conf else Config.default()
+    volumes = service.get_compose_volumes(config, None)
+    if not expected:
+        assert volumes is None
+    else:
+        assert volumes
+        for xv in expected:
+            assert xv in volumes
