@@ -120,7 +120,7 @@ class NocService(BaseService):
         if not _prepared_flags.may_process_config():
             return  # Already configured from other subclass
         # Build default config
-        cfg = {
+        cfg: Dict[str, Any] = {
             "installation_name": config.noc.installation_name,
             "clickhouse": {"ro_user": "default"},
             "language": config.noc.language,
