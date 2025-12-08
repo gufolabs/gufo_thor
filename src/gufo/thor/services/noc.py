@@ -141,10 +141,7 @@ class NocService(BaseService):
             cfg = merge_dict(cfg, config.noc.config)
         # Apply custom if necessary
         if config.noc.custom:
-            if "path" in cfg:
-                cfg["path"]["custom_path"] = "/opt/noc_custom"
-            else:
-                cfg["path"] = {"custom_path": "/opt/noc_custom"}
+            cfg.setdefault("path", {})["custom_path"] = "/opt/noc_custom"
         # Write
         noc_settings.write(yaml.dump(cfg))
         # Ensure directories
