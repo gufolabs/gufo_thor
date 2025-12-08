@@ -98,8 +98,6 @@ class NocService(BaseService):
     ) -> Optional[Dict[str, str]]:
         """Get environment section."""
         r: Dict[str, str] = super().get_compose_environment(config, svc) or {}
-        if config.noc.custom:
-            r["NOC_PATH_CUSTOM_PATH"] = "/opt/noc_custom"
         if self.is_pooled:
             if not self._pool:
                 msg = f"Cannot use pooled service {self.name} without pool"
@@ -141,6 +139,12 @@ class NocService(BaseService):
         # Apply user config
         if config.noc.config:
             cfg = merge_dict(cfg, config.noc.config)
+        # Apply custom if necessary
+        if config.noc.custom:
+            if "path" in cfg:
+                cfg["path"]["custom_path"] = "/opt/noc_custom"
+            else:
+                cfg["path"] = {"custom_path": "/opt/noc_custom"}
         # Write
         noc_settings.write(yaml.dump(cfg))
         # Ensure directories
