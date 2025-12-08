@@ -351,3 +351,27 @@ def test_service_volumes(
         assert volumes
         for xv in expected:
             assert xv in volumes
+
+
+CONF_NO_CUSTOM = """
+services: [web]
+"""
+CONF_CUSTOM = """
+noc:
+  custom: /tmp/custom
+services: [web]
+"""
+
+
+@pytest.mark.parametrize(
+    ("conf", "expected"), [(CONF_NO_CUSTOM, False), (CONF_CUSTOM, True)]
+)
+def test_service_custom_config(conf: str, expected: bool) -> None:
+    config = Config.from_yaml(conf)
+    cfg = web.get_noc_settings(config)
+    if expected:
+        assert "path" in cfg
+        assert "custom_path" in cfg["path"]
+        assert cfg["path"]["custom_path"] == "/opt/noc_custom"
+    else:
+        assert "path" not in cfg
