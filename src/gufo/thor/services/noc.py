@@ -119,6 +119,23 @@ class NocService(BaseService):
         """
         if not _prepared_flags.may_process_config():
             return  # Already configured from other subclass
+        # Write
+        cfg = self.get_noc_settings(config)
+        noc_settings.write(yaml.dump(cfg))
+        # Ensure directories
+        ensure_directory(Path("data", "crashinfo"))
+        ensure_directory(Path("data", "backup"))
+
+    def get_noc_settings(self, config: Config) -> Dict[str, Any]:
+        """
+        Get data for settings.yml.
+
+        Args:
+            config: Thor's config.
+
+        Returns:
+            Data which can be serialized to settings.yml.
+        """
         # Build default config
         cfg: Dict[str, Any] = {
             "installation_name": config.noc.installation_name,
@@ -142,11 +159,7 @@ class NocService(BaseService):
         # Apply custom if necessary
         if config.noc.custom:
             cfg.setdefault("path", {})["custom_path"] = "/opt/noc_custom"
-        # Write
-        noc_settings.write(yaml.dump(cfg))
-        # Ensure directories
-        ensure_directory(Path("data", "crashinfo"))
-        ensure_directory(Path("data", "backup"))
+        return cfg
 
     def get_compose_volumes_config(
         self: "NocService", config: Config, svc: Optional[ServiceConfig]
