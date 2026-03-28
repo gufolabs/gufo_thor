@@ -32,12 +32,12 @@ class BaseTarget(ABC):
 
     name: str
 
-    def __init__(self: "BaseTarget", config: Config) -> None:
+    def __init__(self, config: Config) -> None:
         self.config = config
         self.services = list(BaseService.resolve(self.config.services))
 
     @abstractmethod
-    def prepare(self: "BaseTarget") -> None:
+    def prepare(self) -> None:
         """Prepare environment before start."""
         ...
 

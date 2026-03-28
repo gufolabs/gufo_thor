@@ -48,7 +48,7 @@ class PostgresService(BaseService):
     compose_secrets_for_dependencies = [postgres_password]
 
     def get_compose_ports(
-        self: "PostgresService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """Expose port."""
         r = super().get_compose_ports(config, svc) or []

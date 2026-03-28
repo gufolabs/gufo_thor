@@ -153,7 +153,7 @@ class Listen(object):
             address=data.get("address", LOCALHOST), port=data["port"]
         )
 
-    def docker_compose_port(self: "Listen", container_port: int) -> str:
+    def docker_compose_port(self, container_port: int) -> str:
         """
         Generate configuration for port forwarding.
 

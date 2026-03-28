@@ -176,7 +176,7 @@ class BaseService(ABC):
             return f"{self.name}-{self._pool}"
         return self.name
 
-    def iter_dependencies(self: "BaseService") -> Iterable["BaseService"]:
+    def iter_dependencies(self) -> Iterable["BaseService"]:
         """
         Iterator yielding the name of dependencies.
 
@@ -201,7 +201,7 @@ class BaseService(ABC):
                 yield svc
 
     def get_compose_config(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> Dict[str, Any]:
         """
         Generate config for docker-compose target.
@@ -307,7 +307,7 @@ class BaseService(ABC):
         return r
 
     def get_compose_depends_condition(
-        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> ComposeDependsCondition:
         """
         Get condition for all dependend services.
@@ -322,7 +322,7 @@ class BaseService(ABC):
         return self.compose_depends_condition
 
     def get_compose_image(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> str:
         """
         Get docker-compose.yml `image` section.
@@ -341,7 +341,7 @@ class BaseService(ABC):
             raise NotImplementedError(msg) from e
 
     def get_compose_working_dir(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> Optional[str]:
         """
         Get docker-compose.yml `working_dir` section.
@@ -356,7 +356,7 @@ class BaseService(ABC):
         return self.compose_working_dir
 
     def get_compose_command(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> Optional[str]:
         """
         Get docker-compose.yml `command` section.
@@ -371,7 +371,7 @@ class BaseService(ABC):
         return self.compose_command
 
     def get_compose_entrypoint(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> Optional[str]:
         """
         Get docker-compose.yml `entrypoint` section.
@@ -386,7 +386,7 @@ class BaseService(ABC):
         return self.compose_entrypoint
 
     def get_compose_networks(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> Dict[str, Any]:
         """
         Get docker-compose.yml `networks` section.
@@ -407,7 +407,7 @@ class BaseService(ABC):
         return r
 
     def get_compose_volumes(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """
         Get docker-compose.yml `volumes` section.
@@ -422,7 +422,7 @@ class BaseService(ABC):
         return self.compose_volumes
 
     def get_compose_volumes_config(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Dict[str, Any]]]:
         """
         Get docker-compose.yml global `volumes` section.
@@ -437,7 +437,7 @@ class BaseService(ABC):
         return self.compose_volumes_config
 
     def get_compose_ports(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """
         Get docker-compose.yml `ports` section.
@@ -452,7 +452,7 @@ class BaseService(ABC):
         return None
 
     def get_compose_environment(
-        self: "BaseService", config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, str]]:
         """
         Get docker-compose.yml `environment` section.
@@ -469,7 +469,7 @@ class BaseService(ABC):
         return None
 
     def get_compose_healthcheck(
-        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Any]]:
         """
         Get docker-compose.yml `healthcheck` section.
@@ -486,7 +486,7 @@ class BaseService(ABC):
         return self.compose_healthcheck
 
     def get_compose_logging(
-        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Any]]:
         """
         Get docker-compose.yml `logging` section.
@@ -503,7 +503,7 @@ class BaseService(ABC):
         return None
 
     def get_compose_labels(
-        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """
         Get docker-compose.yml `labels` section.
@@ -561,7 +561,7 @@ class BaseService(ABC):
         return None
 
     def get_compose_extra(
-        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Any]]:
         """
         Get dict to be merged with compose config/.
@@ -576,7 +576,7 @@ class BaseService(ABC):
         return self.compose_extra
 
     def prepare_compose_config(
-        self: "BaseService",
+        self,
         config: Config,
         svc: Optional[ServiceConfig],
         services: List["BaseService"],
@@ -592,7 +592,7 @@ class BaseService(ABC):
         return
 
     def get_expose_http_prefix(
-        self: "BaseService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[str]:
         """
         Iterate over exposed http paths.

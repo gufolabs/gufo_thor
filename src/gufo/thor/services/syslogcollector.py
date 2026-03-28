@@ -31,7 +31,7 @@ class SyslogcollectorService(NocService):
     require_pool_network = True
 
     def get_compose_networks(
-        self: "SyslogcollectorService",
+        self,
         config: Config,
         svc: Optional[ServiceConfig],
     ) -> Dict[str, Any]:
@@ -46,7 +46,7 @@ class SyslogcollectorService(NocService):
         return r
 
     def get_compose_environment(
-        self: "SyslogcollectorService",
+        self,
         config: Config,
         svc: Optional[ServiceConfig],
     ) -> Optional[Dict[str, str]]:

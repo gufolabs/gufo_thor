@@ -34,7 +34,7 @@ class ComposeTarget(BaseTarget):
 
     name = "compose"
 
-    def prepare(self: "ComposeTarget") -> None:
+    def prepare(self) -> None:
         """Generate docker-compose.yml, data directories, and configs."""
         print(f"gufo-thor {__version__}")
         self.migrate()
@@ -59,7 +59,7 @@ class ComposeTarget(BaseTarget):
         # Create assets/
         ensure_directory(Path("assets"))
 
-    def render_config(self: "ComposeTarget") -> str:
+    def render_config(self) -> str:
         """
         Render `docker-compose.yml`.
 
@@ -85,7 +85,7 @@ class ComposeTarget(BaseTarget):
                 del r[k]
         return r
 
-    def _get_services_config(self: "ComposeTarget") -> Dict[str, Any]:
+    def _get_services_config(self) -> Dict[str, Any]:
         """Build services section of config."""
         # Resolve services
         return {
@@ -95,7 +95,7 @@ class ComposeTarget(BaseTarget):
             for svc in self.services
         }
 
-    def _get_networks_config(self: "ComposeTarget") -> Dict[str, Any]:
+    def _get_networks_config(self) -> Dict[str, Any]:
         """Build networks section of config."""
         r: Dict[str, Dict[str, Any]] = {
             "noc": {
@@ -119,7 +119,7 @@ class ComposeTarget(BaseTarget):
             }
         return r
 
-    def _get_volumes_config(self: "ComposeTarget") -> Dict[str, Any]:
+    def _get_volumes_config(self) -> Dict[str, Any]:
         """Build volumes section of config."""
         r: Dict[str, Dict[str, Any]] = {}
         for svc in self.services:

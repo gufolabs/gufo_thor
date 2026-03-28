@@ -30,7 +30,7 @@ class TrapcollectorService(NocService):
     require_pool_network = True
 
     def get_compose_networks(
-        self: "TrapcollectorService",
+        self,
         config: Config,
         svc: Optional[ServiceConfig],
     ) -> Dict[str, Any]:
@@ -45,7 +45,7 @@ class TrapcollectorService(NocService):
         return r
 
     def get_compose_environment(
-        self: "TrapcollectorService",
+        self,
         config: Config,
         svc: Optional[ServiceConfig],
     ) -> Optional[Dict[str, str]]:

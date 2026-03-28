@@ -38,7 +38,7 @@ class MongoService(BaseService):
     role = Role.DB
 
     def get_compose_ports(
-        self: "MongoService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """Expose port."""
         r = super().get_compose_ports(config, svc) or []
