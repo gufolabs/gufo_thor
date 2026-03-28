@@ -42,7 +42,7 @@ class MigrateService(NocService):
     role = Role.UTILS
 
     def get_compose_command(
-        self: "MigrateService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[str]:
         """
         Get compose command.
@@ -54,7 +54,7 @@ class MigrateService(NocService):
         return "/bin/true"
 
     def get_compose_environment(
-        self: "MigrateService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, str]]:
         """
         Environment settings for container.

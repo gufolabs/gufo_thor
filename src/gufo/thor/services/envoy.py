@@ -89,7 +89,7 @@ class Route(object):
     is_service: bool = True
 
     @property
-    def cluster(self: "Route") -> str:
+    def cluster(self) -> str:
         """Get cluster name."""
         if self.name == "/index.html":
             return "static_cluster"
@@ -118,7 +118,7 @@ class EnvoyService(BaseService):
     CERT_DAYS = 3650
 
     def get_compose_networks(
-        self: "EnvoyService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Dict[str, Any]:
         """Get networks section."""
         r = super().get_compose_networks(config, svc)
@@ -128,7 +128,7 @@ class EnvoyService(BaseService):
         return r
 
     def get_compose_ports(
-        self: "EnvoyService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """Get ports section."""
         if config.expose.web:
@@ -136,7 +136,7 @@ class EnvoyService(BaseService):
         return None
 
     def prepare_compose_config(
-        self: "EnvoyService",
+        self,
         config: Config,
         svc: Optional[ServiceConfig],
         services: List["BaseService"],
@@ -236,20 +236,18 @@ class EnvoyService(BaseService):
                 Path("assets") / config.expose.mtls_ca_cert
             )
 
-    def _to_rebuild_certificate(self: "EnvoyService", config: Config) -> bool:
+    def _to_rebuild_certificate(self, config: Config) -> bool:
         """Check if SSL certificate must be rebuilt."""
         if not os.path.exists(self.SUBJ_PATH):
             return True
         with open(self.SUBJ_PATH) as fp:
             return fp.read() != self.get_cert_subj(config)
 
-    def get_cert_subj(self: "EnvoyService", config: Config) -> str:
+    def get_cert_subj(self, config: Config) -> str:
         """Get certificate subj."""
         return f"CN={config.expose.domain_name}"
 
-    def _get_signed_csr(
-        self: "EnvoyService", csr_proxy: str, csr: bytes
-    ) -> bytes:
+    def _get_signed_csr(self, csr_proxy: str, csr: bytes) -> bytes:
         """
         Sign certificate via CSR Proxy.
 
@@ -273,7 +271,7 @@ class EnvoyService(BaseService):
         raise CancelExecution()
 
     def _get_self_signed_certificate(
-        self: "EnvoyService", csr: bytes, private_key: bytes
+        self, csr: bytes, private_key: bytes
     ) -> bytes:
         """
         Generate self-signed certificate.
@@ -291,7 +289,7 @@ class EnvoyService(BaseService):
             csr, private_key, validity_days=3560
         )
 
-    def _rebuild_certificate(self: "EnvoyService", config: Config) -> None:
+    def _rebuild_certificate(self, config: Config) -> None:
         """Rebuild SSL certificates."""
         from gufo.acme.clients.base import AcmeClient
 

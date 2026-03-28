@@ -48,7 +48,7 @@ class Docker(object):
         sys.exit(1)
 
     @cached_property
-    def _config(self: "Docker") -> DockerConfig:
+    def _config(self) -> DockerConfig:
         """
         Docker configuration.
 
@@ -63,7 +63,7 @@ class Docker(object):
             )
         return self._read_config()
 
-    def _read_config(self: "Docker") -> DockerConfig:
+    def _read_config(self) -> DockerConfig:
         """
         Read configuration from docker daemon.
 
@@ -93,7 +93,7 @@ class Docker(object):
         return cfg
 
     @cached_property
-    def logging_driver(self: "Docker") -> str:
+    def logging_driver(self) -> str:
         """
         Get docker logging driver.
 
@@ -102,9 +102,7 @@ class Docker(object):
         """
         return self._config.logging_driver
 
-    def _commpose_command(
-        self: "Docker", *args: str, _exec: bool = False
-    ) -> bool:
+    def _commpose_command(self, *args: str, _exec: bool = False) -> bool:
         """
         Run compose subcommand.
 
@@ -122,7 +120,7 @@ class Docker(object):
         except subprocess.CalledProcessError:
             return False
 
-    def up(self: "Docker") -> bool:
+    def up(self) -> bool:
         """
         Perform docker compose up -d.
 
@@ -133,7 +131,7 @@ class Docker(object):
         logger.warning("Starting containers")
         return self._commpose_command("up", "-d", _exec=True)
 
-    def stop(self: "Docker") -> bool:
+    def stop(self) -> bool:
         """
         Perform docker compose stop.
 
@@ -144,7 +142,7 @@ class Docker(object):
         logger.warning("Stopping containers")
         return self._commpose_command("stop", _exec=True)
 
-    def logs(self: "Docker", *args: str, _follow: bool = False) -> bool:
+    def logs(self, *args: str, _follow: bool = False) -> bool:
         """Show logs."""
         cmd = ["logs"]
         if _follow:
@@ -152,7 +150,7 @@ class Docker(object):
         cmd.extend(args)
         return self._commpose_command(*cmd, _exec=True)
 
-    def restart(self: "Docker", *args: str) -> bool:
+    def restart(self, *args: str) -> bool:
         """
         Perform services restart.
 
@@ -165,7 +163,7 @@ class Docker(object):
             *("stop", *args)
         ) and self._commpose_command(*("up", "-d", *args), _exec=True)
 
-    def shell(self: "Docker") -> bool:
+    def shell(self) -> bool:
         """
         Run shell in container.
 
@@ -176,7 +174,7 @@ class Docker(object):
         logger.warning("Running shell")
         return self._commpose_command("run", "--rm", "shell", _exec=True)
 
-    def stats(self: "Docker") -> bool:
+    def stats(self) -> bool:
         """
         Show container stats.
 
@@ -186,7 +184,7 @@ class Docker(object):
         """
         return self._commpose_command("stats", _exec=True)
 
-    def destroy(self: "Docker") -> bool:
+    def destroy(self) -> bool:
         """
         Destroy installation.
 
@@ -197,7 +195,7 @@ class Docker(object):
         logger.warning("Destroying installation")
         return self._commpose_command("down", "--volumes", _exec=True)
 
-    def pull(self: "Docker") -> bool:
+    def pull(self) -> bool:
         """
         Pull containers.
 
@@ -207,7 +205,7 @@ class Docker(object):
         """
         return self._commpose_command("pull", _exec=True)
 
-    def down(self: "Docker", *args: str) -> bool:
+    def down(self, *args: str) -> bool:
         """
         Down services' containers.
 

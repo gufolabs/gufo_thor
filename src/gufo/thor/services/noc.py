@@ -36,7 +36,7 @@ class NocService(BaseService):
     ]
 
     def get_compose_image(
-        self: "NocService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> str:
         """
         Get image name.
@@ -50,7 +50,7 @@ class NocService(BaseService):
         return f"{NOC_IMAGE_BASE}:{tag}"
 
     def get_compose_command(
-        self: "NocService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[str]:
         """Get command section."""
         if self.compose_command:
@@ -76,7 +76,7 @@ class NocService(BaseService):
         return cmd
 
     def get_compose_volumes(
-        self: "NocService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[List[str]]:
         """
         Get volumes section.
@@ -94,7 +94,7 @@ class NocService(BaseService):
         return r if r else None
 
     def get_compose_environment(
-        self: "NocService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, str]]:
         """Get environment section."""
         r: Dict[str, str] = super().get_compose_environment(config, svc) or {}
@@ -106,7 +106,7 @@ class NocService(BaseService):
         return r if r else None
 
     def prepare_compose_config(
-        self: "NocService",
+        self,
         config: Config,
         svc: Optional[ServiceConfig],
         services: List["BaseService"],
@@ -162,7 +162,7 @@ class NocService(BaseService):
         return cfg
 
     def get_compose_volumes_config(
-        self: "NocService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Dict[str, Any]]]:
         """Generate crashinfo and backup volume."""
         if not _prepared_flags.may_process_volumes():
@@ -187,7 +187,7 @@ class NocService(BaseService):
         }
 
     def get_compose_extra(
-        self: "NocService", config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: Optional[ServiceConfig]
     ) -> Optional[Dict[str, Any]]:
         """Set caps."""
         r = super().get_compose_extra(config, svc) or {}

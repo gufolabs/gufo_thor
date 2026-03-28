@@ -59,7 +59,7 @@ class Cli(object):
             print(msg)
         sys.exit(1)
 
-    def run(self: "Cli", args: List[str]) -> ExitCode:
+    def run(self, args: List[str]) -> ExitCode:
         """
         Parse command-line arguments and run appropriate command.
 
@@ -156,7 +156,7 @@ class Cli(object):
             return ExitCode.ERR
 
     def get_handler(
-        self: "Cli", name: str
+        self, name: str
     ) -> Callable[[argparse.Namespace], ExitCode]:
         """
         Get handler for command.
@@ -172,11 +172,11 @@ class Cli(object):
         )
         return h
 
-    def setup_logging(self: "Cli") -> None:
+    def setup_logging(self) -> None:
         """Setup logger."""
         logger.setLevel(logging.INFO)
 
-    def handle_version(self: "Cli", _ns: argparse.Namespace) -> ExitCode:
+    def handle_version(self, _ns: argparse.Namespace) -> ExitCode:
         """
         Print Gufo Thor version.
 
@@ -189,7 +189,7 @@ class Cli(object):
         print(f"{NAME} {__version__}")
         return ExitCode.OK
 
-    def handle_sample_config(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_sample_config(self, ns: argparse.Namespace) -> ExitCode:
         """Generate sample config."""
         from gufo.thor.config import get_sample
 
@@ -204,7 +204,7 @@ class Cli(object):
         return ExitCode.OK
 
     @cached_property
-    def config(self: "Cli") -> Config:
+    def config(self) -> Config:
         """
         Get config.
 
@@ -215,7 +215,7 @@ class Cli(object):
         return Config.from_file(path)
 
     @cached_property
-    def target(self: "Cli") -> BaseTarget:
+    def target(self) -> BaseTarget:
         """
         Get target.
 
@@ -237,12 +237,12 @@ class Cli(object):
         # Get target
         return loader["compose"](self.config)
 
-    def handle_prepare(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_prepare(self, ns: argparse.Namespace) -> ExitCode:
         """Prepare NOC configuration."""
         self.target.prepare()
         return ExitCode.OK
 
-    def _get_ui_url(self: "Cli") -> str:
+    def _get_ui_url(self) -> str:
         """
         Get user interface url.
 
@@ -256,7 +256,7 @@ class Cli(object):
         parts.append("/")
         return "".join(parts)
 
-    def handle_up(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_up(self, ns: argparse.Namespace) -> ExitCode:
         """Prepare NOC configuration and run NOC."""
         # Migrate status
         if ns.migrate:
@@ -282,13 +282,13 @@ class Cli(object):
                     )
         return ExitCode.OK
 
-    def handle_stop(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_stop(self, ns: argparse.Namespace) -> ExitCode:
         """Stop NOC."""
         if not docker.stop():
             return ExitCode.ERR
         return ExitCode.OK
 
-    def handle_shell(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_shell(self, ns: argparse.Namespace) -> ExitCode:
         """Run shell."""
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
@@ -297,7 +297,7 @@ class Cli(object):
             return ExitCode.ERR
         return ExitCode.OK
 
-    def handle_restart(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_restart(self, ns: argparse.Namespace) -> ExitCode:
         """Restart services."""
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
@@ -306,7 +306,7 @@ class Cli(object):
             return ExitCode.ERR
         return ExitCode.OK
 
-    def handle_stats(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_stats(self, ns: argparse.Namespace) -> ExitCode:
         """Show stats."""
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
@@ -315,7 +315,7 @@ class Cli(object):
             return ExitCode.ERR
         return ExitCode.OK
 
-    def handle_logs(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_logs(self, ns: argparse.Namespace) -> ExitCode:
         """Show logs."""
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
@@ -324,7 +324,7 @@ class Cli(object):
             return ExitCode.ERR
         return ExitCode.OK
 
-    def handle_destroy(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_destroy(self, ns: argparse.Namespace) -> ExitCode:
         """Destroy installation."""
         if not self.confirm(
             "Destroy installation? All data will be lost!", ns=ns
@@ -338,7 +338,7 @@ class Cli(object):
             return ExitCode.ERR
         return ExitCode.OK
 
-    def handle_upgrade(self: "Cli", ns: argparse.Namespace) -> ExitCode:
+    def handle_upgrade(self, ns: argparse.Namespace) -> ExitCode:
         """Upgrade NOC."""
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
@@ -351,7 +351,7 @@ class Cli(object):
         logger.warning("Running migrate")
         return ExitCode.OK
 
-    def confirm(self: "Cli", question: str, ns: argparse.Namespace) -> bool:
+    def confirm(self, question: str, ns: argparse.Namespace) -> bool:
         """Ask for confirmation."""
         if ns.yes:
             return True
