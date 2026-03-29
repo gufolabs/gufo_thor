@@ -176,6 +176,18 @@ class Docker(object):
         cmd.extend(args)
         return cmd
 
+    def _execvp(self, cmd: List[str]) -> bool:
+        """os.execvp() wrapper for tests."""
+        return os.execvp(cmd[0], cmd)  # noqa: S606
+
+    def _capture_output(self, cmd: List[str]) -> str:
+        """subprocess.run() wrapper for tests."""
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError:
+            self.die(f"Failed to run {' '.join(cmd)}")
+        return r.stdout
+
     def _docker_exec(self, *args: str) -> bool:
         """
         Execute compose command.
@@ -187,7 +199,7 @@ class Docker(object):
             False: otherwise.
         """
         cmd = self._extend_docker_cmd(*args)
-        return os.execvp(cmd[0], cmd)  # noqa: S606
+        return self._execvp(cmd)
 
     def _compose_exec(self, *args: str) -> bool:
         """
@@ -200,7 +212,7 @@ class Docker(object):
             False: otherwise.
         """
         cmd = self._extend_compose_cmd(*args)
-        return os.execvp(cmd[0], cmd)  # noqa: S606
+        return self._execvp(cmd)
 
     def _compose_command(self, *args: str) -> bool:
         """
@@ -225,11 +237,7 @@ class Docker(object):
             captured output.
         """
         cmd = self._extend_docker_cmd(*args)
-        try:
-            r = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        except subprocess.CalledProcessError:
-            self.die(f"Failed to run {' '.join(cmd)}")
-        return r.stdout
+        return self._capture_output(cmd)
 
     def _compose_output(self, *args: str) -> str:
         """
@@ -239,11 +247,7 @@ class Docker(object):
             captured output.
         """
         cmd = self._extend_compose_cmd(*args)
-        try:
-            r = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        except subprocess.CalledProcessError:
-            self.die(f"Failed to run {' '.join(cmd)}")
-        return r.stdout
+        return self._capture_output(cmd)
 
     def up(self) -> bool:
         """
