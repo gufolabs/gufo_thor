@@ -91,6 +91,17 @@ def test_read_config() -> None:
     assert cfg.logging_driver == "json-file"
 
 
+COMPOSE_CONFIG = """{"name": "test1"}"""
+
+
+def test_read_compose_config() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    cfg = docker._read_compose_config()
+    assert docker.exec_cmd == ["docker", "compose", "config", "--format=json"]
+    assert cfg.name == "test1"
+
+
 def test_up() -> None:
     docker = MockDocker()
     docker.up()
