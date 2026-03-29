@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Command-line utility
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 """
 `gufo-thor` command-line utility.
@@ -118,6 +118,10 @@ class Cli(object):
         restart_parser.add_argument(
             "services", nargs=argparse.ONE_OR_MORE, help="Service names"
         )
+        # pause
+        subparsers.add_parser("pause", help="Pause services' containers")
+        # unpause
+        subparsers.add_parser("unpause", help="Resume services' containers")
         # backup
         backup_parser = subparsers.add_parser(
             "backup", help="Backup databases"
@@ -362,6 +366,24 @@ class Cli(object):
             if r == "y":
                 return True
             logger.warning("Please respond `y` or `n`")
+
+    def handle_pause(self, ns: argparse.Namespace) -> ExitCode:
+        """Pause NOC containers."""
+        r = self.handle_prepare(ns)
+        if r != ExitCode.OK:
+            return r
+        logger.warning("Pausing containers")
+        docker.pause()
+        return ExitCode.OK
+
+    def handle_unpause(self, ns: argparse.Namespace) -> ExitCode:
+        """Resume NOC containers."""
+        r = self.handle_prepare(ns)
+        if r != ExitCode.OK:
+            return r
+        logger.warning("Resuming containers")
+        docker.unpause()
+        return ExitCode.OK
 
 
 def main() -> int:

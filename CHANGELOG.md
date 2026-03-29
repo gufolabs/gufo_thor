@@ -10,28 +10,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md) guide.
 
+## [Unreleased]
+
+### Added
+
+* `pause` and `unpause` commands.
+
+### Changed
+
+* config.custom_path setting moved from container's environment to settings.yml
+
 ## 0.12.0 - 2025-10-26
 
-## Fixed
+### Fixed
 
 * migrate container no longer pollutes environment of other containers
 
-## Added
+### Added
 
 * Bundled NOC UI support.
 * `noc.language` setting.
 * `noc.ui_path` setting.
 
-## Changed
+### Changed
 
 * Configs are deployed using docker's `configs` section. 
 * NOC's config are mounted in /etc/noc/settings.yml.
-* config.custom_path setting moved from container's environment to settings.yml
 * Move postgres' password to secrets.
 * Use `bitnamilegacy` images for kafka.
 * Envoy 1.36.0
 
-## Infrastructure
+### Infrastructure
 
 * Use Python 3.14 for devcontainer.
 * Codecov integration.
@@ -47,7 +56,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## 0.11.0 - 2025-09-12
 
-## Fixed
+### Fixed
 
 * #20: Fix default routes for pool services if pool is not attached to lab.
 
