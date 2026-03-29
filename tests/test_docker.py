@@ -18,22 +18,24 @@ class MockDocker(Docker):
     def __init__(self) -> None:
         super().__init__()
         self.exec_cmd: Optional[List[str]] = None
-        self._output: Optional[str] = None
+        self._output: List[str] = []
 
     def feed_output(self, out: Optional[str] = None) -> None:
-        self._output = out
+        self._output.append(out)
 
     def _execvp(self, cmd: List[str]) -> bool:
         self.exec_cmd = cmd
         return True
 
     def _capture_output(self, cmd: List[str]) -> str:
-        if self._output is None:
+        if not self._output:
             self.die("no output")
         self.exec_cmd = cmd
-        out = self._output
-        self._output = None
-        return out
+        return self._output.pop(0)
+
+    def _check_call(self, cmd: List[str]) -> bool:
+        self.exec_cmd = cmd
+        return True
 
 
 def test_is_test() -> None:
@@ -99,3 +101,27 @@ def test_stop() -> None:
     docker = MockDocker()
     docker.stop()
     assert docker.exec_cmd == ["docker", "compose", "stop"]
+
+
+def test_down() -> None:
+    docker = MockDocker()
+    docker.down()
+    assert docker.exec_cmd == ["docker", "compose", "down"]
+
+
+def test_pull() -> None:
+    docker = MockDocker()
+    docker.pull()
+    assert docker.exec_cmd == ["docker", "compose", "pull"]
+
+
+def test_stats() -> None:
+    docker = MockDocker()
+    docker.stats()
+    assert docker.exec_cmd == ["docker", "compose", "stats"]
+
+
+def test_destroy() -> None:
+    docker = MockDocker()
+    docker.destroy()
+    assert docker.exec_cmd == ["docker", "compose", "down", "--volumes"]

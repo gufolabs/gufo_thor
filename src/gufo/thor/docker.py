@@ -188,6 +188,14 @@ class Docker(object):
             self.die(f"Failed to run {' '.join(cmd)}")
         return r.stdout
 
+    def _check_call(self, cmd: List[str]) -> bool:
+        """subprocess.check_call() wrapper for tests."""
+        try:
+            subprocess.check_call(cmd)
+            return True
+        except subprocess.CalledProcessError:
+            return False
+
     def _docker_exec(self, *args: str) -> bool:
         """
         Execute compose command.
@@ -223,11 +231,7 @@ class Docker(object):
             False: otherwise.
         """
         cmd = self._extend_compose_cmd(*args)
-        try:
-            subprocess.check_call(cmd)
-            return True
-        except subprocess.CalledProcessError:
-            return False
+        return self._check_call(cmd)
 
     def _docker_output(self, *args: str) -> str:
         """
