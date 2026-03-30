@@ -175,7 +175,7 @@ class Docker(object):
         try:
             subprocess.check_call(cmd)
             return True
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             return False
 
     def _docker_exec(self, *args: str) -> bool:

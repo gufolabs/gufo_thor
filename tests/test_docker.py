@@ -280,3 +280,18 @@ def test_restart(
     docker = MockDocker()
     docker.restart(*args)
     assert docker.exec_cmd == expected
+
+
+def test_check_call() -> None:
+    docker = Docker()
+    docker._check_call(["ls", "-l"])
+
+
+@pytest.mark.parametrize(
+    ("cmd", "expected"),
+    [(["ls", "-l"], True), (["nonexistentcommand"], False)],
+)
+def test_check_call_fail(cmd: List[str], expected: bool) -> None:
+    docker = Docker()
+    r = docker._check_call(cmd)
+    assert r is expected
