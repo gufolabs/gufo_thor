@@ -295,3 +295,15 @@ def test_check_call_fail(cmd: List[str], expected: bool) -> None:
     docker = Docker()
     r = docker._check_call(cmd)
     assert r is expected
+
+
+def test_capture_output() -> None:
+    docker = Docker()
+    r = docker._capture_output(["ls", "-l"])
+    assert "README.md" in r
+
+
+def test_capture_output_fail() -> None:
+    docker = Docker()
+    with pytest.raises(SystemExit):
+        docker._capture_output(["nonexistentcommand"])

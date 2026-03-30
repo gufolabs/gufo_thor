@@ -166,7 +166,7 @@ class Docker(object):
         """subprocess.run() wrapper for tests."""
         try:
             r = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             self.die(f"Failed to run {' '.join(cmd)}")
         return r.stdout
 
