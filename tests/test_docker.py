@@ -187,3 +187,19 @@ def test_unpause() -> None:
         ),
         ("docker", "unpause", "test1-web-1", "test1-web-2"),
     ]
+
+
+@pytest.mark.parametrize(
+    ("args", "follow", "expected"),
+    [
+        ("", False, [("docker", "compose", "logs")]),
+        (("web",), False, [("docker", "compose", "logs", "web")]),
+        (("web",), True, [("docker", "compose", "logs", "-f", "web")]),
+    ],
+)
+def test_logs(
+    args: Tuple[str, ...], follow: bool, expected: List[Tuple[str]]
+) -> None:
+    docker = MockDocker()
+    docker.logs(*args, _follow=follow)
+    assert docker.exec_cmd == expected
