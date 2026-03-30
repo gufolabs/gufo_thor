@@ -166,6 +166,31 @@ def test_pause() -> None:
     ]
 
 
+def test_pause_label() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    docker.feed_output(DOCKER_PS)
+    docker.pause(["com.gufolabs.noc.test=1"])
+    assert docker.exec_cmd == [
+        ("docker", "compose", "config", "--format=json"),
+        (
+            "docker",
+            "ps",
+            "-a",
+            "--format=json",
+            "--filter",
+            "label=com.docker.compose.project=test1",
+            "--filter",
+            "status=running",
+            "--filter",
+            "label=com.gufolabs.noc.role=app",
+            "--filter",
+            "label=com.gufolabs.noc.test=1",
+        ),
+        ("docker", "pause", "test1-web-1", "test1-web-2"),
+    ]
+
+
 def test_unpause() -> None:
     docker = MockDocker()
     docker.feed_output(COMPOSE_CONFIG)
@@ -184,6 +209,31 @@ def test_unpause() -> None:
             "status=paused",
             "--filter",
             "label=com.gufolabs.noc.role=app",
+        ),
+        ("docker", "unpause", "test1-web-1", "test1-web-2"),
+    ]
+
+
+def test_unpause_label() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    docker.feed_output(DOCKER_PS)
+    docker.unpause(["com.gufolabs.noc.test=1"])
+    assert docker.exec_cmd == [
+        ("docker", "compose", "config", "--format=json"),
+        (
+            "docker",
+            "ps",
+            "-a",
+            "--format=json",
+            "--filter",
+            "label=com.docker.compose.project=test1",
+            "--filter",
+            "status=paused",
+            "--filter",
+            "label=com.gufolabs.noc.role=app",
+            "--filter",
+            "label=com.gufolabs.noc.test=1",
         ),
         ("docker", "unpause", "test1-web-1", "test1-web-2"),
     ]
