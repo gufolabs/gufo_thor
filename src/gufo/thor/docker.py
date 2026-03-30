@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Docker utilities
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 
 """
@@ -18,7 +18,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from functools import cached_property
-from typing import NoReturn
+from typing import Iterable, List, NoReturn, Optional
 
 # Gufo Thor modules
 from .log import logger
@@ -38,6 +38,30 @@ class DockerConfig(object):
     server_version: str
 
 
+@dataclass
+class ComposeConfig(object):
+    """
+    Effective docker compose config.
+
+    Attriburtes:
+        name: Project name
+    """
+
+    name: str
+
+
+@dataclass
+class ContainerStatus(object):
+    """
+    Container status.
+
+    Attributes:
+        name: Container name.
+    """
+
+    name: str
+
+
 class Docker(object):
     """Docker wrapper."""
 
@@ -55,13 +79,17 @@ class Docker(object):
         Returns:
             DockerConfig.
         """
-        if "pytest" in sys.modules:
-            # Testing stub
-            return DockerConfig(
-                logging_driver="json-file",
-                server_version="24.0.6",
-            )
         return self._read_config()
+
+    @cached_property
+    def _compose_config(self) -> ComposeConfig:
+        """
+        Docker Compose configuration.
+
+        Returns:
+            ComposeConfig.
+        """
+        return self._read_compose_config()
 
     def _read_config(self) -> DockerConfig:
         """
@@ -71,12 +99,7 @@ class Docker(object):
             Parsed config.
         """
         logger.warning("Reading docker config")
-        try:
-            r = subprocess.check_output(
-                ["docker", "info", "--format", "{{ json . }}"]
-            )
-        except subprocess.CalledProcessError:
-            self.die("Docker is not running. Please run docker.")
+        r = self._docker_output("info", "--format", "{{ json .}}")
         data = json.loads(r)
         # Check plugins
         client_plugins = data["ClientInfo"]["Plugins"]
@@ -92,6 +115,17 @@ class Docker(object):
             self.die("Compose plugin is not installed")
         return cfg
 
+    def _read_compose_config(self) -> ComposeConfig:
+        """
+        Read configuration from docker compose.
+
+        Returns:
+            Docker compose configuration.
+        """
+        r = self._compose_output("config", "--format=json")
+        data = json.loads(r)
+        return ComposeConfig(name=data["name"])
+
     @cached_property
     def logging_driver(self) -> str:
         """
@@ -102,7 +136,75 @@ class Docker(object):
         """
         return self._config.logging_driver
 
-    def _commpose_command(self, *args: str, _exec: bool = False) -> bool:
+    def _extend_docker_cmd(self, *args: str) -> List[str]:
+        """
+        Get docker commands.
+
+        Returns:
+            Prefixing commands for docker.
+        """
+        cmd = ["docker"]
+        cmd.extend(args)
+        return cmd
+
+    def _extend_compose_cmd(self, *args: str) -> List[str]:
+        """
+        Get docker compose commands.
+
+        Returns:
+            Prefixing commands for compose.
+        """
+        cmd = ["docker", "compose"]
+        cmd.extend(args)
+        return cmd
+
+    def _execvp(self, cmd: List[str]) -> bool:
+        """os.execvp() wrapper for tests."""
+        return os.execvp(cmd[0], cmd)  # noqa: S606
+
+    def _capture_output(self, cmd: List[str]) -> str:
+        """subprocess.run() wrapper for tests."""
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            self.die(f"Failed to run {' '.join(cmd)}")
+        return r.stdout
+
+    def _check_call(self, cmd: List[str]) -> bool:
+        """subprocess.check_call() wrapper for tests."""
+        try:
+            subprocess.check_call(cmd)
+            return True
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return False
+
+    def _docker_exec(self, *args: str) -> bool:
+        """
+        Execute compose command.
+
+        Replace current process with docker command.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        cmd = self._extend_docker_cmd(*args)
+        return self._execvp(cmd)
+
+    def _compose_exec(self, *args: str) -> bool:
+        """
+        Execute compose command.
+
+        Replace current process with compose command.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        cmd = self._extend_compose_cmd(*args)
+        return self._execvp(cmd)
+
+    def _compose_command(self, *args: str) -> bool:
         """
         Run compose subcommand.
 
@@ -110,15 +212,28 @@ class Docker(object):
             True: if command executed successfully.
             False: otherwise.
         """
-        cmd = ["docker", "compose"]
-        cmd.extend(args)
-        if _exec:
-            return os.execvp(cmd[0], cmd)  # noqa: S606
-        try:
-            subprocess.check_call(cmd)
-            return True
-        except subprocess.CalledProcessError:
-            return False
+        cmd = self._extend_compose_cmd(*args)
+        return self._check_call(cmd)
+
+    def _docker_output(self, *args: str) -> str:
+        """
+        Run docker command and capture output.
+
+        Returns:
+            captured output.
+        """
+        cmd = self._extend_docker_cmd(*args)
+        return self._capture_output(cmd)
+
+    def _compose_output(self, *args: str) -> str:
+        """
+        Run compose command and capture output.
+
+        Returns:
+            captured output.
+        """
+        cmd = self._extend_compose_cmd(*args)
+        return self._capture_output(cmd)
 
     def up(self) -> bool:
         """
@@ -129,7 +244,7 @@ class Docker(object):
             False: otherwise.
         """
         logger.warning("Starting containers")
-        return self._commpose_command("up", "-d", _exec=True)
+        return self._compose_exec("up", "-d")
 
     def stop(self) -> bool:
         """
@@ -140,7 +255,7 @@ class Docker(object):
             False: otherwise.
         """
         logger.warning("Stopping containers")
-        return self._commpose_command("stop", _exec=True)
+        return self._compose_exec("stop")
 
     def logs(self, *args: str, _follow: bool = False) -> bool:
         """Show logs."""
@@ -148,7 +263,7 @@ class Docker(object):
         if _follow:
             cmd.append("-f")
         cmd.extend(args)
-        return self._commpose_command(*cmd, _exec=True)
+        return self._compose_exec(*cmd)
 
     def restart(self, *args: str) -> bool:
         """
@@ -159,9 +274,9 @@ class Docker(object):
             False: otherwise.
         """
         logger.warning("Restarting containers: %s", ", ".join(args))
-        return self._commpose_command(
-            *("stop", *args)
-        ) and self._commpose_command(*("up", "-d", *args), _exec=True)
+        return self._compose_command(*("stop", *args)) and self._compose_exec(
+            *("up", "-d", *args)
+        )
 
     def shell(self) -> bool:
         """
@@ -172,7 +287,7 @@ class Docker(object):
             False: otherwise.
         """
         logger.warning("Running shell")
-        return self._commpose_command("run", "--rm", "shell", _exec=True)
+        return self._compose_exec("run", "--rm", "shell")
 
     def stats(self) -> bool:
         """
@@ -182,7 +297,7 @@ class Docker(object):
             True: if command executed successfully.
             False: otherwise.
         """
-        return self._commpose_command("stats", _exec=True)
+        return self._compose_exec("stats")
 
     def destroy(self) -> bool:
         """
@@ -193,7 +308,7 @@ class Docker(object):
             False: otherwise.
         """
         logger.warning("Destroying installation")
-        return self._commpose_command("down", "--volumes", _exec=True)
+        return self._compose_exec("down", "--volumes")
 
     def pull(self) -> bool:
         """
@@ -203,7 +318,7 @@ class Docker(object):
             True: if command executed successfully.
             False: otherwise.
         """
-        return self._commpose_command("pull", _exec=True)
+        return self._compose_exec("pull")
 
     def down(self, *args: str) -> bool:
         """
@@ -213,7 +328,76 @@ class Docker(object):
             True: if command executed successfully.
             False: otherwise.
         """
-        return self._commpose_command(*("down", *args))
+        return self._compose_command(*("down", *args))
+
+    def _iter_containers(self, *args: str) -> Iterable[ContainerStatus]:
+        """
+        Itereate containers with given properties.
+
+        Returns:
+            Yields ContainerStatus.
+        """
+        proj_label = self._get_project_label()
+        cmd = [
+            "ps",
+            "-a",
+            "--format=json",
+            "--filter",
+            f"label={proj_label}",
+        ]
+        for f in args:
+            cmd += ["--filter", f]
+        r = self._docker_output(*cmd)
+        for item in r.split("\n"):
+            v = item.strip()
+            if v:
+                data = json.loads(v)
+                yield ContainerStatus(name=data["Names"])
+
+    def _get_app_label(self) -> str:
+        """Get app role label."""
+        return "com.gufolabs.noc.role=app"
+
+    def _get_project_label(self) -> str:
+        """Get project label."""
+        name = self._compose_config.name
+        return f"com.docker.compose.project={name}"
+
+    def pause(self, labels: Optional[Iterable[str]] = None) -> bool:
+        """
+        Pause all containers having given labels.
+
+        Args:
+            labels: Iterable of all required labels.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        app_label = self._get_app_label()
+        flt = ["status=running", f"label={app_label}"]
+        if labels is not None:
+            flt.extend(f"label={f}" for f in labels)
+        cmd = ["pause"] + [c.name for c in self._iter_containers(*flt)]
+        return self._docker_exec(*cmd)
+
+    def unpause(self, labels: Optional[Iterable[str]] = None) -> bool:
+        """
+        Resume all containers having given labels.
+
+        Args:
+            labels: Iterable of all required labels.
+
+        Returns:
+            True: if command executed successfully.
+            False: otherwise.
+        """
+        app_label = self._get_app_label()
+        flt = ["status=paused", f"label={app_label}"]
+        if labels is not None:
+            flt.extend(f"label={f}" for f in labels)
+        cmd = ["unpause"] + [c.name for c in self._iter_containers(*flt)]
+        return self._docker_exec(*cmd)
 
 
 docker = Docker()

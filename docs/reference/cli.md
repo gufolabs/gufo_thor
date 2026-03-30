@@ -113,3 +113,17 @@ To destroy installation and free resources:
 ```
 gufo-thor destroy
 ```
+
+## Pausing/unpausing Container
+
+To temporary pause NOC services' containers use:
+
+```
+gufo-thor pause
+```
+
+To resume execution:
+
+```
+gufo-thor unpause
+```
