@@ -18,7 +18,7 @@ class VyOSLab(BaseLab):
     """VyOS lab router."""
 
     name = "vyos"
-    image = "afla/vyos"
+    image = "vyos/vyos-build:sagitta"
 
     def get_compose_volumes(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
