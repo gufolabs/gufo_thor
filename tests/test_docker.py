@@ -5,7 +5,7 @@
 # ---------------------------------------------------------------------
 
 # Python modules
-from typing import List, Optional
+from typing import List, Tuple
 
 # Third-party modules
 import pytest
@@ -17,29 +17,28 @@ from gufo.thor.docker import Docker
 class MockDocker(Docker):
     def __init__(self) -> None:
         super().__init__()
-        self.exec_cmd: Optional[List[str]] = None
+        self.exec_cmd: List[Tuple[str, ...]] = []
         self._output: List[str] = []
 
-    def feed_output(self, out: Optional[str] = None) -> None:
+    def feed_output(self, out: str) -> None:
         self._output.append(out)
 
+    def _log_cmd(self, cmd: List[str]) -> None:
+        self.exec_cmd.append(tuple(cmd))
+
     def _execvp(self, cmd: List[str]) -> bool:
-        self.exec_cmd = cmd
+        self._log_cmd(cmd)
         return True
 
     def _capture_output(self, cmd: List[str]) -> str:
         if not self._output:
             self.die("no output")
-        self.exec_cmd = cmd
+        self._log_cmd(cmd)
         return self._output.pop(0)
 
     def _check_call(self, cmd: List[str]) -> bool:
-        self.exec_cmd = cmd
+        self._log_cmd(cmd)
         return True
-
-
-def test_is_test() -> None:
-    assert MockDocker()._is_test() is True
 
 
 def test_die() -> None:
@@ -51,7 +50,7 @@ def test_die() -> None:
 def test_execvp() -> None:
     docker = MockDocker()
     docker._execvp(["docker", "ps"])
-    assert docker.exec_cmd == ["docker", "ps"]
+    assert docker.exec_cmd == [("docker", "ps")]
 
 
 DOCKER_CFG_NO_COMPOSE = """{
@@ -86,7 +85,7 @@ def test_read_config() -> None:
     docker = MockDocker()
     docker.feed_output(DOCKER_CFG_COMPOSE)
     cfg = docker._read_config()
-    assert docker.exec_cmd == ["docker", "info", "--format", "{{ json .}}"]
+    assert docker.exec_cmd == [("docker", "info", "--format", "{{ json .}}")]
     assert cfg.server_version == "28.5.2"
     assert cfg.logging_driver == "json-file"
 
@@ -98,41 +97,93 @@ def test_read_compose_config() -> None:
     docker = MockDocker()
     docker.feed_output(COMPOSE_CONFIG)
     cfg = docker._read_compose_config()
-    assert docker.exec_cmd == ["docker", "compose", "config", "--format=json"]
+    assert docker.exec_cmd == [
+        ("docker", "compose", "config", "--format=json")
+    ]
     assert cfg.name == "test1"
 
 
 def test_up() -> None:
     docker = MockDocker()
     docker.up()
-    assert docker.exec_cmd == ["docker", "compose", "up", "-d"]
+    assert docker.exec_cmd == [("docker", "compose", "up", "-d")]
 
 
 def test_stop() -> None:
     docker = MockDocker()
     docker.stop()
-    assert docker.exec_cmd == ["docker", "compose", "stop"]
+    assert docker.exec_cmd == [("docker", "compose", "stop")]
 
 
 def test_down() -> None:
     docker = MockDocker()
     docker.down()
-    assert docker.exec_cmd == ["docker", "compose", "down"]
+    assert docker.exec_cmd == [("docker", "compose", "down")]
 
 
 def test_pull() -> None:
     docker = MockDocker()
     docker.pull()
-    assert docker.exec_cmd == ["docker", "compose", "pull"]
+    assert docker.exec_cmd == [("docker", "compose", "pull")]
 
 
 def test_stats() -> None:
     docker = MockDocker()
     docker.stats()
-    assert docker.exec_cmd == ["docker", "compose", "stats"]
+    assert docker.exec_cmd == [("docker", "compose", "stats")]
 
 
 def test_destroy() -> None:
     docker = MockDocker()
     docker.destroy()
-    assert docker.exec_cmd == ["docker", "compose", "down", "--volumes"]
+    assert docker.exec_cmd == [("docker", "compose", "down", "--volumes")]
+
+
+DOCKER_PS = """{"Names": "test1-web-1"}
+{"Names": "test1-web-2"}"""
+
+
+def test_pause() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    docker.feed_output(DOCKER_PS)
+    docker.pause()
+    assert docker.exec_cmd == [
+        ("docker", "compose", "config", "--format=json"),
+        (
+            "docker",
+            "ps",
+            "-a",
+            "--format=json",
+            "--filter",
+            "label=com.docker.compose.project=test1",
+            "--filter",
+            "status=running",
+            "--filter",
+            "label=com.gufolabs.noc.role=app",
+        ),
+        ("docker", "pause", "test1-web-1", "test1-web-2"),
+    ]
+
+
+def test_unpause() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    docker.feed_output(DOCKER_PS)
+    docker.unpause()
+    assert docker.exec_cmd == [
+        ("docker", "compose", "config", "--format=json"),
+        (
+            "docker",
+            "ps",
+            "-a",
+            "--format=json",
+            "--filter",
+            "label=com.docker.compose.project=test1",
+            "--filter",
+            "status=paused",
+            "--filter",
+            "label=com.gufolabs.noc.role=app",
+        ),
+        ("docker", "unpause", "test1-web-1", "test1-web-2"),
+    ]

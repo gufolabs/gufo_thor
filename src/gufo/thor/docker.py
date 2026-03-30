@@ -71,16 +71,6 @@ class Docker(object):
         print(msg)
         sys.exit(1)
 
-    def _is_test(self) -> bool:
-        """
-        Check if runned from pytest.
-
-        Returns:
-            True: Running in tests.
-            False: Normal run.
-        """
-        return "pytest" in sys.modules
-
     @cached_property
     def _config(self) -> DockerConfig:
         """
@@ -89,12 +79,6 @@ class Docker(object):
         Returns:
             DockerConfig.
         """
-        if self._is_test():
-            # Testing stub
-            return DockerConfig(
-                logging_driver="json-file",
-                server_version="24.0.6",
-            )
         return self._read_config()
 
     @cached_property
@@ -105,8 +89,6 @@ class Docker(object):
         Returns:
             ComposeConfig.
         """
-        if self._is_test():
-            return ComposeConfig(name="test")
         return self._read_compose_config()
 
     def _read_config(self) -> DockerConfig:
