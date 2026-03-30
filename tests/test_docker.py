@@ -253,3 +253,30 @@ def test_logs(
     docker = MockDocker()
     docker.logs(*args, _follow=follow)
     assert docker.exec_cmd == expected
+
+
+@pytest.mark.parametrize(
+    ("args", "expected"),
+    [
+        (
+            (),
+            [
+                ("docker", "compose", "stop"),
+                ("docker", "compose", "up", "-d"),
+            ],
+        ),
+        (
+            ("web",),
+            [
+                ("docker", "compose", "stop", "web"),
+                ("docker", "compose", "up", "-d", "web"),
+            ],
+        ),
+    ],
+)
+def test_restart(
+    args: Tuple[str, ...], expected: List[Tuple[str, ...]]
+) -> None:
+    docker = MockDocker()
+    docker.restart(*args)
+    assert docker.exec_cmd == expected
