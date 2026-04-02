@@ -12,6 +12,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Unreleased]
 
+### Fixed
+
+* Kafka volume is mounted in proper place.
+
 ### Added
 
 * `pause` and `unpause` commands.
