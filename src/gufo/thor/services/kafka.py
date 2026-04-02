@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: kafka service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 """
 kafka service.
@@ -20,7 +20,7 @@ class KafkaService(BaseService):
     name = "kafka"
     compose_image = "bitnamilegacy/kafka:3.6.2"
     compose_volumes = [
-        "kafka_data:/bitnami/data/",
+        "kafka_data:/bitnami/kafka/",
     ]
     compose_volumes_config = {"kafka_data": {}}
     service_port = 9093
