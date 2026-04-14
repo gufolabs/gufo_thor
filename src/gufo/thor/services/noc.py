@@ -149,9 +149,9 @@ class NocService(BaseService):
                 "theme": config.noc.theme,
             },
             "msgstream": {
-                "client_class": "noc.core.msgstream.redpanda.RedPandaClient",
+                "client_class": "noc.core.msgstream.kafka.KafkaClient",
             },
-            "redpanda": {"addresses": "kafka:9092"},
+            "kafka": {"addresses": "kafka:9092"},
         }
         # Apply user config
         if config.noc.config:
