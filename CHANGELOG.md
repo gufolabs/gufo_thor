@@ -15,6 +15,8 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 ### Changed
 
 * Use `kafka` insted of `redpanda` in NOC settings.
+* Bind NOC API to the `noc` network.
+* Bind syslog and trap collectors to pool networks.
 
 ### Fixed
 
