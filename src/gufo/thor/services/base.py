@@ -398,12 +398,12 @@ class BaseService(ABC):
         Returns:
             Networks dict, if not empty
         """
-        r: Dict[str, Dict[str, Any]] = {"noc": {}}
+        r: Dict[str, Dict[str, Any]] = {"noc": {"interface_name": "eth0"}}
         if self.is_pooled and self.require_pool_network:
             if not self._pool:
                 msg = f"Pooled service {self.name} is used without pool"
                 raise ValueError(msg)
-            r[f"pool-{self._pool}"] = {}
+            r[f"pool-{self._pool}"] = {"interface_name": "eth1"}
         return r
 
     def get_compose_volumes(

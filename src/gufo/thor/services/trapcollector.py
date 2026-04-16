@@ -56,7 +56,7 @@ class TrapcollectorService(NocService):
             raise ValueError(msg)
         addr = config.pools[self._pool].address.trap
         if addr:
-            env["NOC_LISTEN"] = f"{addr}:162"
+            env["NOC_TRAPCOLLECTOR_LISTEN"] = f"{addr}:162"
         return env if env else None
 
 

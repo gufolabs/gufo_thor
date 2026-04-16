@@ -57,7 +57,7 @@ class SyslogcollectorService(NocService):
             raise ValueError(msg)
         addr = config.pools[self._pool].address.syslog
         if addr:
-            env["NOC_LISTEN"] = f"{addr}:514"
+            env["NOC_SYSLOGCOLLECTOR_LISTEN"] = f"{addr}:514"
         return env if env else None
 
 

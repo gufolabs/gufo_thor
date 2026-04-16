@@ -29,7 +29,8 @@ class NocService(BaseService):
     name = "noc"
     role = Role.APP
     compose_environment = {
-        "NOC_CONFIG": "yaml:///etc/noc/settings.yml,env:///NOC"
+        "NOC_CONFIG": "yaml:///etc/noc/settings.yml,env:///NOC",
+        "NOC_LISTEN": "eth0:1200",  # eth0 is always `noc` network
     }
     compose_configs = [
         noc_settings.at(Path("/", "etc", "noc", "settings.yml"))
