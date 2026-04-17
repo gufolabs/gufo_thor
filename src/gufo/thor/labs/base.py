@@ -91,6 +91,8 @@ class BaseLab(object):
             "image": self.get_compose_image(config, lab_config, node_config),
             "restart": "no",
             "privileged": True,
+            "tty": True,
+            "stdin_open": True,
         }
         volumes = self.get_compose_volumes(config, lab_config, node_config)
         if volumes:
