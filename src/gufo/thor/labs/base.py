@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: BaseLab
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 """
 BaseLab definition.
@@ -77,11 +77,30 @@ class ConfigCtx(TypedDict):
     snmp: List[LabNodeSnmpCredentials]
 
 
+@dataclass
+class DockerConsoleArgs(object):
+    """
+    Console invocation arguments.
+
+    Console is launched as:
+
+    docker exec -ti [args...] <container name> [argv ...]
+
+    Attributes:
+        args: Additiona docker arguments.
+        argv: Optional commands to run inside container.
+    """
+
+    args: Optional[List[str]] = None
+    argv: Optional[List[str]] = None
+
+
 class BaseLab(object):
     """Router for lab."""
 
     name: str
     image: str
+    docker_console_args: Optional[DockerConsoleArgs] = None
 
     def get_compose_config(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
@@ -277,6 +296,10 @@ class BaseLab(object):
             "has_snmp": bool(node_config.snmp),
             "snmp": node_config.snmp or [],
         }
+
+    def get_docker_console_args(self) -> Optional[DockerConsoleArgs]:
+        """Get effective docker console args."""
+        return self.docker_console_args
 
 
 loader = Loader[Type[BaseLab]](base="gufo.thor.labs", exclude=("base", "noc"))

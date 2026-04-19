@@ -11,7 +11,7 @@ from typing import List
 
 # Gufo Thor modules
 from ..config import Config, LabConfig, LabNodeConfig
-from ..labs.base import BaseLab
+from ..labs.base import BaseLab, DockerConsoleArgs
 
 
 class VyOSLab(BaseLab):
@@ -19,6 +19,9 @@ class VyOSLab(BaseLab):
 
     name = "vyos"
     image = "afla/vyos"
+    docker_console_args = DockerConsoleArgs(
+        args=["-u", "vyos"], argv=["/bin/vbash"]
+    )
 
     def get_compose_volumes(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig

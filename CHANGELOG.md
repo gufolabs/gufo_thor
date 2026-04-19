@@ -12,6 +12,11 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Unreleased]
 
+### Added
+
+* `pause` and `unpause` commands.
+* `console` command.
+
 ### Changed
 
 * Use `kafka` insted of `redpanda` in NOC settings.
@@ -21,10 +26,6 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 ### Fixed
 
 * Kafka volume is mounted in proper place.
-
-### Added
-
-* `pause` and `unpause` commands.
 
 ### Changed
 
