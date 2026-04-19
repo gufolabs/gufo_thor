@@ -178,7 +178,7 @@ class Docker(object):
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
 
-    def _docker_exec(self, *args: str) -> bool:
+    def docker_exec(self, *args: str) -> bool:
         """
         Execute compose command.
 
@@ -379,7 +379,7 @@ class Docker(object):
         if labels is not None:
             flt.extend(f"label={f}" for f in labels)
         cmd = ["pause"] + [c.name for c in self._iter_containers(*flt)]
-        return self._docker_exec(*cmd)
+        return self.docker_exec(*cmd)
 
     def unpause(self, labels: Optional[Iterable[str]] = None) -> bool:
         """
@@ -397,7 +397,7 @@ class Docker(object):
         if labels is not None:
             flt.extend(f"label={f}" for f in labels)
         cmd = ["unpause"] + [c.name for c in self._iter_containers(*flt)]
-        return self._docker_exec(*cmd)
+        return self.docker_exec(*cmd)
 
 
 docker = Docker()

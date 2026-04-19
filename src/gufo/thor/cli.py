@@ -148,6 +148,13 @@ class Cli(object):
         )
         # upgrade
         subparsers.add_parser("upgrade", help="Update NOC")
+        # console
+        console_parser = subparsers.add_parser(
+            "console", help="Run lab console"
+        )
+        console_parser.add_argument(
+            "node", nargs=1, help="Lab node in form <pool>/<name>"
+        )
         # Parse arguments
         ns = parser.parse_args(args)
         # Set up logging
@@ -384,6 +391,44 @@ class Cli(object):
         logger.warning("Resuming containers")
         docker.unpause()
         return ExitCode.OK
+
+    LAB_POOL_SEP = "/"
+    LAB_NODE_PARTS = 2
+
+    def handle_console(self, ns: argparse.Namespace) -> ExitCode:
+        """Run lab console."""
+        # Check node format
+        if len(ns.node[0].split(self.LAB_POOL_SEP)) != self.LAB_NODE_PARTS:
+            self.die(
+                f"Invalid node specification `{ns.node[0]}`."
+                f" `<lab name>{self.LAB_POOL_SEP}<node name>` expected."
+            )
+        # Check config
+        lab_name, node_name = ns.node[0].split(self.LAB_POOL_SEP)
+        lab_cfg = self.config.labs.get(lab_name)
+        if not lab_cfg:
+            self.die(f"Unknown lab `{lab_name}`")
+        node_cfg = lab_cfg.nodes.get(node_name)
+        if not node_cfg:
+            self.die(f"Unknown node {node_name}")
+        from gufo.thor.labs.base import BaseLab
+
+        node = BaseLab.get(node_cfg.type)
+        cargs = node.get_docker_console_args()
+        if not cargs:
+            self.die("Node doesn't support console")
+        proj = docker._compose_config.name
+        container = f"{proj}-lab-{lab_name}-{node_name}-1"
+        cmd = [
+            "exec",
+            "-ti",
+            *(cargs.args or []),
+            container,
+            *(cargs.argv or []),
+        ]
+        if docker.docker_exec(*cmd):
+            return ExitCode.OK
+        return ExitCode.ERR
 
 
 def main() -> int:
