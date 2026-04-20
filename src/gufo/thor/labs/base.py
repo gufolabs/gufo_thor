@@ -112,6 +112,7 @@ class BaseLab(object):
             "privileged": True,
             "tty": True,
             "stdin_open": True,
+            "hostname": node_config.name,
         }
         volumes = self.get_compose_volumes(config, lab_config, node_config)
         if volumes:
