@@ -14,6 +14,8 @@ import pytest
 from gufo.thor.config import Config, LabConfig, LabNodeConfig
 from gufo.thor.labs.base import BaseLab
 
+from .utils import isolated_errors
+
 
 def test_vyos15_docker_console_args() -> None:
     lab = BaseLab.get("vyos15")
@@ -30,9 +32,12 @@ def test_vyos15_docker_console_args() -> None:
         ({"version": "nightly"}, "ghcr.io/gufolabs/vyos15:nightly"),
     ],
 )
+@isolated_errors
 def test_lab_compose_image(cfg: Dict[str, str], expected: str) -> None:
     lab = BaseLab.get("vyos15")
     node_cfg = LabNodeConfig.from_dict("test", cfg)
-    lab_cfg = LabConfig(name="test", nodes={"test": node_cfg}, links=[])
+    lab_cfg = LabConfig(
+        name="test", nodes={"test": node_cfg}, links=[], pool="test"
+    )
     image = lab.get_compose_image(Config.default(), lab_cfg, node_cfg)
     assert image == expected
