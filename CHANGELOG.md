@@ -19,6 +19,8 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ### Changed
 
+* Use VyOS 1.5 image instead of 1.4
+* Lab node type `vyos` renamed to `vyos15`.
 * Use `kafka` insted of `redpanda` in NOC settings.
 * Bind NOC API to the `noc` network.
 * Bind syslog and trap collectors to pool networks.

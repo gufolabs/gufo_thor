@@ -11,14 +11,15 @@ from typing import List
 
 # Gufo Thor modules
 from ..config import Config, LabConfig, LabNodeConfig
-from ..labs.base import BaseLab, DockerConsoleArgs
+from .base import BaseLab, DockerConsoleArgs
 
 
-class VyOSLab(BaseLab):
+class VyOS15Lab(BaseLab):
     """VyOS lab router."""
 
-    name = "vyos"
-    image = "afla/vyos"
+    name = "vyos15"
+    image = "ghcr.io/gufolabs/vyos15"
+    default_version = "latest"
     docker_console_args = DockerConsoleArgs(
         args=["-u", "vyos"], argv=["/bin/vbash"]
     )

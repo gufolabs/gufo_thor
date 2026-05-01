@@ -326,8 +326,8 @@ def test_lab_node_config() -> None:
     cfg = LabNodeConfig.from_dict(
         name="r1",
         data={
-            "type": "vyos",
-            "version": "1.4",
+            "type": "vyos15",
+            "version": "latest",
             "router-id": "10.0.0.1",
             "users": [
                 {"user": "root", "password": "rootpass"},
@@ -337,8 +337,8 @@ def test_lab_node_config() -> None:
         },
     )
     assert cfg.name == "r1"
-    assert cfg.type == "vyos"
-    assert cfg.version == "1.4"
+    assert cfg.type == "vyos15"
+    assert cfg.version == "latest"
     assert isinstance(cfg.router_id, IPv4Address)
     assert str(cfg.router_id) == "10.0.0.1"
     assert len(cfg.users) == 2
