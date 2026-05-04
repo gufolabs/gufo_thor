@@ -299,9 +299,14 @@ class BaseLab(object):
             "snmp": node_config.snmp or [],
         }
 
-    def get_docker_console_args(self) -> Optional[DockerConsoleArgs]:
+    def get_docker_console_args(
+        self,
+        config: Config,
+        lab_config: LabConfig,
+        node_config: LabNodeConfig,
+    ) -> Optional[DockerConsoleArgs]:
         """Get effective docker console args."""
         return self.docker_console_args
 
 
-loader = Loader[Type[BaseLab]](base="gufo.thor.labs", exclude=("base", "noc"))
+loader = Loader[Type[BaseLab]](base="gufo.thor.labs", exclude=("base"))

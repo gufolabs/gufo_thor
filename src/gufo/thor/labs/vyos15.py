@@ -1,13 +1,13 @@
 # ---------------------------------------------------------------------
-# Gufo Thor: VyOS lab router
+# Gufo Thor: VyOS 1.5 lab router
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 """VyOS lab router."""
 
 # Python modules
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 # Gufo Thor modules
 from ..config import Config, LabConfig, LabNodeConfig
@@ -20,9 +20,6 @@ class VyOS15Lab(BaseLab):
     name = "vyos15"
     image = "ghcr.io/gufolabs/vyos15"
     default_version = "latest"
-    docker_console_args = DockerConsoleArgs(
-        args=["-u", "vyos"], argv=["/bin/vbash"]
-    )
 
     def get_compose_volumes(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
@@ -45,3 +42,10 @@ class VyOS15Lab(BaseLab):
     ) -> None:
         ctx = self.get_config_context(config, lab_config, node_config)
         self.render_file(conf_path, "config.boot.j2", **ctx)
+
+    def get_docker_console_args(
+        self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
+    ) -> Optional[DockerConsoleArgs]:
+        """Get effective docker console args."""
+        user = node_config.users[0].user if node_config.users else "vyos"
+        return DockerConsoleArgs(args=["-u", user], argv=["/bin/vbash"])

@@ -91,6 +91,11 @@ class Docker(object):
         """
         return self._read_compose_config()
 
+    @property
+    def compose_project_name(self) -> str:
+        """Get compose project name."""
+        return self._compose_config.name
+
     def _read_config(self) -> DockerConfig:
         """
         Read configuration from docker daemon.

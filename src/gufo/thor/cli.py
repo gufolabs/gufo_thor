@@ -414,11 +414,12 @@ class Cli(object):
         from gufo.thor.labs.base import BaseLab
 
         node = BaseLab.get(node_cfg.type)
-        cargs = node.get_docker_console_args()
+        cargs = node.get_docker_console_args(self.config, lab_cfg, node_cfg)
         if not cargs:
             self.die("Node doesn't support console")
-        proj = docker._compose_config.name
-        container = f"{proj}-lab-{lab_name}-{node_name}-1"
+        container = (
+            f"{docker.compose_project_name}-lab-{lab_name}-{node_name}-1"
+        )
         cmd = [
             "exec",
             "-ti",
