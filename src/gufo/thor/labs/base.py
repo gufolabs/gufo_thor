@@ -100,6 +100,7 @@ class BaseLab(object):
 
     name: str
     image: str
+    default_version: str
     docker_console_args: Optional[DockerConsoleArgs] = None
 
     def get_compose_config(
@@ -113,6 +114,7 @@ class BaseLab(object):
             "tty": True,
             "stdin_open": True,
             "hostname": node_config.name,
+            "cap_add": ["NET_ADMIN", "SYS_ADMIN"],
         }
         volumes = self.get_compose_volumes(config, lab_config, node_config)
         if volumes:
@@ -126,9 +128,8 @@ class BaseLab(object):
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
     ) -> str:
         """Generate compose image name."""
-        if node_config.version:
-            return f"{self.image}:{node_config.version}"
-        return self.image
+        tag = node_config.version or self.default_version
+        return f"{self.image}:{tag}"
 
     def get_compose_networks(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig

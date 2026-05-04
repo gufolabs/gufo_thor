@@ -13,12 +13,10 @@ labs:
     pool: test
     nodes:
       r1:
-        type: vyos
-        version: 1.4
+        type: vyos15
         router-id: 10.0.0.1
       r2:
-        type: vyos
-        version: 1.4
+        type: vyos15
         router-id: 10.0.0.2
     links:
       - prefix: 10.0.1.0/30
@@ -52,12 +50,10 @@ labs:
   lab1:
     nodes:
       r1:
-        type: vyos
-        version: 1.4
+        type: vyos15
         router-id: 10.0.0.1
       r2:
-        type: vyos
-        version: 1.4
+        type: vyos15
         router-id: 10.0.0.2
 ```
 
@@ -65,7 +61,7 @@ labs:
 
 Specifies the node type. Supported values:
 
-- `vyos` — VyOS virtual router.
+- `vyos15` — VyOS 1.5 virtual router.
 
 Example:
 
@@ -74,7 +70,7 @@ labs:
   lab1:
     nodes:
       r1:
-        type: vyos
+        type: vyos15
 ```
 
 ### version {#nodes-version}
@@ -83,7 +79,7 @@ Image version for the node.
 
 | Type | Version |
 | ---- | ------- |
-| vyos | 1.4     |
+| `vyos15` | `latest`     |
 
 Example:
 
@@ -92,8 +88,7 @@ labs:
   lab1:
     nodes:
       r1:
-        type: vyos
-        version: "1.4"
+        type: vyos15
 ```
 
 ### router-id {#nodes-router-id}

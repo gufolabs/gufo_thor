@@ -30,8 +30,8 @@ labs:
   lab1:
     nodes:
       r1:
-        type: vyos
-        version: "1.4"
+        type: vyos15
+        version: "latest"
         router-id: 10.0.0.1
         pool-gw: true
         users:
@@ -41,8 +41,8 @@ labs:
           - version: v2c
             community: public1
       r2:
-        type: vyos
-        version: "1.4"
+        type: vyos15
+        version: "latest"
         router-id: 10.0.0.2
         users:
           - user: vy2
@@ -51,8 +51,8 @@ labs:
           - version: v2c
             community: public2
       r3:
-        type: vyos
-        version: "1.4"
+        type: vyos15
+        version: "latest"
         router-id: 10.0.0.3
         users:
           - user: vy3
