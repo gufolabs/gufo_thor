@@ -5,24 +5,42 @@
 # ---------------------------------------------------------------------
 
 # Python modules
-from typing import Dict
+from typing import Any, Dict
 
 # Third-party modules
 import pytest
 
 # Gufo Thor modules
 from gufo.thor.config import Config, LabConfig, LabNodeConfig
-from gufo.thor.labs.base import BaseLab
+from gufo.thor.labs.base import BaseLab, DockerConsoleArgs
 
 from .utils import isolated_errors
 
 
-def test_vyos15_docker_console_args() -> None:
-    lab = BaseLab.get("vyos15")
-    cargs = lab.get_docker_console_args()
+@pytest.mark.parametrize(
+    ("cfg", "expected"),
+    [
+        (
+            {"type": "vyos15"},
+            DockerConsoleArgs(args=["-u", "vyos"], argv=["/bin/vbash"]),
+        ),
+        (
+            {"type": "vyos15", "users": [{"user": "vy1", "password": "pass"}]},
+            DockerConsoleArgs(args=["-u", "vy1"], argv=["/bin/vbash"]),
+        ),
+    ],
+)
+def test_vyos15_docker_console_args(
+    cfg: Dict[str, Any], expected: DockerConsoleArgs
+) -> None:
+    node_cfg = LabNodeConfig.from_dict("test", cfg)
+    lab_cfg = LabConfig(
+        name="test", nodes={"test": node_cfg}, links=[], pool="test"
+    )
+    node = BaseLab.get(node_cfg.type)
+    cargs = node.get_docker_console_args(Config.default(), lab_cfg, node_cfg)
     assert cargs
-    assert cargs.args == ["-u", "vyos"]
-    assert cargs.argv == ["/bin/vbash"]
+    assert cargs == expected
 
 
 @pytest.mark.parametrize(
