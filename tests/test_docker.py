@@ -103,6 +103,12 @@ def test_read_compose_config() -> None:
     assert cfg.name == "test1"
 
 
+def test_compose_config_name() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    assert docker.compose_project_name == "test1"
+
+
 def test_up() -> None:
     docker = MockDocker()
     docker.up()
