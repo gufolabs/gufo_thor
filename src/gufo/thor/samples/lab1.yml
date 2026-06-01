@@ -28,6 +28,7 @@ services:
   - trapcollector-vyos
 labs:
   lab1:
+    pool: vyos
     nodes:
       r1:
         type: vyos15
