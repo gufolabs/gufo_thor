@@ -1,4 +1,4 @@
-# Gufo Thor of Conduct
+# Gufo Thor Code of Conduct
 
 Gufo Thor is the tools built by people for people. We aim to create a respectful, collaborative,
 and constructive community where everyone can contribute to building better software.
