@@ -1,6 +1,6 @@
-# Gufo Stack Code of Conduct
+# Gufo Thor of Conduct
 
-Gufo Stack are the tools built by people for people. We aim to create a respectful, collaborative,
+Gufo Thor is the tools built by people for people. We aim to create a respectful, collaborative,
 and constructive community where everyone can contribute to building better software.
 
 ## The Rule
