@@ -1,23 +1,47 @@
-# Types of contributions
+# Contributing to Gufo Thor
 
-You can contribute to the Gufo Labs projects in several way. This [repo][Repo] is a place
-to discuss and collaborate on [GitHub][GitHub]! Our team is maintaining this repo
-to preserve our bandwidth, off topic conversations will be closed.
+Thank you for your interest in contributing! Before submitting a patch or issue, please review the following guidelines.
 
-### Discussions
-Discussions are where we have conversations.
+## FAQ
 
-If you'd like help troubleshooting a PR you're working on, have a great new idea, or want to share something amazing you've learned in our docs, join us in [discussions][Discussions].
+Please check the [FAQ](docs/faq.md) for answers to common questions about contributing, setup, and usage.
 
-### Issues
-Issues are used to track tasks that contributors can help with. 
+## Code of Conduct
 
-If you've found bug, or something in the content of the documentation that should be updated,
-search open issues to see if someone else has reported the same thing. If it's something new, open an issue. We'll use the issue to have a conversation about the problem you want to fix.
+This project follows the
+[Gufo Stack Code of Conduct](CODE_OF_CONDUCT.md). Please be respectful and constructive in all interactions.
 
-### Pull requests
-A [pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) is a way to suggest changes in our repository.
+## Reporting Issues and Discussions
 
-[Repo]: https://github.com/gufolabs/gufo_thor
-[Discussions]: https://github.com/gufolabs/gufo_thor/discussions/
-[GitHub]: https://github.com/
+- Report bugs and feature requests via [Issues](https://github.com/gufolabs/gufo_thor/issues).
+- Discuss ideas and ask questions in [Discussions](https://github.com/gufolabs/gufo_thor/discussions/).
+- Code contributions go via [Pull Requests](#pull-requests).
+
+## Pull Requests
+
+Before opening a PR, make sure you're familiar with the project conventions:
+
+- **[Project Structure](docs/dev/codebase.md)** — directory layout and key files
+- **[Code Quality Standards](docs/dev/codequality.md)** — formatting (ruff), linting, mypy strict, test coverage expectations
+- **[Development Environment](docs/dev/environment.md)** — VS Code dev container for a ready-to-go setup
+- **[Building and Testing](docs/dev/testing.md)** — how to build, run tests, and check linting locally
+- **[Supported Standards](docs/dev/standards.md)** — PEP, RFC, and other relevant standards and regulations
+
+### PR Checklist
+
+- [ ] Code follows [code quality standards](docs/dev/codequality.md)
+- [ ] Tests pass (`pytest -vv`) and lints are clean (`ruff`, `mypy --strict`)
+- [ ] Your changes follow the existing conventions (see [codebase overview](docs/dev/codebase.md))
+- [ ] If applicable, documentation is updated to match your changes
+- [ ] CHANGELOG.md updated with a brief description of your change
+
+### PR Guidelines
+
+- One change per PR. Keep diffs focused.
+- Link any relevant issues in the PR description.
+- Use a clear commit message (imperative mood, e.g., "add validation for X").
+- If your PR touches the configuration schema, make sure the config docs reflect the changes.
+
+## Where to Start
+
+New to the project? Check the [developer guide](docs/dev/index.md) for an overview of the codebase, tooling, and workflows.
