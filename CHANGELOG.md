@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To see unreleased changes, please see the [CHANGELOG on the master branch](https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md) guide.
 
+## [Upcoming]
+
+### Changed
+
+* `--migrate` and `--no-migrate` option cannot be used simultaneously.
+
 ## 0.13.0 - 2026-06-01
 
 ### Added

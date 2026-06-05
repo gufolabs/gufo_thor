@@ -269,11 +269,11 @@ class Cli(object):
 
     def handle_up(self, ns: argparse.Namespace) -> ExitCode:
         """Prepare NOC configuration and run NOC."""
-        # Migrate status
-        if ns.migrate:
-            self.config.noc.migrate = True
-        elif ns.no_migrate:
-            self.config.noc.migrate = False
+        # Migrate status (mutually exclusive: --migrate vs --no-migrate)
+        if ns.migrate and ns.no_migrate:
+            logger.error("Cannot use --migrate and --no-migrate together")
+            return ExitCode.ERR
+        self.config.noc.migrate = bool(ns.migrate)
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
             return r
