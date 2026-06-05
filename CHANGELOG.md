@@ -15,6 +15,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 ### Changed
 
 * `--migrate` and `--no-migrate` option cannot be used simultaneously.
+* Use `webbrowser` module to open browser in more portable manner.
 
 ## 0.13.0 - 2026-06-01
 
