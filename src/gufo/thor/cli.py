@@ -15,8 +15,8 @@ import argparse
 import contextlib
 import logging
 import os
-import subprocess
 import sys
+import webbrowser
 from enum import IntEnum
 from functools import cached_property
 from pathlib import Path
@@ -284,13 +284,8 @@ class Cli(object):
         logger.warning("To access NOC user interface open %s", url)
         if self.config.expose.open_browser:
             logger.warning("Starting browser")
-            with contextlib.suppress(subprocess.CalledProcessError):
-                try:
-                    subprocess.check_output(["open", url])
-                except FileNotFoundError:
-                    logger.warning(
-                        "Cannot start browser. Command `open` is not found"
-                    )
+            with contextlib.suppress(Exception):
+                webbrowser.open(url)
         return ExitCode.OK
 
     def handle_stop(self, ns: argparse.Namespace) -> ExitCode:
@@ -433,5 +428,5 @@ class Cli(object):
 
 
 def main() -> int:
-    """Run `noc-thor` with command-line arguments."""
+    """Run `gufo-thor` with command-line arguments."""
     return Cli().run(sys.argv[1:]).value
