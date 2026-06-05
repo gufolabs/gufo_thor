@@ -12,6 +12,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Upcoming]
 
+### Added
+
+* `AGENTS.md` with agent instructions.
+
 ### Changed
 
 * `--migrate` and `--no-migrate` option cannot be used simultaneously.
