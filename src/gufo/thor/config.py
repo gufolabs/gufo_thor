@@ -631,7 +631,7 @@ class LabConfig(object):
                     with errors.context(["nodes", node_name, "router-id"]):
                         errors.error(
                             f"router-id `{router_id}` is not unique. "
-                            f"Occured in {nl}"
+                            f"Occurred in {nl}"
                         )
 
 

@@ -138,7 +138,7 @@ dynamic = ["version"]
 keywords = ["NOC"]
 license = "BSD-3-Clause"
 name = "gufo_thor"
-requires-python = ">=3.9"
+requires-python = ">=3.9.2"
 
 [project.optional-dependencies]
 docs = [
@@ -147,9 +147,6 @@ docs = [
   "mkdocs-material==9.6.11",
   "mkdocs-section-index==0.3.10",
   "mkdocstrings[python]==0.29.1",
-]
-ipython = [
-  "ipython==9.6.0",
 ]
 lint = [
   "mypy==1.18.2",

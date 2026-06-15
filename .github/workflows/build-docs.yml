@@ -44,6 +44,6 @@ jobs:
       - name: Install Dependencies
         run: pip install -IU -e .[docs,deps]
 
-      # Build documentationn
+      # Build documentation
       - name: Build & Deploy Docs
         run: mkdocs gh-deploy --strict --force
