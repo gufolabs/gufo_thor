@@ -43,7 +43,7 @@ class ComposeConfig(object):
     """
     Effective docker compose config.
 
-    Attriburtes:
+    Attributes:
         name: Project name
     """
 
@@ -164,7 +164,13 @@ class Docker(object):
         return cmd
 
     def _execvp(self, cmd: List[str]) -> bool:
-        """os.execvp() wrapper for tests."""
+        """
+        os.execvp() wrapper for tests.
+
+        Despite the fact that os.execvp is NoReturn,
+        this method may be overriden in tests, so it have
+        `bool` return signature.
+        """
         return os.execvp(cmd[0], cmd)  # noqa: S606
 
     def _capture_output(self, cmd: List[str]) -> str:

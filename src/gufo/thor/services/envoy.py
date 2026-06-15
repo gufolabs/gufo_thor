@@ -256,7 +256,7 @@ class EnvoyService(BaseService):
             csr: CSR body.
 
         Returns:
-            Siged CSR.
+            Signed CSR.
         """
         conn = http.client.HTTPSConnection(
             csr_proxy,

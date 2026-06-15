@@ -207,7 +207,7 @@ class Cli(object):
         sample = get_sample(ns.template)
         path = "thor.yml"
         if os.path.exists(path):
-            logger.error("%s is already exists", path)
+            logger.error("%s already exists", path)
             return ExitCode.ERR
         logger.warning("Writing %s", path)
         with open(path, "w") as fp:
@@ -273,7 +273,10 @@ class Cli(object):
         if ns.migrate and ns.no_migrate:
             logger.error("Cannot use --migrate and --no-migrate together")
             return ExitCode.ERR
-        self.config.noc.migrate = bool(ns.migrate)
+        if ns.migrate:
+            self.config.noc.migrate = True
+        elif ns.no_migrate:
+            self.config.noc.migrate = False
         r = self.handle_prepare(ns)
         if r != ExitCode.OK:
             return r

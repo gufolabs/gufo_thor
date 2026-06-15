@@ -23,7 +23,7 @@ def write_file(
     Write data to file.
 
     Overwrite file content only if changed. Create all
-    nessessary directories.
+    necessary directories.
 
     Args:
         path: File path.

@@ -22,6 +22,7 @@ from ..utils import ensure_directory, write_file
 from .base import BaseTarget
 
 DOT_PATH = Path(".")
+LEGACY_PG_PASSWORD = "noc"  # noqa: S105 old installations uses this password
 
 
 class ComposeTarget(BaseTarget):
@@ -210,4 +211,4 @@ class ComposeTarget(BaseTarget):
             from ..secret import postgres_password
 
             if not postgres_password.path.exists():
-                postgres_password.set_secret("noc")
+                postgres_password.set_secret(LEGACY_PG_PASSWORD)
