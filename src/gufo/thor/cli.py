@@ -122,21 +122,6 @@ class Cli(object):
         subparsers.add_parser("pause", help="Pause services' containers")
         # unpause
         subparsers.add_parser("unpause", help="Resume services' containers")
-        # backup
-        backup_parser = subparsers.add_parser(
-            "backup", help="Backup databases"
-        )
-        backup_parser.add_argument(
-            "list", action="store_true", help="List backups"
-        )
-        backup_parser.add_argument(
-            "postgres", action="store_true", help="Backup postgres database"
-        )
-        backup_parser.add_argument(
-            "mongo", action="store_true", help="Backup mongo database"
-        )
-        # restore
-        subparsers.add_parser("restore", help="Restore database")
         # destroy
         destroy_parser = subparsers.add_parser(
             "destroy", help="Destroy installation and free resources"
