@@ -20,6 +20,12 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * `--migrate` and `--no-migrate` option cannot be used simultaneously.
 * Use `webbrowser` module to open browser in more portable manner.
+* envoy 1.39.
+
+### Infrastructure
+
+* mypy 2.1.0
+* ruff 0.15.18
 
 ## 0.13.0 - 2026-06-01
 
