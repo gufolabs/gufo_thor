@@ -170,7 +170,6 @@ static_resources:
       connect_timeout: 0.25s
       type: strict_dns
       lb_policy: least_request
-      http2_protocol_options: {}
       dns_lookup_family: V4_ONLY
       typed_extension_protocol_options:
         envoy.extensions.upstreams.http.v3.HttpProtocolOptions:

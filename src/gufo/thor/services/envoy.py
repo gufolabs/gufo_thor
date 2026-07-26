@@ -100,7 +100,7 @@ class EnvoyService(BaseService):
     """envoy service."""
 
     name = "envoy"
-    compose_image = "envoyproxy/envoy:v1.36.0"
+    compose_image = "envoyproxy/envoy:v1.39.0"
     # compose_depends_condition = ComposeDependsCondition.HEALTHY
     # compose_healthcheck = {
     #     "test": ["CMD", "envoy", "healthcheck", "--ping"],
