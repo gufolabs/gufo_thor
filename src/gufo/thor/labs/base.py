@@ -186,7 +186,7 @@ class BaseLab(object):
         """
         # Load template
         # Warning: joinpath() accepts only one
-        # parameter on Py3.9 and Py3.10
+        # parameter on Py3.10
         data = (
             resources.files("gufo.thor")
             .joinpath("templates")

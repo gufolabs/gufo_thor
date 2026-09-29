@@ -29,7 +29,7 @@ To use Thor, make sure you have the following software packages installed:
 
 - Docker
 - compose plugin
-- Python 3.9+
+- Python 3.10+
 
 ## Installation
 

@@ -4,7 +4,7 @@
 
 Gufo Thor is a command-line tool for deploying and managing [NOC](https://getnoc.com/) (ISP network management system) on a single node. Primary audience: new NOC evaluators and developers needing a fast setup environment.
 
-**Stack:** Python 3.9+, Docker + Compose, Ruff, Mypy, Pytest, MkDocs.
+**Stack:** Python 3.10+, Docker + Compose, Ruff, Mypy, Pytest, MkDocs.
 
 ## Code Guidelines
 
