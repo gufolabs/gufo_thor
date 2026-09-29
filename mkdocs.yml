@@ -9,9 +9,7 @@ repo_name: gufolabs/gufo_thor
 nav:
   - Home: index.md
   - Installation: installation.md
-  # - Man Pages:
-  #     - Overview: man/index.md
-  #     - gufo-thor: man/gufo-thor.md
+  - Man Pages: man/
   - Reference:
       - Overview: reference/index.md
       - Command Line: reference/cli.md

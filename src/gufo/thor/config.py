@@ -832,7 +832,7 @@ def get_sample(name: str) -> str:
         A string containinng sample code.
     """
     # Warning: joinpath() accepts only one
-    # parameter on Py3.9 and Py3.10
+    # parameter on Py3.10
     return (
         resources.files("gufo.thor")
         .joinpath("samples")

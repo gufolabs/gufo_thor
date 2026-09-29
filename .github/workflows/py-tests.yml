@@ -17,7 +17,7 @@ on:
     branches:
       - master
   release:
-    types: [ "published" ]
+    types: ["published"]
 permissions:
   contents: read
   pull-requests: write
@@ -90,12 +90,12 @@ jobs:
 
   test:
     runs-on: ubuntu-24.04
-    needs: [ test-coverage ]
+    needs: [test-coverage]
     strategy:
       fail-fast: true
       matrix:
         # Run on all supported versions
-        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6

@@ -17,8 +17,13 @@ To generate sample config use:
 gufo-thor sample-config -t <config_name>
 ```
 
-where `<config_name>` is the name of the template.
-Refer to the [Configuration Templates](templates.md) for details.
+where `<config_name>` is the name of the template. Refer to the [Configuration Templates](templates.md) for details.
+
+Available templates:
+
+* `simple`: Web-only setup.
+* `common`: Web interface, hardware integration, and event-processing pipeline.
+* `lab1`: Full hardware integration stack and a sample lab with three VyOS routers connected in a ring.
 
 ## Prepare
 
@@ -27,6 +32,8 @@ To generate all necessary configs without launching NOC use
 ```
 gufo-thor prepare
 ```
+
+This command only prepares configuration files; it does not start containers. The `up` command performs this preparation automatically.
 
 ## Running NOC
 
@@ -70,6 +77,8 @@ To run NOC shell use:
 gufo-thor shell
 ```
 
+Thor starts a separate temporary container with the NOC image, connected to the configured databases, and opens Bash so you can run NOC commands.
+
 ## Show Stats
 
 To show NOC processes' statistics use:
@@ -77,6 +86,16 @@ To show NOC processes' statistics use:
 ```
 gufo-thor stats
 ```
+
+Example output:
+
+```text
+CONTAINER ID   NAME                 CPU %   MEM USAGE / LIMIT   MEM %   NET I/O        BLOCK I/O   PIDS
+71d5c1a4b980   thor-web-1            0.12%   312MiB / 15.6GiB   1.95%   2.1MB / 1MB   0B / 0B     28
+8ea23ff177c3   thor-postgres-1       0.04%   96MiB / 15.6GiB    0.60%   840kB / 1MB   0B / 0B     12
+```
+
+The command streams live statistics; names and values depend on the installation.
 
 ## Show Process' Logs
 
@@ -106,6 +125,8 @@ To upgrade NOC to a new version use:
 gufo-thor upgrade
 ```
 
+The command pulls all images in the Compose project, including NOC services, databases, and other infrastructure components.
+
 ## Destroying Installation
 
 To destroy installation and free resources:
@@ -122,8 +143,12 @@ To temporary pause NOC services' containers use:
 gufo-thor pause
 ```
 
+Paused containers remain running, preserve existing connections, and receive no CPU time until resumed.
+
 To resume execution:
 
 ```
 gufo-thor unpause
 ```
+
+This resumes the containers and their processes; their existing connections are preserved during the pause.
