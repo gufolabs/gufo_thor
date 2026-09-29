@@ -1,4 +1,6 @@
-# Generate reference pages
+"""Generate API reference pages from the Python source tree."""
+
+# Python modules
 from pathlib import Path
 
 import mkdocs_gen_files
