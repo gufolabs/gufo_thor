@@ -7,6 +7,7 @@
 
 # Python modules
 import os
+from pathlib import Path
 
 # Third-party modules
 import click
@@ -34,9 +35,8 @@ def sample_config(ctx: Context, template: str) -> None:
         ctx: CLI execution context.
         template: Sample configuration template name.
     """
-    path = "thor.yml"
+    path = Path("thor.yml")
     if os.path.exists(path):
         ctx.die(f"{path} already exists.")
     logger.warning("Writing %s", path)
-    with open(path, "w") as fp:
-        fp.write(get_sample(template))
+    path.write_text(get_sample(template))
