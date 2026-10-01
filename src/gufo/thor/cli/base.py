@@ -6,29 +6,24 @@
 # -----------------------------------------------------------------------
 """CLI entrypoint and shared Click context."""
 
+# Python modules
 from __future__ import annotations
 
-# Python modules
 import logging
-import os
 import sys
-from functools import cached_property
-from pathlib import Path
-from typing import NoReturn, cast
+from functools import wraps
+from typing import Any, Callable, NoReturn, cast
 
 # Third-party modules
 import click
 from gufo.loader import Loader
 
 # Gufo Thor modules
-from ..config import Config, get_sample
 from ..error import CancelExecution
 from ..log import logger
-from ..targets.base import BaseTarget
 from ..targets.base import loader as target_loader
 
 NAME = "gufo-thor"
-DEFAULT_HTTPS_PORT = 443
 
 
 class Context:
@@ -83,46 +78,6 @@ class Context:
             self.print(msg)
         sys.exit(1)
 
-    @cached_property
-    def config(self) -> Config:
-        """Load the Thor configuration.
-
-        Returns:
-            Parsed Thor configuration.
-        """
-        return Config.from_file(Path("thor.yml"))
-
-    @cached_property
-    def target(self) -> BaseTarget:
-        """Load the configured target, creating a default config if needed.
-
-        Returns:
-            Configured target instance.
-        """
-        path = "thor.yml"
-        if not os.path.exists(path):
-            logger.warning("Writing %s", path)
-            with open(path, "w") as fp:
-                fp.write(get_sample("simple"))
-        return target_loader["compose"](self.config)
-
-    def prepare(self) -> None:
-        """Prepare services configuration."""
-        self.target.prepare()
-
-    def get_ui_url(self) -> str:
-        """Build the NOC UI URL from the current configuration.
-
-        Returns:
-            HTTPS URL for the configured NOC web interface.
-        """
-        cfg = self.config
-        parts = ["https://", cfg.expose.domain_name]
-        if cfg.expose.web and cfg.expose.web.port != DEFAULT_HTTPS_PORT:
-            parts.append(f":{cfg.expose.web.port}")
-        parts.append("/")
-        return "".join(parts)
-
 
 pass_context = click.make_pass_decorator(Context, ensure=True)
 
@@ -141,27 +96,62 @@ class Entrypoint:
             raise TypeError(message)
         self.__module__ = fn.callback.__module__
 
+    def get_command(self) -> click.Command:
+        """Return the Click command associated with the entrypoint.
+
+        Returns:
+            Click command registered as the entrypoint.
+        """
+        return self.fn
+
 
 def entrypoint(fn: click.Command) -> Entrypoint:
     """Register a Click command as a Gufo Thor CLI entrypoint.
 
-    The decorator must be applied to a command created by
-    `click.command`.
-
-    Example::
+    The decorator must be placed above all Click decorators::
 
         @entrypoint
-        @click.command("version", short_help="Show Gufo Thor version")
-        def version() -> None:
+        @click.command()
+        def foo() -> None:
             ...
 
     Args:
         fn: Click command to register.
 
     Returns:
-        Entrypoint wrapping the Click command.
+        Entrypoint instance.
     """
     return Entrypoint(fn)
+
+
+def prepared(fn: Callable[..., object]) -> Callable[..., object]:
+    """Mark a CLI callback as requiring configuration preparation.
+
+    The decorator must be placed below all Click decorators::
+
+        @entrypoint
+        @click.command()
+        @prepared
+        def foo() -> None:
+            ...
+
+    This ensures that ``prepared`` is applied to the callback before
+    Click creates the command.
+
+    Args:
+        fn: CLI callback to mark for configuration preparation.
+
+    Returns:
+        The unchanged CLI callback.
+    """
+
+    @wraps(fn)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
+        target = target_loader["compose"]()
+        target.prepare()
+        return fn(*args, **kwargs)
+
+    return wrapper
 
 
 loader = Loader[Entrypoint](base="gufo.thor.cli", exclude="base")
@@ -182,21 +172,21 @@ class CLIDispatcher(click.Group):
         return sorted(name.replace("_", "-") for name in loader)
 
     def get_command(
-        self, ctx: click.Context, name: str
+        self, ctx: click.Context, cmd_name: str
     ) -> click.Command | None:
         """Get a CLI command by name.
 
         Args:
             ctx: Current CLI context.
-            name: Command name.
+            cmd_name: Command name.
 
         Returns:
             The command, or ``None`` if it is not found.
         """
-        wrapper = loader.get(name.replace("-", "_"))
-        if wrapper is None:
+        entrypoint = loader.get(cmd_name.replace("-", "_"))
+        if entrypoint is None:
             return None
-        return wrapper.fn
+        return entrypoint.get_command()
 
     def invoke(self, ctx: click.Context) -> object:
         """Run the selected command and convert Thor cancellation to exit 1."""

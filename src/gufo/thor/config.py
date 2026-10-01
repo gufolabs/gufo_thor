@@ -1,12 +1,15 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Config
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 """Config data structures."""
 
 # Python Modules
+from __future__ import annotations
+
 from collections import defaultdict
+from contextlib import contextmanager
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
@@ -15,6 +18,7 @@ from typing import (
     DefaultDict,
     Dict,
     Iterable,
+    Iterator,
     List,
     Literal,
     Optional,
@@ -37,6 +41,7 @@ DEFAULT_DOMAIN = "go.getnoc.com"
 LOCALHOST = "127.0.0.1"
 WILDCARD = "0.0.0.0"  # noqa:S104
 DEFAULT_WEB_PORT = 32777
+DEFAULT_HTTPS_PORT = 443
 
 
 @dataclass
@@ -71,7 +76,7 @@ class NocConfig(object):
     config: Optional[Dict[str, Any]] = None
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "NocConfig":
+    def from_dict(data: Dict[str, Any]) -> NocConfig:
         """
         Generate NocConfig instance from a dictionary.
 
@@ -90,7 +95,7 @@ class NocConfig(object):
         return NocConfig(**data)
 
     @staticmethod
-    def default() -> "NocConfig":
+    def default() -> NocConfig:
         """
         Get default NocConfig.
 
@@ -129,7 +134,7 @@ class Listen(object):
         return f"{self.address}:{self.port}"
 
     @staticmethod
-    def from_dict(data: Union[dict[str, Any], int, str]) -> "Listen":
+    def from_dict(data: Union[dict[str, Any], int, str]) -> Listen:
         """
         Generate listener from data.
 
@@ -166,7 +171,7 @@ class Listen(object):
         return f"{self.address}:{self.port}:{container_port}"
 
     @classmethod
-    def default(cls) -> "Listen":
+    def default(cls) -> Listen:
         """Default value."""
         return Listen(address=LOCALHOST, port=0)
 
@@ -194,7 +199,7 @@ class ExposeConfig(object):
     mtls_ca_cert: Optional[str] = None
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "ExposeConfig":
+    def from_dict(data: Dict[str, Any]) -> ExposeConfig:
         """
         Generate ExposeConfig instance from a dictionary.
 
@@ -247,7 +252,7 @@ class ExposeConfig(object):
         return ExposeConfig(**data)
 
     @staticmethod
-    def default() -> "ExposeConfig":
+    def default() -> ExposeConfig:
         """
         Get default ExposeConfig.
 
@@ -273,7 +278,7 @@ class PoolAddressConfig(object):
     trap: Optional[IPv4Address] = None
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "PoolAddressConfig":
+    def from_dict(data: Dict[str, Any]) -> PoolAddressConfig:
         """Get addresses config from dict."""
         with errors.context("address"):
             r = PoolAddressConfig(
@@ -324,7 +329,7 @@ class PoolConfig(object):
     address: PoolAddressConfig
 
     @staticmethod
-    def from_dict(name: str, data: Dict[str, Any]) -> "PoolConfig":
+    def from_dict(name: str, data: Dict[str, Any]) -> PoolConfig:
         """
         Generate PoolConfig instance from a dictionary.
 
@@ -356,7 +361,7 @@ class ServiceConfig(object):
     scale: int = 1
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "ServiceConfig":
+    def from_dict(data: Dict[str, Any]) -> ServiceConfig:
         """
         Generate ServiceConfig instance from a dictionary.
 
@@ -369,7 +374,7 @@ class ServiceConfig(object):
         return ServiceConfig(**data)
 
     @staticmethod
-    def default() -> "ServiceConfig":
+    def default() -> ServiceConfig:
         """Get default ServiceConfig."""
         return ServiceConfig(tag=None, scale=1)
 
@@ -398,7 +403,7 @@ class LabNodeUserCredentials(object):
     password: str
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "LabNodeUserCredentials":
+    def from_dict(data: Dict[str, Any]) -> LabNodeUserCredentials:
         """Get user credentials from dict."""
         return LabNodeUserCredentials(
             user=as_str(data, "user", required=True),
@@ -430,9 +435,7 @@ class LabNodeConfig(object):
     snmp: Optional[List[LabNodeSnmpCredentials]] = None
 
     @staticmethod
-    def from_dict(
-        name: str, data: Dict[str, Optional[str]]
-    ) -> "LabNodeConfig":
+    def from_dict(name: str, data: Dict[str, Optional[str]]) -> LabNodeConfig:
         """
         Generate LabNodeConfig from dict.
 
@@ -495,7 +498,7 @@ class IsisLinkProtocolConfig(object):
     metric: Optional[int] = None
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "IsisLinkProtocolConfig":
+    def from_dict(data: Dict[str, Any]) -> IsisLinkProtocolConfig:
         """
         Generate IsisLinkProtocolConfig from dict.
 
@@ -526,7 +529,7 @@ class LabLinkConfig(object):
     protocols: LinkProtocolConfig
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "LabLinkConfig":
+    def from_dict(data: Dict[str, Any]) -> LabLinkConfig:
         """Create link item from config."""
         # Build protocols
         protocols: LinkProtocolConfig = {}
@@ -564,7 +567,7 @@ class LabConfig(object):
     pool: Optional[str] = None
 
     @staticmethod
-    def from_dict(name: str, data: Dict[str, Any]) -> "LabConfig":
+    def from_dict(name: str, data: Dict[str, Any]) -> LabConfig:
         """
         Generate LabConfig instance from a dictionary.
 
@@ -659,8 +662,29 @@ class Config(object):
     cli: CliConfig
     labs: Dict[str, LabConfig]
 
+    @property
+    def local_backup_path(self) -> Path:
+        """Get the local directory used to store backups.
+
+        Returns:
+            Local backup directory path.
+        """
+        return Path("data", "backup")
+
+    def get_ui_url(self) -> str:
+        """Build the NOC UI URL from the current configuration.
+
+        Returns:
+            HTTPS URL for the configured NOC web interface.
+        """
+        parts = ["https://", self.expose.domain_name]
+        if self.expose.web and self.expose.web.port != DEFAULT_HTTPS_PORT:
+            parts.append(f":{self.expose.web.port}")
+        parts.append("/")
+        return "".join(parts)
+
     @staticmethod
-    def from_file(path: Union[Path, str]) -> "Config":
+    def from_file(path: Union[Path, str]) -> Config:
         """
         Read file and return instance of the Config.
 
@@ -755,7 +779,7 @@ class Config(object):
             return labs
 
     @staticmethod
-    def from_yaml(data: str) -> "Config":
+    def from_yaml(data: str) -> Config:
         """
         Parse YAML file and return an instance of the Config.
 
@@ -801,7 +825,7 @@ class Config(object):
         )
 
     @staticmethod
-    def default() -> "Config":
+    def default() -> Config:
         """
         Generate default config.
 
@@ -817,6 +841,32 @@ class Config(object):
             labs={},
             cli=CliConfig(),
         )
+
+    def apply(self, other: Config) -> None:
+        """Apply settings from another configuration.
+
+        Args:
+            other: Configuration whose values should be copied to this one.
+        """
+        self.project = other.project
+        self.noc = other.noc
+        self.expose = other.expose
+        self.pools = other.pools
+        self.services = other.services
+        self.labs = other.labs
+        self.cli = other.cli
+
+    def setup(self, path: Path | None = None) -> None:
+        """Load configuration from a file into this config instance.
+
+        Args:
+            path: Config file path. Defaults to ``thor.yml``.
+        """
+        config_file = path or Path("thor.yml")
+        if not config_file.exists():
+            config_file.write_text(get_sample("simple"))
+        cfg = Config.from_file(config_file)
+        self.apply(cfg)
 
 
 def get_sample(name: str) -> str:
@@ -840,3 +890,28 @@ def get_sample(name: str) -> str:
         .joinpath(f"{name}.yml")
         .read_text()
     )
+
+
+@contextmanager
+def with_config(cfg: Config) -> Iterator[Config]:
+    """Temporarily replace the global configuration for testing.
+
+    This is a test helper intended to override the global configuration
+    within a context and restore the previous configuration afterwards.
+
+    Args:
+        cfg: Configuration to use within the context.
+
+    Yields:
+        The temporarily active configuration.
+    """
+    prev = Config.default()
+    prev.apply(config)
+    config.apply(cfg)
+    try:
+        yield cfg
+    finally:
+        config.apply(prev)
+
+
+config = Config.default()

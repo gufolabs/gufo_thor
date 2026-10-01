@@ -11,14 +11,14 @@ Attributes:
 """
 
 # Python modules
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Type
 
 # Gufo Labs modules
 from gufo.loader import Loader
 
 # Gufo Thor modules
-from ..config import Config
+from ..config import config
 from ..services.base import BaseService
 
 
@@ -28,18 +28,19 @@ class BaseTarget(ABC):
 
     Attributes:
         name: Target name.
+        services: Resolved services configured for this target.
     """
 
     name: str
 
-    def __init__(self, config: Config) -> None:
-        self.config = config
-        self.services = list(BaseService.resolve(self.config.services))
+    def __init__(self) -> None:
+        """Initialize the target before loading its configuration."""
+        self.services: list[BaseService] = []
 
-    @abstractmethod
     def prepare(self) -> None:
-        """Prepare environment before start."""
-        ...
+        """Load configuration and resolve configured services."""
+        config.setup()
+        self.services = list(BaseService.resolve(config.services))
 
 
 loader = Loader[Type[BaseTarget]](base="gufo.thor.targets", exclude=("base",))
