@@ -183,7 +183,7 @@ namespaces = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-"gufo.thor" = ["py.typed", "samples/*", "templates/**"]
+"gufo.thor" = ["py.typed", "templates/**"]
 
 [tool.setuptools.dynamic]
 version = {attr = "gufo.thor.__version__"}

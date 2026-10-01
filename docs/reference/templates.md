@@ -18,7 +18,7 @@ gufo-thor sample-config -t <template name>
 Simple web-only installation.
 
 ``` yaml
---8<-- "src/gufo/thor/samples/simple.yml"
+--8<-- "src/gufo/thor/templates/samples/simple.yml"
 ```
 
 ## common
@@ -27,7 +27,7 @@ Installation with web interface, hardware integration,
 and event-processing pipeline.
 
 ``` yaml
---8<-- "src/gufo/thor/samples/common.yml"
+--8<-- "src/gufo/thor/templates/samples/common.yml"
 ```
 
 ## lab1
@@ -36,5 +36,5 @@ Full hardware-integration stack with sample lab with
 3 VyOS routers connected in ring.
 
 ``` yaml
---8<-- "src/gufo/thor/samples/lab1.yml"
+--8<-- "src/gufo/thor/templates/samples/lab1.yml"
 ```

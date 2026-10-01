@@ -37,12 +37,19 @@ Services are **lazy-loaded via Gufo Loader** (entry points). The 50+ modules in 
 
 The same loader pattern applies to `targets/` and `labs/`. Currently only `compose` target is implemented; the roadmap includes k8s and Apple Container.
 
+### Templates
+
+-   Keep all packaged templates under `src/gufo/thor/templates/`.
+-   Store built-in `thor.yml` samples in `templates/samples/`; `get_sample()` loads them from this directory.
+-   Store lab templates in `templates/labs/<lab-name>/` and service templates in `templates/<service-name>/`.
+-   When adding or moving templates, update their resource-loading code, documentation references, and `tool.setuptools.package-data` in `pyproject.toml` as needed.
+
 ### Config
 
 -   `Config` resides in `src/gufo/thor/config.py`
 -   Parses `thor.yml` (YAML)
 -   New fields must be: added as typed attrs on the Config model,
-    reflected in `get_sample()` templates (`simple`, `common`, `lab1`),
+    reflected in the `templates/samples/` configs (`simple`, `common`, `lab1`),
     and documented in `examples/thor.yml`.
 
 ### CLI

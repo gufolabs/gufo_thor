@@ -823,7 +823,7 @@ def get_sample(name: str) -> str:
     """
     Get preconfigured config sample by name.
 
-    All samples are preserved in `samples` directory.
+    All samples are preserved in `templates/samples` directory.
 
     Args:
         name: Sample name, without `.yml` extension.
@@ -835,6 +835,7 @@ def get_sample(name: str) -> str:
     # parameter on Py3.10
     return (
         resources.files("gufo.thor")
+        .joinpath("templates")
         .joinpath("samples")
         .joinpath(f"{name}.yml")
         .read_text()
