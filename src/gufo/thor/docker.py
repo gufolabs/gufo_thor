@@ -16,15 +16,12 @@ import json
 import os
 import subprocess
 import sys
-from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Iterable, Iterator, List, NoReturn, Optional
+from typing import Iterable, List, NoReturn, Optional
 
 # Gufo Thor modules
 from .log import logger
-
-IS_PYTEST = "pytest" in sys.modules
 
 
 @dataclass
@@ -82,10 +79,6 @@ class Docker(object):
         Returns:
             DockerConfig.
         """
-        if IS_PYTEST:
-            return DockerConfig(
-                logging_driver="json-file", server_version="29.4.0"
-            )
         return self._read_config()
 
     @cached_property
@@ -198,7 +191,7 @@ class Docker(object):
 
     def docker_exec(self, *args: str) -> bool:
         """
-        Execute docker command.
+        Execute compose command.
 
         Replace current process with docker command.
 
@@ -233,17 +226,6 @@ class Docker(object):
         cmd = self._extend_compose_cmd(*args)
         return self._check_call(cmd)
 
-    def compose_exec(self, *args: str) -> bool:
-        """Run a Compose exec command.
-
-        Args:
-            *args: Arguments passed after ``docker compose exec``.
-
-        Returns:
-            True if the command succeeds, otherwise False.
-        """
-        return self._compose_command("exec", *args)
-
     def _docker_output(self, *args: str) -> str:
         """
         Run docker command and capture output.
@@ -253,18 +235,6 @@ class Docker(object):
         """
         cmd = self._extend_docker_cmd(*args)
         return self._capture_output(cmd)
-
-    def _docker_command(self, *args: str) -> bool:
-        """Run a Docker command without replacing this process.
-
-        Args:
-            *args: Arguments passed after ``docker``.
-
-        Returns:
-            True if the command succeeds, otherwise False.
-        """
-        cmd = self._extend_docker_cmd(*args)
-        return self._check_call(cmd)
 
     def _compose_output(self, *args: str) -> str:
         """
@@ -403,102 +373,6 @@ class Docker(object):
         """Get project label."""
         name = self._compose_config.name
         return f"com.docker.compose.project={name}"
-
-    def is_service_running(self, service: str) -> bool:
-        """Check whether a Compose service has a running container.
-
-        Args:
-            service: Compose service name.
-
-        Returns:
-            True if at least one container for the service is running.
-        """
-        output = self._compose_output(
-            "ps", "--status", "running", "--services", service
-        )
-        return service in {line.strip() for line in output.splitlines()}
-
-    @contextmanager
-    def with_started(self, services: Iterable[str]) -> Iterator[None]:
-        """Ensure Compose services are running for a context.
-
-        Services that were stopped on entry are started without starting their
-        dependencies and stopped again on exit.
-
-        Args:
-            services: Compose service names to keep running in the context.
-
-        Yields:
-            None.
-
-        Raises:
-            RuntimeError: If a service cannot be started or stopped.
-        """
-        selected = list(dict.fromkeys(services))
-        stopped = [
-            service
-            for service in selected
-            if not self.is_service_running(service)
-        ]
-        try:
-            if stopped and not self._compose_command(
-                "up", "-d", "--no-deps", *stopped
-            ):
-                names = ", ".join(stopped)
-                msg = f"Failed to start database services: {names}"
-                raise RuntimeError(msg)
-            for service in selected:
-                if not self.is_service_running(service):
-                    msg = f"Database service {service} is not running"
-                    raise RuntimeError(msg)
-            yield
-        finally:
-            running = [
-                service
-                for service in stopped
-                if self.is_service_running(service)
-            ]
-            if running and not self._compose_command("stop", *running):
-                names = ", ".join(running)
-                msg = f"Failed to stop database services: {names}"
-                raise RuntimeError(msg)
-
-    @contextmanager
-    def with_paused(
-        self, labels: Optional[Iterable[str]] = None
-    ) -> Iterator[None]:
-        """Pause matching app containers for a context and resume them after.
-
-        Args:
-            labels: Additional container labels required for selection.
-
-        Yields:
-            None.
-
-        Raises:
-            RuntimeError: If a container cannot be paused or resumed.
-        """
-        flt = ["status=running", f"label={self._get_app_label()}"]
-        if labels is not None:
-            flt.extend(f"label={label}" for label in labels)
-        containers = [c.name for c in self._iter_containers(*flt)]
-        paused: List[str] = []
-        try:
-            for container in containers:
-                if not self._docker_command("pause", container):
-                    msg = f"Failed to pause container {container}"
-                    raise RuntimeError(msg)
-                paused.append(container)
-            yield
-        finally:
-            failed: List[str] = []
-            for container in paused:
-                if not self._docker_command("unpause", container):
-                    failed.append(container)
-            if failed:
-                names = ", ".join(failed)
-                msg = f"Failed to unpause containers: {names}"
-                raise RuntimeError(msg)
 
     def pause(self, labels: Optional[Iterable[str]] = None) -> bool:
         """
