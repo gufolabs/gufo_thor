@@ -146,7 +146,5 @@ def test_humanize_size(size: int, expected: str) -> None:
         (datetime.timedelta(seconds=-61), "-1m 1s"),
     ],
 )
-def test_humanize_time(
-    duration: datetime.timedelta, expected: str
-) -> None:
+def test_humanize_time(duration: datetime.timedelta, expected: str) -> None:
     assert humanize_time(duration) == expected

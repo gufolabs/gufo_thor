@@ -95,9 +95,7 @@ def backup(
         msg = f"Backup is not supported for services: {names}"
         raise ValueError(msg)
     if name is None:
-        backup_name = datetime.datetime.now().strftime(
-            "%Y-%m-%d-%H-%M-%S"
-        )
+        backup_name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     elif not BACKUP_NAME_RE.fullmatch(name):
         msg = (
             "Backup name must start with a letter or digit and contain only "

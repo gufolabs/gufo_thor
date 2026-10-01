@@ -65,9 +65,7 @@ def create(
     ctx.print("Backup summary")
     summary = [("Name", info.name)]
     if info.postgres_size is not None:
-        summary.append(
-            ("Postgres size", humanize_size(info.postgres_size))
-        )
+        summary.append(("Postgres size", humanize_size(info.postgres_size)))
     if info.mongo_size is not None:
         summary.append(("Mongo size", humanize_size(info.mongo_size)))
     if info.clickhouse_size is not None:
@@ -135,12 +133,15 @@ def ls(ctx: Context) -> None:
     widths = [len(header) for header in headers]
     for row in rows:
         widths = [
-            max(width, len(value)) for width, value in zip(widths, row)
+            max(width, len(value))
+            for width, value in zip(widths, row, strict=True)
         ]
     ctx.print(
         " | ".join(
             f"{header:{alignment}{width}}"
-            for header, alignment, width in zip(headers, alignments, widths)
+            for header, alignment, width in zip(
+                headers, alignments, widths, strict=True
+            )
         )
     )
     ctx.print("-+-".join("-" * width for width in widths))
@@ -148,7 +149,9 @@ def ls(ctx: Context) -> None:
         ctx.print(
             " | ".join(
                 f"{value:{alignment}{width}}"
-                for value, alignment, width in zip(row, alignments, widths)
+                for value, alignment, width in zip(
+                    row, alignments, widths, strict=True
+                )
             )
         )
 

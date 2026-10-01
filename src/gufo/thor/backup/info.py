@@ -61,9 +61,7 @@ class BackupInfo:
         )
         dump_paths = [postgres_dump, mongo_dump, clickhouse_dump]
         dump_mtimes = [
-            dump.stat().st_mtime
-            for dump in dump_paths
-            if dump.is_file()
+            dump.stat().st_mtime for dump in dump_paths if dump.is_file()
         ]
         duration = None
         if dump_mtimes:
