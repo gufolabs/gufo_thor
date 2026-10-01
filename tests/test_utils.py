@@ -1,10 +1,11 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Utils tests
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 
 # Python modules
+import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Dict
@@ -13,7 +14,14 @@ from typing import Any, Dict
 import pytest
 
 # Gufo Thor modules
-from gufo.thor.utils import ensure_directory, is_test, merge_dict, write_file
+from gufo.thor.utils import (
+    ensure_directory,
+    humanize_size,
+    humanize_time,
+    is_test,
+    merge_dict,
+    write_file,
+)
 
 from .utils import suppress_is_test
 
@@ -101,3 +109,44 @@ def test_suppress_is_test():
     with suppress_is_test():
         assert is_test() is False
     assert is_test() is True
+
+
+@pytest.mark.parametrize(
+    ("size", "expected"),
+    [
+        (0, "0B"),
+        (1, "1B"),
+        (512, "512B"),
+        (1023, "1023B"),
+        (1024, "1K"),
+        (1025, "1K"),
+        (1536, "1.5K"),
+        (1024 * 1024 - 1, "1024K"),
+        (1024 * 1024, "1M"),
+        (1024 * 1024 + 512 * 1024, "1.5M"),
+        (1024 * 1024 * 1024 - 1, "1024M"),
+        (1024 * 1024 * 1024, "1G"),
+        (1024 * 1024 * 1024 * 2, "2G"),
+        (1024 * 1024 * 1024 * 2 + 512 * 1024 * 1024, "2.5G"),
+    ],
+)
+def test_humanize_size(size: int, expected: str) -> None:
+    assert humanize_size(size) == expected
+
+
+@pytest.mark.parametrize(
+    ("duration", "expected"),
+    [
+        (datetime.timedelta(0), "0s"),
+        (datetime.timedelta(microseconds=500_000), "<1s"),
+        (datetime.timedelta(seconds=1), "1s"),
+        (datetime.timedelta(seconds=61), "1m 1s"),
+        (datetime.timedelta(hours=1, minutes=2, seconds=3), "1h 2m 3s"),
+        (datetime.timedelta(days=2, seconds=3), "2d 3s"),
+        (datetime.timedelta(seconds=-61), "-1m 1s"),
+    ],
+)
+def test_humanize_time(
+    duration: datetime.timedelta, expected: str
+) -> None:
+    assert humanize_time(duration) == expected

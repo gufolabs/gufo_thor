@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+until clickhouse-client --query "SELECT 1" >/dev/null 2>&1; do
+    sleep 1
+done
+BACKUP_NAME=${PWD##*/}
+clickhouse-client --query "
+RESTORE ALL
+FROM Disk('backups', '${BACKUP_NAME}/clickhouse.zip')"

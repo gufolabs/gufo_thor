@@ -6,6 +6,7 @@ Man pages for the `gufo-thor` command-line interface.
 
 | Command | Description |
 | --- | --- |
+| [`gufo-thor backup`](backup.md) | Create and list database backups. |
 | [`gufo-thor console`](console.md) | Run a lab node console. |
 | [`gufo-thor destroy`](destroy.md) | Destroy the installation. |
 | [`gufo-thor logs`](logs.md) | Show service logs. |

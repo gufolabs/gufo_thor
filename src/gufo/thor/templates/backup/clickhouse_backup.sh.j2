@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+until clickhouse-client --query "SELECT 1" >/dev/null 2>&1; do
+    sleep 1
+done
+BACKUP_NAME=${PWD##*/}
+clickhouse-client --query "
+BACKUP ALL EXCEPT DATABASES INFORMATION_SCHEMA, information_schema, system, dictionaries
+TO Disk('backups', '${BACKUP_NAME}/clickhouse.zip')
+SETTINGS compression_method='lzma', compression_level=3"

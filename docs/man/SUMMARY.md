@@ -1,4 +1,5 @@
 * [Overview](index.md)
+* [gufo-thor backup](backup.md)
 * [gufo-thor console](console.md)
 * [gufo-thor destroy](destroy.md)
 * [gufo-thor logs](logs.md)

@@ -10,11 +10,17 @@ Attributes:
     clickhouse: clickhouse service singleton.
 """
 
+# Python modules
+from pathlib import Path
+
 # Gufo Thor modules
-from .base import BaseService, ComposeDependsCondition, Role
+from ..config import Config, ServiceConfig
+from ..utils import write_file
+from .base import BaseService, ComposeDependsCondition
+from .db import DBService
 
 
-class ClickhouseService(BaseService):
+class ClickhouseService(DBService):
     """clickhouse service."""
 
     name = "clickhouse"
@@ -28,7 +34,10 @@ class ClickhouseService(BaseService):
     }
     compose_volumes = [
         "./etc/clickhouse/users.d:/etc/clickhouse-server/users.d",
+        "./etc/clickhouse/config.d/backup.xml:"
+        "/etc/clickhouse-server/config.d/backup.xml:ro",
         "clickhouse_data:/var/lib/clickhouse",
+        "backup:/var/lib/clickhouse/backup",
     ]
     compose_volumes_config = {"clickhouse_data": {}}
     compose_extra = {
@@ -45,7 +54,40 @@ class ClickhouseService(BaseService):
         },
     }
     service_port = 8123
-    role = Role.DB
+    backup_script_template = "clickhouse_backup.sh.j2"
+    restore_script_template = "clickhouse_restore.sh.j2"
+    backup_file_name = "clickhouse.zip"
+
+    def prepare_compose_config(
+        self,
+        config: Config,
+        svc: ServiceConfig | None,
+        services: list[BaseService],
+    ) -> None:
+        """Write configuration that allows backups to the shared volume.
+
+        Args:
+            config: Thor configuration.
+            svc: Service-specific configuration, if any.
+            services: All resolved services.
+        """
+        write_file(
+            Path("etc/clickhouse/config.d/backup.xml"),
+            "<clickhouse>\n"
+            "  <storage_configuration>\n"
+            "    <disks>\n"
+            "      <backups>\n"
+            "        <type>local</type>\n"
+            "        <path>/var/lib/clickhouse/backup/</path>\n"
+            "      </backups>\n"
+            "    </disks>\n"
+            "  </storage_configuration>\n"
+            "  <backups>\n"
+            "    <allowed_disk>backups</allowed_disk>\n"
+            "    <allowed_path>/var/lib/clickhouse/backup/</allowed_path>\n"
+            "  </backups>\n"
+            "</clickhouse>\n",
+        )
 
 
 clickhouse = ClickhouseService()

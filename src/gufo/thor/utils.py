@@ -6,6 +6,7 @@
 """Various utilities."""
 
 # Python modules
+import datetime
 import os
 import shutil
 import sys
@@ -103,3 +104,55 @@ def is_test() -> bool:
         False: Otherwise.
     """
     return "pytest" in sys.modules
+
+
+def humanize_size(size: int) -> str:
+    """Convert a size in bytes to a human-readable representation.
+
+    Sizes of 1 KiB and above are represented using binary units:
+    K, M, and G. Values below 1 KiB are represented in bytes.
+
+    Args:
+        size: Size in bytes.
+
+    Returns:
+        Human-readable size with at most one decimal place.
+    """
+    for unit, suffix in (
+        (1024 * 1024 * 1024, "G"),
+        (1024 * 1024, "M"),
+        (1024, "K"),
+    ):
+        if size >= unit:
+            value = size / unit
+            return f"{value:.1f}".rstrip("0").rstrip(".") + suffix
+    return f"{size}B"
+
+
+def humanize_time(duration: datetime.timedelta) -> str:
+    """Convert a duration to a compact human-readable representation.
+
+    Args:
+        duration: Duration to format.
+
+    Returns:
+        Duration expressed in days, hours, minutes, and seconds.
+    """
+    sign = "-" if duration < datetime.timedelta(0) else ""
+    duration = abs(duration)
+    seconds = int(duration.total_seconds())
+    if seconds == 0:
+        return f"{sign}<1s" if duration else "0s"
+    days, seconds = divmod(seconds, 24 * 60 * 60)
+    hours, seconds = divmod(seconds, 60 * 60)
+    minutes, seconds = divmod(seconds, 60)
+    parts = []
+    for value, unit in (
+        (days, "d"),
+        (hours, "h"),
+        (minutes, "m"),
+        (seconds, "s"),
+    ):
+        if value:
+            parts.append(f"{value}{unit}")
+    return sign + " ".join(parts)
