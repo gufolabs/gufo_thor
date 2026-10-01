@@ -10,7 +10,7 @@ import click
 
 # Gufo Thor modules
 from ..docker import docker
-from .base import Context, entrypoint, pass_context
+from .base import Context, entrypoint, pass_context, prepared
 
 
 @entrypoint
@@ -18,6 +18,7 @@ from .base import Context, entrypoint, pass_context
 @click.option("-f", "--follow", is_flag=True, help="Follow logs.")
 @click.argument("services", nargs=-1, required=True)
 @pass_context
+@prepared
 def logs(ctx: Context, follow: bool, services: tuple[str, ...]) -> None:
     """Show logs for one or more services.
 
@@ -26,6 +27,5 @@ def logs(ctx: Context, follow: bool, services: tuple[str, ...]) -> None:
         follow: Continue streaming log output.
         services: Service names.
     """
-    ctx.prepare()
     if not docker.logs(*services, _follow=follow):
         ctx.die("Failed to show service logs.")

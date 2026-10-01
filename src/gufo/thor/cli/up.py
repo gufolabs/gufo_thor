@@ -13,9 +13,10 @@ import webbrowser
 import click
 
 # Gufo Thor modules
+from ..config import config
 from ..docker import docker
 from ..log import logger
-from .base import Context, entrypoint, pass_context
+from .base import Context, entrypoint, pass_context, prepared
 
 
 @entrypoint
@@ -23,6 +24,7 @@ from .base import Context, entrypoint, pass_context
 @click.option("--migrate", is_flag=True, help="Run migrations.")
 @click.option("--no-migrate", is_flag=True, help="Skip migrations on run.")
 @pass_context
+@prepared
 def up(ctx: Context, migrate: bool, no_migrate: bool) -> None:
     """Prepare and start NOC.
 
@@ -34,15 +36,14 @@ def up(ctx: Context, migrate: bool, no_migrate: bool) -> None:
     if migrate and no_migrate:
         ctx.die("Cannot use --migrate and --no-migrate together.")
     if migrate:
-        ctx.config.noc.migrate = True
+        config.noc.migrate = True
     elif no_migrate:
-        ctx.config.noc.migrate = False
-    ctx.prepare()
+        config.noc.migrate = False
     if not docker.up():
         ctx.die("Failed to start NOC containers.")
-    url = ctx.get_ui_url()
+    url = config.get_ui_url()
     logger.warning("To access NOC user interface open %s", url)
-    if ctx.config.expose.open_browser:
+    if config.expose.open_browser:
         logger.warning("Starting browser")
         with contextlib.suppress(Exception):
             webbrowser.open(url)

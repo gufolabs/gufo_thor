@@ -6,7 +6,6 @@
 """Generate sample Thor configuration."""
 
 # Python modules
-import os
 from pathlib import Path
 
 # Third-party modules
@@ -36,7 +35,7 @@ def sample_config(ctx: Context, template: str) -> None:
         template: Sample configuration template name.
     """
     path = Path("thor.yml")
-    if os.path.exists(path):
+    if path.exists():
         ctx.die(f"{path} already exists.")
     logger.warning("Writing %s", path)
     path.write_text(get_sample(template))

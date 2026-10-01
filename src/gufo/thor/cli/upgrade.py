@@ -11,19 +11,19 @@ import click
 # Gufo Thor modules
 from ..docker import docker
 from ..log import logger
-from .base import Context, entrypoint, pass_context
+from .base import Context, entrypoint, pass_context, prepared
 
 
 @entrypoint
 @click.command("upgrade", short_help="Update NOC.")
 @pass_context
+@prepared
 def upgrade(ctx: Context) -> None:
     """Pull updated images for NOC.
 
     Args:
         ctx: CLI execution context.
     """
-    ctx.prepare()
     logger.warning("Cleaning containers")
     docker.down()
     logger.warning("Pulling new images")

@@ -9,6 +9,7 @@
 import click
 
 # Gufo Thor modules
+from ..config import config
 from ..docker import docker
 from ..labs.base import BaseLab
 from .base import Context, entrypoint, pass_context
@@ -34,7 +35,7 @@ def console(ctx: Context, node: str) -> None:
             "`<lab name>/<node name>` expected."
         )
     lab_name, node_name = parts
-    config = ctx.config
+    config.setup()
     lab_cfg = config.labs.get(lab_name)
     if not lab_cfg:
         ctx.die(f"Unknown lab `{lab_name}`")

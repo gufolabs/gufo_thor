@@ -125,7 +125,7 @@ class NocService(BaseService):
         noc_settings.write(yaml.dump(cfg))
         # Ensure directories
         ensure_directory(Path("data", "crashinfo"))
-        ensure_directory(Path("data", "backup"))
+        ensure_directory(config.local_backup_path)
 
     def get_noc_settings(self, config: Config) -> Dict[str, Any]:
         """
@@ -181,7 +181,7 @@ class NocService(BaseService):
                 "driver": "local",
                 "driver_opts": {
                     "type": "bind",
-                    "device": "./data/backup",
+                    "device": f"./{config.local_backup_path}",
                     "o": "bind",
                 },
             },

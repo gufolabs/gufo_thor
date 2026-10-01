@@ -17,6 +17,7 @@ import yaml
 from gufo.thor import __version__
 
 from ..artefact import ArtefactMountPoint
+from ..config import config
 from ..labs.base import BaseLab
 from ..utils import ensure_directory, write_file
 from .base import BaseTarget
@@ -37,6 +38,7 @@ class ComposeTarget(BaseTarget):
 
     def prepare(self) -> None:
         """Generate docker-compose.yml, data directories, and configs."""
+        super().prepare()
         print(f"gufo-thor {__version__}")
         self.migrate()
         # Prepare services and service discovery
@@ -46,16 +48,16 @@ class ComposeTarget(BaseTarget):
 
             consul = cast(ConsulService, consul)
             for svc in self.services:
-                svc_cfg = self.config.services.get(svc.get_compose_name())
+                svc_cfg = config.services.get(svc.get_compose_name())
                 if svc.service_port:
                     consul.register_service(svc.name, svc.service_port)
-                svc.prepare_compose_config(self.config, svc_cfg, self.services)
+                svc.prepare_compose_config(config, svc_cfg, self.services)
         # Generate docker-compose.yml
         write_file(Path("docker-compose.yml"), self.render_config())
         # Generate .env
         env_data: List[str] = []
-        if self.config.project is not None:
-            env_data.append(f"COMPOSE_PROJECT_NAME={self.config.project}")
+        if config.project is not None:
+            env_data.append(f"COMPOSE_PROJECT_NAME={config.project}")
         write_file(Path(".env"), "\n".join(env_data))
         # Create assets/
         ensure_directory(Path("assets"))
@@ -91,7 +93,7 @@ class ComposeTarget(BaseTarget):
         # Resolve services
         return {
             svc.get_compose_name(): svc.get_compose_config(
-                self.config, self.config.services.get(svc.get_compose_name())
+                config, config.services.get(svc.get_compose_name())
             )
             for svc in self.services
         }
@@ -103,7 +105,7 @@ class ComposeTarget(BaseTarget):
                 "driver": "bridge",
             }
         }
-        for pool_name, pool in self.config.pools.items():
+        for pool_name, pool in config.pools.items():
             r[f"pool-{pool_name}"] = {
                 "driver": "bridge",
                 "internal": True,
@@ -125,7 +127,7 @@ class ComposeTarget(BaseTarget):
         r: Dict[str, Dict[str, Any]] = {}
         for svc in self.services:
             vc = svc.get_compose_volumes_config(
-                self.config, self.config.services.get(svc.name)
+                config, config.services.get(svc.name)
             )
             if not vc:
                 continue
@@ -141,7 +143,7 @@ class ComposeTarget(BaseTarget):
         r: Dict[str, Dict[str, Any]] = {}
         for svc in self.services:
             secrets = svc.get_compose_secrets(
-                self.config, self.config.services.get(svc.name)
+                config, config.services.get(svc.name)
             )
             if not secrets:
                 continue
@@ -155,7 +157,7 @@ class ComposeTarget(BaseTarget):
         mounts: Set[ArtefactMountPoint] = set()
         for svc in self.services:
             configs = svc.get_compose_configs(
-                self.config, self.config.services.get(svc.name)
+                config, config.services.get(svc.name)
             )
             if not configs:
                 continue
@@ -168,17 +170,17 @@ class ComposeTarget(BaseTarget):
 
     def _apply_labs(self, cfg: Dict[str, Any]) -> None:
         """Apply labs section."""
-        if not self.config.labs:
+        if not config.labs:
             return
         if "services" not in cfg:
             cfg["services"] = {}
         networks = {}
-        for lab_name, lab_config in self.config.labs.items():
+        for lab_name, lab_config in config.labs.items():
             for node_name, node_config in lab_config.nodes.items():
                 svc_name = f"lab-{lab_name}-{node_name}"
                 lab = BaseLab.get(node_config.type)
                 cfg["services"][svc_name] = lab.get_compose_config(
-                    self.config, lab_config, node_config
+                    config, lab_config, node_config
                 )
             for n, link in enumerate(lab_config.links):
                 link_cfg: Dict[str, Any] = {"driver": "bridge"}
