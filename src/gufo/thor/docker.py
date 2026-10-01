@@ -14,6 +14,7 @@ Attributes:
 # Python modules
 import json
 import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -22,6 +23,7 @@ from typing import Iterable, List, NoReturn, Optional
 
 # Gufo Thor modules
 from .log import logger
+from .utils import is_test
 
 
 @dataclass
@@ -79,6 +81,11 @@ class Docker(object):
         Returns:
             DockerConfig.
         """
+        if is_test() and shutil.which("docker") is None:
+            # Return stub value for testing.
+            return DockerConfig(
+                logging_driver="json-file", server_version="29.4.0"
+            )
         return self._read_config()
 
     @cached_property
