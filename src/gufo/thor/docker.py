@@ -22,8 +22,7 @@ from typing import Iterable, List, NoReturn, Optional
 
 # Gufo Thor modules
 from .log import logger
-
-IS_PYTEST = "pytest" in sys.modules
+from .utils import is_test
 
 
 @dataclass
@@ -81,7 +80,7 @@ class Docker(object):
         Returns:
             DockerConfig.
         """
-        if IS_PYTEST:
+        if is_test():
             return DockerConfig(
                 logging_driver="json-file", server_version="29.4.0"
             )
