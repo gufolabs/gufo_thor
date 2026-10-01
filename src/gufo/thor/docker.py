@@ -23,6 +23,8 @@ from typing import Iterable, List, NoReturn, Optional
 # Gufo Thor modules
 from .log import logger
 
+IS_PYTEST = "pytest" in sys.modules
+
 
 @dataclass
 class DockerConfig(object):
@@ -79,6 +81,10 @@ class Docker(object):
         Returns:
             DockerConfig.
         """
+        if IS_PYTEST:
+            return DockerConfig(
+                logging_driver="json-file", server_version="29.4.0"
+            )
         return self._read_config()
 
     @cached_property
