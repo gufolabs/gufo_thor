@@ -13,7 +13,10 @@ The code base of the project has following structure:
 
 * `docs/` - [Mkdocs][Mkdocs] documentation.
 * `src/gufo/thor/` - Project's source code.
-  * `samples` - `thor.yml` condif samples.
+  * `templates/` - Configuration and service templates.
+    * `samples/` - `thor.yml` config samples.
+    * `labs/` - Lab node templates.
+    * `envoy/` - Envoy configuration template.
   * `services` - services definitions.
   * `targets` - targets implementations.
 * `tests/` - Project's [Pytest][Pytest] test suite.
