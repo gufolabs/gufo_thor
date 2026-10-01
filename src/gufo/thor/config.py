@@ -904,13 +904,13 @@ def with_config(cfg: Config) -> Iterator[Config]:
     Yields:
         The temporarily active configuration.
     """
-    global config  # noqa: PLW0603
-    prev = config
-    config = cfg
+    prev = Config.default()
+    prev.apply(config)
+    config.apply(cfg)
     try:
         yield cfg
     finally:
-        config = prev
+        config.apply(prev)
 
 
 config = Config.default()
