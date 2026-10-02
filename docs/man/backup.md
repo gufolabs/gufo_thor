@@ -1,12 +1,13 @@
 # gufo-thor backup
 
-Create and list database backups. Backups include PostgreSQL, MongoDB, and ClickHouse by default. Use `--postgres`, `--mongo`, and `--clickhouse` to select one or more services; when no service options are specified, all supported database services are backed up.
+Create, list, and remove database backups. Backups include PostgreSQL, MongoDB, and ClickHouse by default. Use `--postgres`, `--mongo`, and `--clickhouse` to select one or more services; when no service options are specified, all supported database services are backed up.
 
 ## Synopsis
 
 ```shell
 gufo-thor backup create [<name>] [--postgres] [--mongo] [--clickhouse]
 gufo-thor backup ls
+gufo-thor backup rm <name>
 ```
 
 ## Commands
@@ -39,4 +40,12 @@ gufo-thor backup ls
 name           | timestamp           | duration | postgres size | mongo size | clickhouse size | total size
 ---------------+---------------------+----------+---------------+------------+-----------------+-----------
 before-upgrade | 2026-10-01 15:59:33 | 42s      |         720.4K |       8.2M |             4.1M |     13.0M
+```
+
+### rm
+
+Remove the named backup directory and all files it contains from `data/backup`.
+
+```shell
+gufo-thor backup rm before-upgrade
 ```

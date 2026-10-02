@@ -32,6 +32,19 @@ total sizes:
 gufo-thor backup ls
 ```
 
+Remove a named backup and all of its files with `gufo-thor backup rm <name>`:
+
+```shell
+gufo-thor backup rm before-upgrade
+```
+
+Restore all database dumps present in a named backup, or specify one or more of `--postgres`, `--mongo`, and `--clickhouse` to restore selected databases. Thor pauses running application containers during restoration:
+
+```shell
+gufo-thor restore before-upgrade
+gufo-thor restore before-upgrade --postgres
+```
+
 ## Generate Sample Config
 
 To generate sample config use:

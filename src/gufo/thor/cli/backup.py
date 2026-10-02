@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------
 # Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
-"""Create and list database backups."""
+"""Create, list, and remove database backups."""
 
 # Third-party modules
 import click
@@ -11,13 +11,14 @@ import click
 # Gufo Thor modules
 from ..backup.backup import backup as run_backup
 from ..backup.ls import list_backups
+from ..backup.rm import remove_backup
 from ..utils import humanize_size, humanize_time
 from .base import Context, entrypoint, pass_context, prepared
 
 
-@click.group("backup", short_help="Create and list NOC backups.")
+@click.group("backup", short_help="Create, list, and remove NOC backups.")
 def backup_group() -> None:
-    """Create and list database backups."""
+    """Create, list, and remove database backups."""
 
 
 @backup_group.command("create", short_help="Create a database backup.")
@@ -148,6 +149,23 @@ def ls(ctx: Context) -> None:
                 )
             )
         )
+
+
+@backup_group.command("rm", short_help="Remove a database backup.")
+@click.argument("name")
+@pass_context
+def rm(ctx: Context, name: str) -> None:
+    """Remove a named database backup.
+
+    Args:
+        ctx: CLI execution context.
+        name: Backup directory name.
+    """
+    try:
+        remove_backup(name)
+    except (OSError, ValueError) as e:
+        ctx.die(f"Failed to remove backup: {e}")
+    ctx.print(f"Removed backup: {name}")
 
 
 backup = entrypoint(backup_group)

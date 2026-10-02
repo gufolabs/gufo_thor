@@ -6,6 +6,7 @@
 * [gufo-thor pause](pause.md)
 * [gufo-thor prepare](prepare.md)
 * [gufo-thor restart](restart.md)
+* [gufo-thor restore](restore.md)
 * [gufo-thor sample-config](sample-config.md)
 * [gufo-thor shell](shell.md)
 * [gufo-thor stats](stats.md)

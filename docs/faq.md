@@ -65,6 +65,18 @@ Yes, the *Labs* feature allows you to spin up a network lab in containers and co
     
 Yes. The main development of NOC is currently done using Thor.
 
+## Operations
+
+### How can I back up NOC databases?
+
+Run `gufo-thor backup create` to back up PostgreSQL, MongoDB, and ClickHouse into `data/backup/<name>`, where the name defaults to the current timestamp. Pass a name as the first argument, or use `--postgres`, `--mongo`, and `--clickhouse` to back up selected databases; for example, `gufo-thor backup create before-upgrade --postgres --mongo`.
+
+List backups with `gufo-thor backup ls` and remove one with `gufo-thor backup rm <name>`; for example, `gufo-thor backup rm before-upgrade` deletes that backup directory and its contents.
+
+### How can I restore NOC databases?
+
+Run `gufo-thor restore <name>` to restore the dumps present in `data/backup/<name>`, or pass `--postgres`, `--mongo`, and/or `--clickhouse` to select databases. For example, `gufo-thor restore before-upgrade --postgres`. Thor pauses running application containers for the restore and resumes them afterward.
+
 ## Architecture and Design
 
 ### Is Thor a Docker version of NOC?

@@ -6,13 +6,14 @@ Man pages for the `gufo-thor` command-line interface.
 
 | Command | Description |
 | --- | --- |
-| [`gufo-thor backup`](backup.md) | Create and list database backups. |
+| [`gufo-thor backup`](backup.md) | Create, list, and remove database backups. |
 | [`gufo-thor console`](console.md) | Run a lab node console. |
 | [`gufo-thor destroy`](destroy.md) | Destroy the installation. |
 | [`gufo-thor logs`](logs.md) | Show service logs. |
 | [`gufo-thor pause`](pause.md) | Pause service containers. |
 | [`gufo-thor prepare`](prepare.md) | Prepare services configuration. |
 | [`gufo-thor restart`](restart.md) | Restart services. |
+| [`gufo-thor restore`](restore.md) | Restore database backups. |
 | [`gufo-thor sample-config`](sample-config.md) | Generate sample configuration. |
 | [`gufo-thor shell`](shell.md) | Run the NOC shell. |
 | [`gufo-thor stats`](stats.md) | Show container statistics. |
