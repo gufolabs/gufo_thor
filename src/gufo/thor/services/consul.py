@@ -13,7 +13,7 @@ Attributes:
 # Python modules
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from gufo.thor.config import Config, ServiceConfig
 
@@ -46,11 +46,11 @@ class ConsulService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.discovered_services: List[Artefact] = []
+        self.discovered_services: list[Artefact] = []
 
     def get_compose_configs(
         self, config: Config, svc: Optional["ServiceConfig"]
-    ) -> Optional[List[Artefact]]:
+    ) -> list[Artefact] | None:
         """Add configs for discovered services."""
         r = super().get_compose_configs(config, svc) or []
         r += self.discovered_services
@@ -64,7 +64,7 @@ class ConsulService(BaseService):
             name: Service name.
             port: Service port.
         """
-        cfg: Dict[str, Any] = {
+        cfg: dict[str, Any] = {
             "service": {
                 "name": name,
                 "address": name,

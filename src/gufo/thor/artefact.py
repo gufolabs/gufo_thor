@@ -6,17 +6,17 @@
 """Artefact class."""
 
 # Python modules
+from collections.abc import Iterable
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
-from typing import Iterable, Optional
 
 # Gufo Thor modules
 from .utils import is_test, write_file
 
 
 @dataclass
-class ArtefactMountPoint(object):
+class ArtefactMountPoint:
     """
     Artefact mounting point.
 
@@ -38,7 +38,7 @@ class ArtefactMountPoint(object):
 DEFAULT_LOCAL_BASE = Path(".")
 
 
-class Artefact(object):
+class Artefact:
     """
     Artefact.
 
@@ -63,7 +63,7 @@ class Artefact(object):
             msg = "_set_local_base() must be called for tests"
             raise RuntimeError(msg)
         self.local_path = self._local_base / local_path
-        self._container_path: Optional[Path] = None
+        self._container_path: Path | None = None
 
     def __repr__(self) -> str:
         """repr() implementation."""
@@ -168,7 +168,7 @@ class Artefact(object):
             self.write(fp.read())
 
     @classmethod
-    def _set_local_base(cls, path: Optional[Path] = None) -> None:
+    def _set_local_base(cls, path: Path | None = None) -> None:
         """
         Set new local base path.
 

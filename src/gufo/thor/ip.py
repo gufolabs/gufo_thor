@@ -6,14 +6,14 @@
 """IP address manipulation primitives."""
 
 # Python modules
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 DEFAULT = "0.0.0.0"  # noqa: S104
 DEFAULT_PREFIX = "0.0.0.0/0"
 MAX_IPV4_MASK = 32
 
 
-class IPv4Address(object):
+class IPv4Address:
     """IPv4 Address."""
 
     def __init__(self, v: str) -> None:
@@ -96,7 +96,7 @@ class IPv4Address(object):
         return IPv4Prefix(f"{self._addr}/{mask}")
 
 
-class IPv4Prefix(object):
+class IPv4Prefix:
     """IPv4 Prefix."""
 
     def __init__(self, v: str) -> None:
@@ -161,7 +161,7 @@ class IPv4Prefix(object):
         size: int = 2 ** (32 - self._mask)
         return start <= int(item) < start + size
 
-    def first_free(self, used: Iterable[IPv4Address]) -> Optional[IPv4Address]:
+    def first_free(self, used: Iterable[IPv4Address]) -> IPv4Address | None:
         """
         Find first free address in prefix.
 

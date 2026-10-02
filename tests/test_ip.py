@@ -1,11 +1,11 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: IP tests
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 
 # Python modules
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 # Third party modules
 import pytest
@@ -249,7 +249,7 @@ def test_ipv4_prefix_add(x: str, y: int, expected: str) -> None:
     ],
 )
 def test_ipv4_prefix_first_free(
-    x: str, y: Iterable[str], expected: Optional[str]
+    x: str, y: Iterable[str], expected: str | None
 ) -> None:
     p = IPv4Prefix(x)
     r = p.first_free(IPv4Address(a) for a in y)

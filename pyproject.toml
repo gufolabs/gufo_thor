@@ -72,6 +72,7 @@ select = [
   "PLW", # pylint
   "PIE", # flake8-pie
   "RUF", # ruff specific
+  "UP", # pyupgrade
 ]
 unfixable = ["F401"]
 

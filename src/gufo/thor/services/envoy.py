@@ -16,7 +16,7 @@ import os
 import ssl
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Third-party modules
 import certifi
@@ -41,7 +41,7 @@ HTTPS = 443
 
 
 @dataclass
-class DomainInfo(object):
+class DomainInfo:
     """
     Information for preconfigured domains.
 
@@ -66,7 +66,7 @@ DOMAINS = {
 
 
 @dataclass
-class Route(object):
+class Route:
     """
     routes part of config.
 
@@ -83,8 +83,8 @@ class Route(object):
     name: str
     prefix: str
     disable_auth: bool
-    prefix_rewrite: Optional[str] = None
-    redirect_to: Optional[str] = None
+    prefix_rewrite: str | None = None
+    redirect_to: str | None = None
     no_cache: bool = False
     is_service: bool = True
 
@@ -118,8 +118,8 @@ class EnvoyService(BaseService):
     CERT_DAYS = 3650
 
     def get_compose_networks(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Dict[str, Any]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> dict[str, Any]:
         """Get networks section."""
         r = super().get_compose_networks(config, svc)
         if "noc" not in r:
@@ -128,8 +128,8 @@ class EnvoyService(BaseService):
         return r
 
     def get_compose_ports(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> list[str] | None:
         """Get ports section."""
         if config.expose.web:
             return [config.expose.web.docker_compose_port(443)]
@@ -138,8 +138,8 @@ class EnvoyService(BaseService):
     def prepare_compose_config(
         self,
         config: Config,
-        svc: Optional[ServiceConfig],
-        services: List["BaseService"],
+        svc: ServiceConfig | None,
+        services: list["BaseService"],
     ) -> None:
         """Generate config."""
         # Generate domain_name_and_port
@@ -150,8 +150,8 @@ class EnvoyService(BaseService):
                 f"{config.expose.domain_name}:{config.expose.web.port}"
             )
         # Generate routes
-        routes: List[Route] = []
-        web_routes: List[Route] = []
+        routes: list[Route] = []
+        web_routes: list[Route] = []
         for s in services:
             prefix = s.get_expose_http_prefix(config, None)
             if not prefix:
@@ -327,8 +327,8 @@ class EnvoyService(BaseService):
         write_file(self.SUBJ_PATH, self.get_cert_subj(config))
 
     def get_compose_configs(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[Artefact]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> list[Artefact] | None:
         """Generate configs."""
         r = super().get_compose_configs(config, svc) or []
         if config.expose.mtls_ca_cert:

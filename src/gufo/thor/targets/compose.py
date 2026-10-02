@@ -1,14 +1,14 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: ComposeTarget
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 """docker compose target."""
 
 # Python modules
 from operator import attrgetter
 from pathlib import Path
-from typing import Any, Dict, List, Set, cast
+from typing import Any, cast
 
 # Third-party mofules
 import yaml
@@ -55,7 +55,7 @@ class ComposeTarget(BaseTarget):
         # Generate docker-compose.yml
         write_file(Path("docker-compose.yml"), self.render_config())
         # Generate .env
-        env_data: List[str] = []
+        env_data: list[str] = []
         if config.project is not None:
             env_data.append(f"COMPOSE_PROJECT_NAME={config.project}")
         write_file(Path(".env"), "\n".join(env_data))
@@ -72,7 +72,7 @@ class ComposeTarget(BaseTarget):
         s: str = yaml.safe_dump(self._get_config_dict(), sort_keys=False)
         return s
 
-    def _get_config_dict(self) -> Dict[str, Any]:
+    def _get_config_dict(self) -> dict[str, Any]:
         """Get dict of docker-compose.yml."""
         r = {
             "services": self._get_services_config(),
@@ -88,7 +88,7 @@ class ComposeTarget(BaseTarget):
                 del r[k]
         return r
 
-    def _get_services_config(self) -> Dict[str, Any]:
+    def _get_services_config(self) -> dict[str, Any]:
         """Build services section of config."""
         # Resolve services
         return {
@@ -98,9 +98,9 @@ class ComposeTarget(BaseTarget):
             for svc in self.services
         }
 
-    def _get_networks_config(self) -> Dict[str, Any]:
+    def _get_networks_config(self) -> dict[str, Any]:
         """Build networks section of config."""
-        r: Dict[str, Dict[str, Any]] = {
+        r: dict[str, dict[str, Any]] = {
             "noc": {
                 "driver": "bridge",
             }
@@ -122,9 +122,9 @@ class ComposeTarget(BaseTarget):
             }
         return r
 
-    def _get_volumes_config(self) -> Dict[str, Any]:
+    def _get_volumes_config(self) -> dict[str, Any]:
         """Build volumes section of config."""
-        r: Dict[str, Dict[str, Any]] = {}
+        r: dict[str, dict[str, Any]] = {}
         for svc in self.services:
             vc = svc.get_compose_volumes_config(
                 config, config.services.get(svc.name)
@@ -138,9 +138,9 @@ class ComposeTarget(BaseTarget):
                     r[n] = c
         return r
 
-    def _get_secrets_config(self) -> Dict[str, Any]:
+    def _get_secrets_config(self) -> dict[str, Any]:
         """Build secrets section of config."""
-        r: Dict[str, Dict[str, Any]] = {}
+        r: dict[str, dict[str, Any]] = {}
         for svc in self.services:
             secrets = svc.get_compose_secrets(
                 config, config.services.get(svc.name)
@@ -152,9 +152,9 @@ class ComposeTarget(BaseTarget):
                 r[s.name] = {"file": str(DOT_PATH / s.path)}
         return r
 
-    def _get_configs_config(self) -> Dict[str, Any]:
+    def _get_configs_config(self) -> dict[str, Any]:
         """Build configs section of config."""
-        mounts: Set[ArtefactMountPoint] = set()
+        mounts: set[ArtefactMountPoint] = set()
         for svc in self.services:
             configs = svc.get_compose_configs(
                 config, config.services.get(svc.name)
@@ -163,12 +163,12 @@ class ComposeTarget(BaseTarget):
                 continue
             for cfg in configs:
                 mounts.update(cfg.iter_mounts())
-        r: Dict[str, Any] = {}
+        r: dict[str, Any] = {}
         for mount in sorted(mounts, key=attrgetter("name")):
             r[mount.name] = {"file": str(mount.local_path)}
         return r
 
-    def _apply_labs(self, cfg: Dict[str, Any]) -> None:
+    def _apply_labs(self, cfg: dict[str, Any]) -> None:
         """Apply labs section."""
         if not config.labs:
             return
@@ -183,7 +183,7 @@ class ComposeTarget(BaseTarget):
                     config, lab_config, node_config
                 )
             for n, link in enumerate(lab_config.links):
-                link_cfg: Dict[str, Any] = {"driver": "bridge"}
+                link_cfg: dict[str, Any] = {"driver": "bridge"}
                 if link.prefix:
                     link_cfg.update(
                         {

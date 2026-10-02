@@ -5,7 +5,7 @@
 # ---------------------------------------------------------------------
 
 # Python modules
-from typing import Any, Dict
+from typing import Any
 
 # Third-party modules
 import pytest
@@ -31,7 +31,7 @@ from .utils import isolated_errors
     ],
 )
 def test_vyos15_docker_console_args(
-    cfg: Dict[str, Any], expected: DockerConsoleArgs
+    cfg: dict[str, Any], expected: DockerConsoleArgs
 ) -> None:
     node_cfg = LabNodeConfig.from_dict("test", cfg)
     lab_cfg = LabConfig(
@@ -51,7 +51,7 @@ def test_vyos15_docker_console_args(
     ],
 )
 @isolated_errors
-def test_lab_compose_image(cfg: Dict[str, str], expected: str) -> None:
+def test_lab_compose_image(cfg: dict[str, str], expected: str) -> None:
     lab = BaseLab.get("vyos15")
     node_cfg = LabNodeConfig.from_dict("test", cfg)
     lab_cfg = LabConfig(

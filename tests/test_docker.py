@@ -4,9 +4,6 @@
 # Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 
-# Python modules
-from typing import List, Tuple
-
 # Third-party modules
 import pytest
 
@@ -17,9 +14,9 @@ from gufo.thor.docker import Docker
 class MockDocker(Docker):
     def __init__(self) -> None:
         super().__init__()
-        self.exec_cmd: List[Tuple[str, ...]] = []
-        self._output: List[str] = []
-        self._command_result: List[bool] = []
+        self.exec_cmd: list[tuple[str, ...]] = []
+        self._output: list[str] = []
+        self._command_result: list[bool] = []
 
     def feed_output(self, out: str) -> None:
         self._output.append(out)
@@ -27,20 +24,20 @@ class MockDocker(Docker):
     def feed_command_result(self, result: bool) -> None:
         self._command_result.append(result)
 
-    def _log_cmd(self, cmd: List[str]) -> None:
+    def _log_cmd(self, cmd: list[str]) -> None:
         self.exec_cmd.append(tuple(cmd))
 
-    def _execvp(self, cmd: List[str]) -> bool:
+    def _execvp(self, cmd: list[str]) -> bool:
         self._log_cmd(cmd)
         return True
 
-    def _capture_output(self, cmd: List[str]) -> str:
+    def _capture_output(self, cmd: list[str]) -> str:
         if not self._output:
             self.die("no output")
         self._log_cmd(cmd)
         return self._output.pop(0)
 
-    def _check_call(self, cmd: List[str]) -> bool:
+    def _check_call(self, cmd: list[str]) -> bool:
         self._log_cmd(cmd)
         return self._command_result.pop(0) if self._command_result else True
 
@@ -428,7 +425,7 @@ def test_with_paused_unpauses_containers_after_body_error() -> None:
     ],
 )
 def test_logs(
-    args: Tuple[str, ...], follow: bool, expected: List[Tuple[str]]
+    args: tuple[str, ...], follow: bool, expected: list[tuple[str]]
 ) -> None:
     docker = MockDocker()
     docker.logs(*args, _follow=follow)
@@ -455,7 +452,7 @@ def test_logs(
     ],
 )
 def test_restart(
-    args: Tuple[str, ...], expected: List[Tuple[str, ...]]
+    args: tuple[str, ...], expected: list[tuple[str, ...]]
 ) -> None:
     docker = MockDocker()
     docker.restart(*args)
@@ -471,7 +468,7 @@ def test_check_call() -> None:
     ("cmd", "expected"),
     [(["ls", "-l"], True), (["nonexistentcommand"], False)],
 )
-def test_check_call_fail(cmd: List[str], expected: bool) -> None:
+def test_check_call_fail(cmd: list[str], expected: bool) -> None:
     docker = Docker()
     r = docker._check_call(cmd)
     assert r is expected

@@ -8,9 +8,8 @@
 import datetime
 import os
 import stat
-from contextlib import nullcontext
+from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
-from typing import ContextManager
 
 # Third-party modules
 import pytest
@@ -141,11 +140,11 @@ def test_backup_runs_selected_service(
     started: list[list[str]] = []
     paused: list[bool] = []
 
-    def with_started(names: list[str]) -> ContextManager[None]:
+    def with_started(names: list[str]) -> AbstractContextManager[None]:
         started.append(names)
         return nullcontext()
 
-    def with_paused() -> ContextManager[None]:
+    def with_paused() -> AbstractContextManager[None]:
         paused.append(True)
         return nullcontext()
 
@@ -233,11 +232,11 @@ def test_restore_defaults_to_dumps_present(
     paused: list[bool] = []
     exec_calls: list[tuple[str, ...]] = []
 
-    def with_started(names: list[str]) -> ContextManager[None]:
+    def with_started(names: list[str]) -> AbstractContextManager[None]:
         started.append(names)
         return nullcontext()
 
-    def with_paused() -> ContextManager[None]:
+    def with_paused() -> AbstractContextManager[None]:
         paused.append(True)
         return nullcontext()
 

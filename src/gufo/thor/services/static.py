@@ -11,7 +11,6 @@ Attributes:
 """
 
 # NOC modules
-from typing import List, Optional
 
 # Gufo Thor modules
 from gufo.thor.config import Config, ServiceConfig
@@ -43,7 +42,7 @@ class StaticService(BaseService):
     role = Role.ASSET
 
     def get_compose_image(
-        self, config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: ServiceConfig | None
     ) -> str:
         """
         Get image name.
@@ -57,14 +56,14 @@ class StaticService(BaseService):
         return f"{NOC_IMAGE_BASE}:{tag}"
 
     def get_compose_volumes(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> list[str] | None:
         """
         Get volumes section.
 
         Mount repo and custom when necessary.
         """
-        r: List[str] = []
+        r: list[str] = []
         # Mount UI repo inside an image
         if config.noc.ui_path:
             r.append(f"{config.noc.ui_path}:/www:cached")

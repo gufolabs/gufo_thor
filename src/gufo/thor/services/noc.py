@@ -7,7 +7,7 @@
 
 # Python Modules
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Third-party modules
 import yaml
@@ -37,7 +37,7 @@ class NocService(BaseService):
     ]
 
     def get_compose_image(
-        self, config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: ServiceConfig | None
     ) -> str:
         """
         Get image name.
@@ -51,8 +51,8 @@ class NocService(BaseService):
         return f"{NOC_IMAGE_BASE}:{tag}"
 
     def get_compose_command(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[str]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> str | None:
         """Get command section."""
         if self.compose_command:
             return self.compose_command
@@ -77,15 +77,15 @@ class NocService(BaseService):
         return cmd
 
     def get_compose_volumes(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> list[str] | None:
         """
         Get volumes section.
 
         Mount repo and custom when necessary.
         """
         # Config + crashinfo
-        r: List[str] = ["crashinfo:/var/lib/noc/cp/crashinfo/new"]
+        r: list[str] = ["crashinfo:/var/lib/noc/cp/crashinfo/new"]
         # Mount NOC repo inside an image
         if config.noc.path:
             r.append(f"{config.noc.path}:/opt/noc:cached")
@@ -95,10 +95,10 @@ class NocService(BaseService):
         return r if r else None
 
     def get_compose_environment(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, str]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> dict[str, str] | None:
         """Get environment section."""
-        r: Dict[str, str] = super().get_compose_environment(config, svc) or {}
+        r: dict[str, str] = super().get_compose_environment(config, svc) or {}
         if self.is_pooled:
             if not self._pool:
                 msg = f"Cannot use pooled service {self.name} without pool"
@@ -109,8 +109,8 @@ class NocService(BaseService):
     def prepare_compose_config(
         self,
         config: Config,
-        svc: Optional[ServiceConfig],
-        services: List["BaseService"],
+        svc: ServiceConfig | None,
+        services: list["BaseService"],
     ) -> None:
         """
         Render configuration files.
@@ -127,7 +127,7 @@ class NocService(BaseService):
         ensure_directory(Path("data", "crashinfo"))
         ensure_directory(config.local_backup_path)
 
-    def get_noc_settings(self, config: Config) -> Dict[str, Any]:
+    def get_noc_settings(self, config: Config) -> dict[str, Any]:
         """
         Get data for settings.yml.
 
@@ -138,7 +138,7 @@ class NocService(BaseService):
             Data which can be serialized to settings.yml.
         """
         # Build default config
-        cfg: Dict[str, Any] = {
+        cfg: dict[str, Any] = {
             "installation_name": config.noc.installation_name,
             "clickhouse": {"ro_user": "default"},
             "language": config.noc.language,
@@ -163,8 +163,8 @@ class NocService(BaseService):
         return cfg
 
     def get_compose_volumes_config(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, Dict[str, Any]]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> dict[str, dict[str, Any]] | None:
         """Generate crashinfo and backup volume."""
         if not _prepared_flags.may_process_volumes():
             return None  # Already prepared from other subclass
@@ -188,8 +188,8 @@ class NocService(BaseService):
         }
 
     def get_compose_extra(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, Any]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> dict[str, Any] | None:
         """Set caps."""
         r = super().get_compose_extra(config, svc) or {}
         if (
@@ -217,7 +217,7 @@ class NocHcService(NocService):
     }
 
 
-class _PreparedFlags(object):
+class _PreparedFlags:
     """Global state to perform configuration only once."""
 
     def __init__(self) -> None:

@@ -11,8 +11,9 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, NoReturn, cast
+from typing import Any, NoReturn, cast
 
 # Third-party modules
 import click

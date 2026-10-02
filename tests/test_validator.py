@@ -1,11 +1,11 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Validator tests
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 
 # Python modules
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 # Third party modules
 import pytest
@@ -55,7 +55,7 @@ def test_error_point_str(point: ErrorPoint, expected: str) -> None:
     ],
 )
 def test_error_context_die(
-    msg: str, path: Optional[List[str]], expected: str
+    msg: str, path: list[str] | None, expected: str
 ) -> None:
     ctx = ErrorContext()
     ctx.error(msg, path=path)
@@ -73,7 +73,7 @@ def test_error_context_die(
     ],
 )
 def test_error_context_with_die(
-    msg: str, path: Union[str, List[str]], expected: str
+    msg: str, path: str | list[str], expected: str
 ) -> None:
     ctx = ErrorContext()
     with ctx.context(path):
@@ -114,9 +114,7 @@ def test_error_level_up2() -> None:
 @pytest.mark.parametrize(
     ("data", "name", "expected"), [({"x": 1}, "x", "1"), ({"x": 1}, "y", None)]
 )
-def test_as_str(
-    data: Dict[str, Any], name: str, expected: Optional[str]
-) -> None:
+def test_as_str(data: dict[str, Any], name: str, expected: str | None) -> None:
     r = as_str(data, name, required=False)
     if expected is None:
         assert r is None
@@ -154,10 +152,10 @@ def test_override_errors() -> None:
 )
 @isolated_errors
 def test_as_int(
-    data: Dict[str, Any],
+    data: dict[str, Any],
     name: str,
     required: bool,
-    expected: Optional[int],
+    expected: int | None,
     has_errors: bool,
 ) -> None:
     r = as_int(data, name, required=required)
@@ -187,10 +185,10 @@ def test_as_int(
 )
 @isolated_errors
 def test_as_ipv4(
-    data: Dict[str, Any],
+    data: dict[str, Any],
     name: str,
     required: bool,
-    expected: Optional[IPv4Address],
+    expected: IPv4Address | None,
     has_errors: bool,
 ) -> None:
     r = as_ipv4(data, name, required=required)
@@ -220,10 +218,10 @@ def test_as_ipv4(
 )
 @isolated_errors
 def test_as_ipv4_prefix(
-    data: Dict[str, Any],
+    data: dict[str, Any],
     name: str,
     required: bool,
-    expected: Optional[IPv4Prefix],
+    expected: IPv4Prefix | None,
     has_errors: bool,
 ) -> None:
     r = as_ipv4_prefix(data, name, required=required)

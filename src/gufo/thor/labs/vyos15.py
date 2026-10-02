@@ -7,7 +7,6 @@
 
 # Python modules
 from pathlib import Path
-from typing import List, Optional
 
 # Gufo Thor modules
 from ..config import Config, LabConfig, LabNodeConfig
@@ -23,7 +22,7 @@ class VyOS15Lab(BaseLab):
 
     def get_compose_volumes(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate volumes settings."""
         conf_root = self.get_config_dir(lab_config, node_config)
         conf_path = conf_root / "config.boot"
@@ -45,7 +44,7 @@ class VyOS15Lab(BaseLab):
 
     def get_docker_console_args(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
-    ) -> Optional[DockerConsoleArgs]:
+    ) -> DockerConsoleArgs | None:
         """Get effective docker console args."""
         user = node_config.users[0].user if node_config.users else "vyos"
         return DockerConsoleArgs(args=["-u", user], argv=["/bin/vbash"])

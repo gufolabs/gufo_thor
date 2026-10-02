@@ -1,11 +1,8 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Service tests
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
-
-# Python modules
-from typing import List, Optional
 
 # Third-party modules
 import pytest
@@ -80,7 +77,7 @@ def test_depends_sorted(svc: str) -> None:
     ],
     ids=["web", "envoy"],
 )
-def test_resolve(svc: str, expected: List[BaseService]) -> None:
+def test_resolve(svc: str, expected: list[BaseService]) -> None:
     result = BaseService.resolve([svc])
     assert expected == result
 
@@ -310,7 +307,7 @@ services: [web,static]
     ],
 )
 def test_service_image(
-    service: BaseService, conf: Optional[str], expected: str
+    service: BaseService, conf: str | None, expected: str
 ) -> None:
     config = Config.from_yaml(conf) if conf else Config.default()
     img = service.get_compose_image(config, None)
@@ -341,7 +338,7 @@ services: [static, web]
     ],
 )
 def test_service_volumes(
-    service: BaseService, conf: Optional[str], expected: Optional[List[str]]
+    service: BaseService, conf: str | None, expected: list[str] | None
 ) -> None:
     config = Config.from_yaml(conf) if conf else Config.default()
     volumes = service.get_compose_volumes(config, None)

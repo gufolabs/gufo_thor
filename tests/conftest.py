@@ -1,14 +1,14 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Tests configuration
 # ---------------------------------------------------------------------
-# Copyright (C) 2024-25, Gufo Labs
+# Copyright (C) 2024-26, Gufo Labs
 # See LICENSE.md for details
 # ---------------------------------------------------------------------
 
 # Python modules
+from collections.abc import Iterable
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Iterable, Optional, Tuple
 
 # Third-party modules
 import pytest
@@ -16,7 +16,7 @@ import pytest
 # Gufo Thor modules
 from gufo.thor.artefact import Artefact
 
-_artefacts_tmp_dir: Optional[TemporaryDirectory[str]] = None
+_artefacts_tmp_dir: TemporaryDirectory[str] | None = None
 
 
 def pytest_configure(config: pytest.Config):
@@ -34,7 +34,7 @@ def pytest_configure(config: pytest.Config):
         art.write(cfg)
 
 
-def _iter_artefacts() -> Iterable[Tuple[Artefact, str]]:
+def _iter_artefacts() -> Iterable[tuple[Artefact, str]]:
     from gufo.thor.services.envoy import envoy_cert, envoy_key, envoy_settings
     from gufo.thor.services.noc import noc_settings
 

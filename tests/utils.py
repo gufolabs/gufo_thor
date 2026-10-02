@@ -6,9 +6,10 @@
 
 # Python modules
 import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
 from functools import wraps
-from typing import Any, Iterator
+from typing import Any
 
 # Gufo Thor modules
 from gufo.thor.validator import errors
