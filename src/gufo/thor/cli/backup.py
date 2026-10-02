@@ -21,13 +21,7 @@ def backup_group() -> None:
 
 
 @backup_group.command("create", short_help="Create a database backup.")
-@click.option(
-    "--name",
-    help=(
-        "Backup name (letters, digits, dot, underscore, hyphen). "
-        "Defaults to the current timestamp."
-    ),
-)
+@click.argument("name", required=False)
 @click.option("--postgres", is_flag=True, help="Back up PostgreSQL.")
 @click.option("--mongo", is_flag=True, help="Back up MongoDB.")
 @click.option("--clickhouse", is_flag=True, help="Back up ClickHouse.")

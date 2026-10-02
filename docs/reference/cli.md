@@ -17,13 +17,10 @@ Create a backup of PostgreSQL, MongoDB, and ClickHouse:
 gufo-thor backup create
 ```
 
-Use `--name` to choose the backup directory name. Without it, Thor uses the
-current timestamp. Specify one or more of `--postgres`, `--mongo`, and
-`--clickhouse` to back up selected services. If none are specified, all
-supported services are backed up:
+Pass an optional first argument to choose the backup directory name. Without it, Thor uses the current timestamp. Specify one or more of `--postgres`, `--mongo`, and `--clickhouse` to back up selected services. If none are specified, all supported services are backed up:
 
 ```shell
-gufo-thor backup create --name before-upgrade
+gufo-thor backup create before-upgrade
 gufo-thor backup create --postgres
 gufo-thor backup create --mongo --clickhouse
 ```
