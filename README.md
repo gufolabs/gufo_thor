@@ -32,6 +32,7 @@ making the process straightforward.
 - **Multiple backends** — Docker Compose is supported today, with other container backends planned.
 - **Development and evaluation** — quickly create environments for NOC evaluation, development, and network labs.
 - **Custom images** — override NOC service images when needed.
+- **Cross-platform** — runs wherever Docker is available, including Linux and macOS.
 
 ## Prerequisites
 
