@@ -311,11 +311,11 @@ def test_with_started_raises_if_service_cannot_be_started() -> None:
     docker.feed_output("")
     docker.feed_command_result(False)
 
-    with pytest.raises(
-        RuntimeError, match="Failed to start database services"
+    with (
+        pytest.raises(RuntimeError, match="Failed to start database services"),
+        docker.with_started(["postgres"]),
     ):
-        with docker.with_started(["postgres"]):
-            pass
+        pass
 
 
 def test_with_started_raises_if_service_remains_stopped() -> None:
@@ -324,14 +324,20 @@ def test_with_started_raises_if_service_remains_stopped() -> None:
     docker.feed_output("")
     docker.feed_output("")
 
-    with pytest.raises(
-        RuntimeError, match="Database service postgres is not running"
+    with (
+        pytest.raises(
+            RuntimeError, match="Database service postgres is not running"
+        ),
+        docker.with_started(["postgres"]),
     ):
-        with docker.with_started(["postgres"]):
-            pass
+        pass
 
 
 def test_with_started_raises_if_started_service_cannot_be_stopped() -> None:
+    def raise_with_started() -> None:
+        with docker.with_started(["postgres"]):
+            pass
+
     docker = MockDocker()
     docker.feed_output("")
     docker.feed_output("postgres")
@@ -340,20 +346,21 @@ def test_with_started_raises_if_started_service_cannot_be_stopped() -> None:
     docker.feed_command_result(False)
 
     with pytest.raises(RuntimeError, match="Failed to stop database services"):
-        with docker.with_started(["postgres"]):
-            pass
+        raise_with_started()
 
 
 def test_with_started_stops_service_after_body_error() -> None:
+    def raise_with_started() -> None:
+        with docker.with_started(["postgres"]):
+            msg = "backup failed"
+            raise ValueError(msg)
+
     docker = MockDocker()
     docker.feed_output("")
     docker.feed_output("postgres")
     docker.feed_output("postgres")
-
     with pytest.raises(ValueError, match="backup failed"):
-        with docker.with_started(["postgres"]):
-            raise ValueError("backup failed")
-
+        raise_with_started()
     assert docker.exec_cmd[-1] == ("docker", "compose", "stop", "postgres")
 
 
@@ -365,11 +372,13 @@ def test_with_paused_unpauses_containers_when_pausing_fails() -> None:
     docker.feed_command_result(False)
     docker.feed_command_result(True)
 
-    with pytest.raises(
-        RuntimeError, match="Failed to pause container test1-web-2"
+    with (
+        pytest.raises(
+            RuntimeError, match="Failed to pause container test1-web-2"
+        ),
+        docker.with_paused(),
     ):
-        with docker.with_paused():
-            pass
+        pass
 
     assert docker.exec_cmd[-1] == ("docker", "unpause", "test1-web-1")
 
@@ -381,22 +390,28 @@ def test_with_paused_reports_failed_unpauses() -> None:
     for result in (True, True, False, False):
         docker.feed_command_result(result)
 
-    with pytest.raises(
-        RuntimeError,
-        match="Failed to unpause containers: test1-web-1, test1-web-2",
+    with (
+        pytest.raises(
+            RuntimeError,
+            match="Failed to unpause containers: test1-web-1, test1-web-2",
+        ),
+        docker.with_paused(),
     ):
-        with docker.with_paused():
-            pass
+        pass
 
 
 def test_with_paused_unpauses_containers_after_body_error() -> None:
+    def raise_in_pause() -> None:
+        with docker.with_paused():
+            msg = "restore failed"
+            raise ValueError(msg)
+
     docker = MockDocker()
     docker.feed_output(COMPOSE_CONFIG)
     docker.feed_output(DOCKER_PS)
 
     with pytest.raises(ValueError, match="restore failed"):
-        with docker.with_paused():
-            raise ValueError("restore failed")
+        raise_in_pause()
 
     assert docker.exec_cmd[-2:] == [
         ("docker", "unpause", "test1-web-1"),

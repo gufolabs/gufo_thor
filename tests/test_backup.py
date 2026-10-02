@@ -208,9 +208,7 @@ def test_backup_raises_when_dump_is_not_created(
     monkeypatch.setattr(
         backup_module.docker, "with_started", lambda *_: nullcontext()
     )
-    monkeypatch.setattr(
-        backup_module.docker, "with_paused", lambda: nullcontext()
-    )
+    monkeypatch.setattr(backup_module.docker, "with_paused", nullcontext)
 
     with pytest.raises(
         RuntimeError, match="Backup for service postgres did not create a dump"
