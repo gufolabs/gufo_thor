@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+POSTGRES_DB="${POSTGRES_DB:-noc}"
+POSTGRES_USER="${POSTGRES_USER:-noc}"
+POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:-/run/secrets/pg-password}"
+PGPASSWORD="$(cat "$POSTGRES_PASSWORD_FILE")"
+export PGPASSWORD
+pg_restore \
+    --clean \
+    --if-exists \
+    --exit-on-error \
+    --no-owner \
+    --username="$POSTGRES_USER" \
+    --dbname="$POSTGRES_DB" \
+    postgres.dump

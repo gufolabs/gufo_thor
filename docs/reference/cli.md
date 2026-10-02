@@ -9,6 +9,42 @@ To show Gufo Thor version use:
 gufo-thor version
 ```
 
+## Backups
+
+Create a backup of PostgreSQL, MongoDB, and ClickHouse:
+
+```shell
+gufo-thor backup create
+```
+
+Pass an optional first argument to choose the backup directory name. Without it, Thor uses the current timestamp. Specify one or more of `--postgres`, `--mongo`, and `--clickhouse` to back up selected services. If none are specified, all supported services are backed up:
+
+```shell
+gufo-thor backup create before-upgrade
+gufo-thor backup create --postgres
+gufo-thor backup create --mongo --clickhouse
+```
+
+List backups in newest-first order, with their duration and per-database and
+total sizes:
+
+```shell
+gufo-thor backup ls
+```
+
+Remove a named backup and all of its files with `gufo-thor backup rm <name>`:
+
+```shell
+gufo-thor backup rm before-upgrade
+```
+
+Restore all database dumps present in a named backup, or specify one or more of `--postgres`, `--mongo`, and `--clickhouse` to restore selected databases. Thor pauses running application containers during restoration:
+
+```shell
+gufo-thor restore before-upgrade
+gufo-thor restore before-upgrade --postgres
+```
+
 ## Generate Sample Config
 
 To generate sample config use:

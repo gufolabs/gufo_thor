@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+until mongo --quiet --eval 'db.adminCommand("ping")' >/dev/null 2>&1; do
+    sleep 1
+done
+umask 077
+mongodump --archive=mongo.dump --gzip

@@ -83,6 +83,7 @@ The same loader pattern applies to `targets/` and `labs/`. Currently only `compo
 
 ## Documentation
 
+-   Keep each Markdown paragraph on a single physical line; do not wrap prose manually. Line breaks are appropriate for lists, tables, and code blocks.
 -   **Serve docs:** `./scripts/run-dev mkdocs serve`
 -   **Build & deploy:** `./scripts/run-dev mkdocs gh-deploy --strict --force`
 -   **Review:** Use [Grammarly](%5Bhttps://grammarly.com%5D(https://grammarly.com)) for English checks

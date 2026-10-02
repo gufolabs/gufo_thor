@@ -12,6 +12,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 ## [Unreleased]
 
+### Added
+
+* Database backup and restore commands, including `gufo-thor backup rm` for removing backups.
+
 ### Changed
 
 * Split CLI commands into separate modules, use `die()` for errors, and add command man pages.

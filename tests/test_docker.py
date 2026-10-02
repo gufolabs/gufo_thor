@@ -19,9 +19,13 @@ class MockDocker(Docker):
         super().__init__()
         self.exec_cmd: List[Tuple[str, ...]] = []
         self._output: List[str] = []
+        self._command_result: List[bool] = []
 
     def feed_output(self, out: str) -> None:
         self._output.append(out)
+
+    def feed_command_result(self, result: bool) -> None:
+        self._command_result.append(result)
 
     def _log_cmd(self, cmd: List[str]) -> None:
         self.exec_cmd.append(tuple(cmd))
@@ -38,7 +42,7 @@ class MockDocker(Docker):
 
     def _check_call(self, cmd: List[str]) -> bool:
         self._log_cmd(cmd)
-        return True
+        return self._command_result.pop(0) if self._command_result else True
 
 
 def test_die() -> None:
@@ -242,6 +246,176 @@ def test_unpause_label() -> None:
             "label=com.gufolabs.noc.test=1",
         ),
         ("docker", "unpause", "test1-web-1", "test1-web-2"),
+    ]
+
+
+def test_with_started_stops_services_it_started() -> None:
+    docker = MockDocker()
+    docker.feed_output("")
+    docker.feed_output("postgres")
+    docker.feed_output("postgres")
+
+    with docker.with_started(["postgres"]):
+        pass
+
+    running_check = (
+        "docker",
+        "compose",
+        "ps",
+        "--status",
+        "running",
+        "--services",
+        "postgres",
+    )
+    assert docker.exec_cmd == [
+        running_check,
+        ("docker", "compose", "up", "-d", "--no-deps", "postgres"),
+        running_check,
+        running_check,
+        ("docker", "compose", "stop", "postgres"),
+    ]
+
+
+def test_with_paused_unpauses_app_containers() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    docker.feed_output(DOCKER_PS)
+
+    with docker.with_paused():
+        pass
+
+    assert docker.exec_cmd == [
+        ("docker", "compose", "config", "--format=json"),
+        (
+            "docker",
+            "ps",
+            "-a",
+            "--format=json",
+            "--filter",
+            "label=com.docker.compose.project=test1",
+            "--filter",
+            "status=running",
+            "--filter",
+            "label=com.gufolabs.noc.role=app",
+        ),
+        ("docker", "pause", "test1-web-1"),
+        ("docker", "pause", "test1-web-2"),
+        ("docker", "unpause", "test1-web-1"),
+        ("docker", "unpause", "test1-web-2"),
+    ]
+
+
+def test_with_started_raises_if_service_cannot_be_started() -> None:
+    docker = MockDocker()
+    docker.feed_output("")
+    docker.feed_output("")
+    docker.feed_command_result(False)
+
+    with (
+        pytest.raises(RuntimeError, match="Failed to start database services"),
+        docker.with_started(["postgres"]),
+    ):
+        pass
+
+
+def test_with_started_raises_if_service_remains_stopped() -> None:
+    docker = MockDocker()
+    docker.feed_output("")
+    docker.feed_output("")
+    docker.feed_output("")
+
+    with (
+        pytest.raises(
+            RuntimeError, match="Database service postgres is not running"
+        ),
+        docker.with_started(["postgres"]),
+    ):
+        pass
+
+
+def test_with_started_raises_if_started_service_cannot_be_stopped() -> None:
+    def raise_with_started() -> None:
+        with docker.with_started(["postgres"]):
+            pass
+
+    docker = MockDocker()
+    docker.feed_output("")
+    docker.feed_output("postgres")
+    docker.feed_output("postgres")
+    docker.feed_command_result(True)
+    docker.feed_command_result(False)
+
+    with pytest.raises(RuntimeError, match="Failed to stop database services"):
+        raise_with_started()
+
+
+def test_with_started_stops_service_after_body_error() -> None:
+    def raise_with_started() -> None:
+        with docker.with_started(["postgres"]):
+            msg = "backup failed"
+            raise ValueError(msg)
+
+    docker = MockDocker()
+    docker.feed_output("")
+    docker.feed_output("postgres")
+    docker.feed_output("postgres")
+    with pytest.raises(ValueError, match="backup failed"):
+        raise_with_started()
+    assert docker.exec_cmd[-1] == ("docker", "compose", "stop", "postgres")
+
+
+def test_with_paused_unpauses_containers_when_pausing_fails() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    docker.feed_output(DOCKER_PS)
+    docker.feed_command_result(True)
+    docker.feed_command_result(False)
+    docker.feed_command_result(True)
+
+    with (
+        pytest.raises(
+            RuntimeError, match="Failed to pause container test1-web-2"
+        ),
+        docker.with_paused(),
+    ):
+        pass
+
+    assert docker.exec_cmd[-1] == ("docker", "unpause", "test1-web-1")
+
+
+def test_with_paused_reports_failed_unpauses() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    docker.feed_output(DOCKER_PS)
+    for result in (True, True, False, False):
+        docker.feed_command_result(result)
+
+    with (
+        pytest.raises(
+            RuntimeError,
+            match="Failed to unpause containers: test1-web-1, test1-web-2",
+        ),
+        docker.with_paused(),
+    ):
+        pass
+
+
+def test_with_paused_unpauses_containers_after_body_error() -> None:
+    def raise_in_pause() -> None:
+        with docker.with_paused():
+            msg = "restore failed"
+            raise ValueError(msg)
+
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    docker.feed_output(DOCKER_PS)
+
+    with pytest.raises(ValueError, match="restore failed"):
+        raise_in_pause()
+
+    assert docker.exec_cmd[-2:] == [
+        ("docker", "unpause", "test1-web-1"),
+        ("docker", "unpause", "test1-web-2"),
     ]
 
 

@@ -720,6 +720,6 @@ class BaseService(ABC):
 
 
 loader = Loader[BaseService](
-    base="gufo.thor.services", exclude=("base", "noc")
+    base="gufo.thor.services", exclude=("base", "noc", "db")
 )
 _services: Dict[str, BaseService] = {}

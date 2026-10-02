@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: postgres service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 """
 postgres service.
@@ -16,10 +16,11 @@ from typing import List, Optional
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
 from ..secret import postgres_password
-from .base import BaseService, ComposeDependsCondition, Role
+from .base import ComposeDependsCondition
+from .db import DBService
 
 
-class PostgresService(BaseService):
+class PostgresService(DBService):
     """postgres service."""
 
     name = "postgres"
@@ -43,9 +44,10 @@ class PostgresService(BaseService):
         "POSTGRES_PASSWORD_FILE": "/run/secrets/pg-password",
     }
     service_port = 5432
-    role = Role.DB
     compose_secrets = [postgres_password]
     compose_secrets_for_dependencies = [postgres_password]
+    backup_script_template = "postgres_backup.sh.j2"
+    restore_script_template = "postgres_restore.sh.j2"
 
     def get_compose_ports(
         self, config: Config, svc: Optional[ServiceConfig]

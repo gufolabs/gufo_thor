@@ -22,4 +22,3 @@ def prepare(ctx: Context) -> None:
     Args:
         ctx: CLI execution context.
     """
-    pass
