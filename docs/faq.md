@@ -14,7 +14,7 @@ Tower is a comprehensive tool for cluster management. Thor is designed for simpl
 
 Install Thor via 
 
-```
+```shell
 curl https://sh.gufolabs.com/thor | sh
 ```
 
@@ -24,7 +24,7 @@ Complete setup instructions are available in our [Installation guide](installati
 
 Upgrade Thor by running 
 
-```
+```shell
 pip3 install --upgrade gufo-thor
 ```
 
@@ -38,6 +38,22 @@ Typically, a new NOC installation comes up in 1-2 minutes.
 ### Is Thor production-ready?
     
 Currently, Thor only supports the master branch. Official support for Thor will begin with the NOC 26 release.
+
+### What NOC versions does Thor support?
+
+Thor will officially support NOC starting with the upcoming NOC 26 release.
+
+### Can I use Thor with an existing NOC installation?
+
+Thor cannot take over an existing NOC installation. To use Thor with an existing installation, create a new NOC installation with Thor and migrate the databases from the existing installation.
+
+### Where does Thor store its configuration and data?
+
+All configuration required to deploy NOC is stored in `thor.yml`. Generated secrets and other runtime configuration are stored in the `etc` directory.
+
+### Can I run multiple NOC installations with Thor?
+
+Yes. Create a separate directory for each installation and keep its own `thor.yml` configuration there. Each directory represents an independent NOC installation, which can be started and stopped independently.
 
 ## Requirements and Labs
 
@@ -77,6 +93,14 @@ List backups with `gufo-thor backup ls` and remove one with `gufo-thor backup rm
 
 Run `gufo-thor restore <name>` to restore the dumps present in `data/backup/<name>`, or pass `--postgres`, `--mongo`, and/or `--clickhouse` to select databases. For example, `gufo-thor restore before-upgrade --postgres`. Thor pauses running application containers for the restore and resumes them afterward.
 
+### How do I reset my NOC installation?
+
+Run `gufo-thor destroy` to remove the NOC installation and all its data. The next `gufo-thor up` will create a clean installation.
+
+### Will I lose data on update?
+
+No. NOC stores all its data in persistent Docker volumes. Thor only manages the service containers.
+
 ## Architecture and Design
 
 ### Is Thor a Docker version of NOC?
@@ -94,10 +118,6 @@ Helm is Kubernetes-specific and adds unnecessary complexity for single-node or s
 ### Why not just docker-compose.yml?
     
 NOC is highly flexible, with complex inter-service dependencies. Thor guarantees a fully functional deployment environment. Furthermore, Thor generates configuration files compliant with the strictest security standards and best practices.
-
-### Will I lose data on update?
-
-No. NOC stores all its data in persistent Docker volumes. Thor only manages the service containers.
 
 ### Can I use my own Docker images?
 
