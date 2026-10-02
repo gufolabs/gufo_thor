@@ -175,6 +175,49 @@ def test_backup_runs_selected_service(
     assert stat.S_IMODE(restore_script.stat().st_mode) == 0o755
 
 
+def test_backup_rejects_unsupported_service() -> None:
+    with pytest.raises(ValueError, match="Backup is not supported"):
+        backup_module.backup(["unsupported"], name="test-backup")
+
+
+def test_backup_rejects_invalid_name() -> None:
+    with pytest.raises(ValueError, match="Backup name"):
+        backup_module.backup([], name="../outside")
+
+
+def test_run_backup_raises_when_compose_exec_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = FakeDBService("postgres")
+    monkeypatch.setattr(backup_module.docker, "compose_exec", lambda *_: False)
+
+    with pytest.raises(
+        RuntimeError, match="Backup failed for service postgres"
+    ):
+        backup_module._run_backup(service, "test-backup")
+
+
+def test_backup_raises_when_dump_is_not_created(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        backup_module, "loader", {"postgres": FakeDBService("postgres")}
+    )
+    monkeypatch.setattr(backup_module, "_run_backup", lambda *_: None)
+    monkeypatch.setattr(
+        backup_module.docker, "with_started", lambda *_: nullcontext()
+    )
+    monkeypatch.setattr(
+        backup_module.docker, "with_paused", lambda: nullcontext()
+    )
+
+    with pytest.raises(
+        RuntimeError, match="Backup for service postgres did not create a dump"
+    ):
+        backup_module.backup(["postgres"], name="test-backup")
+
+
 def test_restore_defaults_to_dumps_present(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -239,6 +282,63 @@ def test_restore_rejects_missing_selected_dump(
         restore_module.restore("test-backup", ["mongo"])
 
 
+def test_restore_rejects_invalid_name() -> None:
+    with pytest.raises(ValueError, match="Backup name"):
+        restore_module.restore("../outside")
+
+
+def test_restore_rejects_missing_backup(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        restore_module,
+        "loader",
+        {"postgres": FakeDBService("postgres")},
+    )
+
+    with pytest.raises(ValueError, match="Backup missing does not exist"):
+        restore_module.restore("missing", ["postgres"])
+
+
+def test_restore_rejects_unsupported_service() -> None:
+    with pytest.raises(ValueError, match="Restore is not supported"):
+        restore_module.restore("backup", ["unsupported"])
+
+
+def test_restore_rejects_empty_backup(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    Path("data/backup/empty").mkdir(parents=True)
+    monkeypatch.setattr(
+        restore_module,
+        "loader",
+        {
+            "postgres": FakeDBService("postgres"),
+            "mongo": FakeDBService("mongo"),
+            "clickhouse": FakeDBService("clickhouse"),
+        },
+    )
+
+    with pytest.raises(ValueError, match="does not contain database dumps"):
+        restore_module.restore("empty")
+
+
+def test_run_restore_raises_when_compose_exec_fails(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    service = FakeDBService("postgres")
+    monkeypatch.setattr(
+        restore_module.docker, "compose_exec", lambda *_: False
+    )
+
+    with pytest.raises(
+        RuntimeError, match="Restore failed for service postgres"
+    ):
+        restore_module._run_restore(service, "test-backup", tmp_path)
+
+
 def test_remove_backup_removes_only_named_backup(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -255,3 +355,12 @@ def test_remove_backup_removes_only_named_backup(
     assert outside_path.is_dir()
     with pytest.raises(ValueError, match="Backup name"):
         remove_backup("../outside")
+
+
+def test_remove_backup_rejects_missing_directory(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(ValueError, match="Backup absent does not exist"):
+        remove_backup("absent")
