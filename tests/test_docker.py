@@ -245,6 +245,62 @@ def test_unpause_label() -> None:
     ]
 
 
+def test_with_started_stops_services_it_started() -> None:
+    docker = MockDocker()
+    docker.feed_output("")
+    docker.feed_output("postgres")
+    docker.feed_output("postgres")
+
+    with docker.with_started(["postgres"]):
+        pass
+
+    running_check = (
+        "docker",
+        "compose",
+        "ps",
+        "--status",
+        "running",
+        "--services",
+        "postgres",
+    )
+    assert docker.exec_cmd == [
+        running_check,
+        ("docker", "compose", "up", "-d", "--no-deps", "postgres"),
+        running_check,
+        running_check,
+        ("docker", "compose", "stop", "postgres"),
+    ]
+
+
+def test_with_paused_unpauses_app_containers() -> None:
+    docker = MockDocker()
+    docker.feed_output(COMPOSE_CONFIG)
+    docker.feed_output(DOCKER_PS)
+
+    with docker.with_paused():
+        pass
+
+    assert docker.exec_cmd == [
+        ("docker", "compose", "config", "--format=json"),
+        (
+            "docker",
+            "ps",
+            "-a",
+            "--format=json",
+            "--filter",
+            "label=com.docker.compose.project=test1",
+            "--filter",
+            "status=running",
+            "--filter",
+            "label=com.gufolabs.noc.role=app",
+        ),
+        ("docker", "pause", "test1-web-1"),
+        ("docker", "pause", "test1-web-2"),
+        ("docker", "unpause", "test1-web-1"),
+        ("docker", "unpause", "test1-web-2"),
+    ]
+
+
 @pytest.mark.parametrize(
     ("args", "follow", "expected"),
     [
