@@ -14,6 +14,17 @@ It's tailored for new NOC users who want to assess NOC's capabilities and NOC de
 who need a fast development environment. Thor takes care of the complexity of NOC management, 
 making the process straightforward.
 
+## Features
+
+- **Simple deployment** — quickly deploy a complete NOC installation from a single YAML configuration file.
+- **Service management** — start, stop, and manage NOC services and their dependencies.
+- **Database backup and restore** — back up and restore PostgreSQL, MongoDB, and ClickHouse data.
+- **Flexible configuration** — use predefined configurations or customize `thor.yml` to fit your installation.
+- **Multiple backends** — Docker Compose is supported today, with other container backends planned.
+- **Development and evaluation** — quickly create environments for NOC evaluation, development, and network labs.
+- **Custom images** — override NOC service images when needed.
+- **Cross-platform** — runs wherever Docker is available, including Linux and macOS.
+
 ## Prerequisites
 
 To use Thor, make sure you have the following software packages installed:

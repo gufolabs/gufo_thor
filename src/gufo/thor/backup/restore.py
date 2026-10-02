@@ -34,7 +34,9 @@ def _get_backup_mount_path(service: DBService) -> str:
     raise ValueError(msg)
 
 
-def _run_restore(service: DBService, backup_name: str, backup_path: Path) -> None:
+def _run_restore(
+    service: DBService, backup_name: str, backup_path: Path
+) -> None:
     """Run one database restore script inside its Compose service.
 
     Args:

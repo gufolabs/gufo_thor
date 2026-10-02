@@ -51,3 +51,12 @@ def pytest_unconfigure(config: pytest.Config):
     if _artefacts_tmp_dir:
         _artefacts_tmp_dir.cleanup()
         _artefacts_tmp_dir = None
+
+
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_thor_config():
+    path = Path("thor.yml")
+    existed = path.exists()
+    yield
+    if not existed and path.exists():
+        path.unlink()

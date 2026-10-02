@@ -7,6 +7,7 @@
 # Python modules
 import datetime
 import os
+import stat
 from contextlib import nullcontext
 from pathlib import Path
 from typing import ContextManager
@@ -19,7 +20,10 @@ import gufo.thor.backup.backup as backup_module
 import gufo.thor.backup.restore as restore_module
 from gufo.thor.backup.info import BackupInfo
 from gufo.thor.backup.rm import remove_backup
+from gufo.thor.services.clickhouse import ClickhouseService
 from gufo.thor.services.db import DBService
+from gufo.thor.services.mongo import MongoService
+from gufo.thor.services.postgres import PostgresService
 
 
 class FakeDBService(DBService):
@@ -84,7 +88,8 @@ def test_backup_info_from_dir(tmp_path: Path) -> None:
     assert info.postgres_size == expected_sizes["postgres.dump"]
     assert info.mongo_size == expected_sizes["mongo.dump"]
     assert info.clickhouse_size == expected_sizes["clickhouse.zip"]
-    assert info.duration == datetime.timedelta(seconds=30)
+    assert info.duration is not None
+    assert info.duration.total_seconds() == pytest.approx(30, abs=1e-3)
 
 
 def test_backup_info_from_empty_dir(tmp_path: Path) -> None:
@@ -98,6 +103,32 @@ def test_backup_info_from_empty_dir(tmp_path: Path) -> None:
     assert info.mongo_size is None
     assert info.clickhouse_size is None
     assert info.duration is None
+
+
+@pytest.mark.parametrize(
+    ("service_class", "backup_command", "restore_command"),
+    [
+        (PostgresService, "pg_dump", "pg_restore"),
+        (MongoService, "mongodump", "mongorestore"),
+        (ClickhouseService, "BACKUP ALL", "RESTORE ALL"),
+    ],
+)
+def test_write_scripts_renders_service_templates(
+    tmp_path: Path,
+    service_class: type[DBService],
+    backup_command: str,
+    restore_command: str,
+) -> None:
+    service = service_class()
+
+    backup_module._write_scripts(service, tmp_path)
+
+    backup_script = tmp_path / service.get_backup_script_name()
+    restore_script = tmp_path / service.get_restore_script_name()
+    assert backup_command in backup_script.read_text()
+    assert restore_command in restore_script.read_text()
+    assert stat.S_IMODE(backup_script.stat().st_mode) == 0o755
+    assert stat.S_IMODE(restore_script.stat().st_mode) == 0o755
 
 
 def test_backup_runs_selected_service(
@@ -132,12 +163,16 @@ def test_backup_runs_selected_service(
     assert info.postgres_size == 4
     assert started == [["postgres"]]
     assert paused == [True]
-    assert (
+    backup_script = (
         Path("data/backup/test-backup") / postgres.get_backup_script_name()
-    ).is_file()
-    assert (
+    )
+    restore_script = (
         Path("data/backup/test-backup") / postgres.get_restore_script_name()
-    ).is_file()
+    )
+    assert backup_script.read_text() == "#!/bin/sh\n"
+    assert restore_script.read_text() == "#!/bin/sh\n"
+    assert stat.S_IMODE(backup_script.stat().st_mode) == 0o755
+    assert stat.S_IMODE(restore_script.stat().st_mode) == 0o755
 
 
 def test_restore_defaults_to_dumps_present(
