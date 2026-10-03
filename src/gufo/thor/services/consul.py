@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: consul service
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 """
 consul service.
@@ -11,9 +11,11 @@ Attributes:
 """
 
 # Python modules
+from __future__ import annotations
+
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from gufo.thor.config import Config, ServiceConfig
 
@@ -46,11 +48,11 @@ class ConsulService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.discovered_services: List[Artefact] = []
+        self.discovered_services: list[Artefact] = []
 
     def get_compose_configs(
-        self, config: Config, svc: Optional["ServiceConfig"]
-    ) -> Optional[List[Artefact]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> list[Artefact] | None:
         """Add configs for discovered services."""
         r = super().get_compose_configs(config, svc) or []
         r += self.discovered_services
@@ -64,7 +66,7 @@ class ConsulService(BaseService):
             name: Service name.
             port: Service port.
         """
-        cfg: Dict[str, Any] = {
+        cfg: dict[str, Any] = {
             "service": {
                 "name": name,
                 "address": name,

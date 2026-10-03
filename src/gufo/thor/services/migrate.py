@@ -11,7 +11,6 @@ Attributes:
 """
 
 # Python modules
-from typing import Dict, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
@@ -42,8 +41,8 @@ class MigrateService(NocService):
     role = Role.UTILS
 
     def get_compose_command(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[str]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> str | None:
         """
         Get compose command.
 
@@ -54,8 +53,8 @@ class MigrateService(NocService):
         return "/bin/true"
 
     def get_compose_environment(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, str]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> dict[str, str] | None:
         """
         Environment settings for container.
 

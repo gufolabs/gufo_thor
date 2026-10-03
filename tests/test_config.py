@@ -1,13 +1,13 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Config tests
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-25, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 
 # Python modules
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 
 # Third-party modules
 import pytest
@@ -108,7 +108,7 @@ def test_empty_config() -> None:
 )
 @isolated_errors
 def test_listen_from_dict(
-    x: Union[int, str, Dict[str, Any]], expected: str
+    x: int | str | dict[str, Any], expected: str
 ) -> None:
     listener = Listen.from_dict(x)
     assert str(listener) == expected
@@ -402,7 +402,7 @@ def test_lab_link_config() -> None:
 @pytest.mark.parametrize("x", ["prefix", "node-a", "node-z"])
 @isolated_errors
 def test_lab_link_config_missed(x: str) -> None:
-    cfg: Dict[str, Any] = {
+    cfg: dict[str, Any] = {
         "prefix": "10.0.0.0/30",
         "node-a": "r1",
         "node-z": "r2",

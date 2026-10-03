@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Various utilities
 # ---------------------------------------------------------------------
-# Copyright (C) 2023-24, Gufo Labs
+# Copyright (C) 2023-26, Gufo Labs
 # ---------------------------------------------------------------------
 """Various utilities."""
 
@@ -11,14 +11,14 @@ import os
 import shutil
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 # Gufo Thor modules
 from .log import logger
 
 
 def write_file(
-    path: Path, content: Union[str, bytes], backup_path: Optional[Path] = None
+    path: Path, content: str | bytes, backup_path: Path | None = None
 ) -> bool:
     """
     Write data to file.
@@ -63,7 +63,7 @@ def ensure_directory(path: Path) -> None:
     os.makedirs(path)
 
 
-def merge_dict(x: Dict[str, Any], y: Dict[str, Any]) -> Dict[str, Any]:
+def merge_dict(x: dict[str, Any], y: dict[str, Any]) -> dict[str, Any]:
     """
     Deep merge dictionaries.
 
@@ -77,7 +77,7 @@ def merge_dict(x: Dict[str, Any], y: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Merged dictionary.
     """
-    r: Dict[str, Any] = {}
+    r: dict[str, Any] = {}
     xk = set(x)
     yk = set(y)
     # Append keys which are only in first dictionary

@@ -11,7 +11,6 @@ Attributes:
 """
 
 # Gufo Thor modules
-from typing import Optional
 
 from gufo.thor.config import Config, ServiceConfig
 
@@ -30,8 +29,8 @@ class ShellService(NocService):
     compose_extra = {"scale": 0}
 
     def get_compose_command(
-        self: NocService, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[str]:
+        self: NocService, config: Config, svc: ServiceConfig | None
+    ) -> str | None:
         """Override to bash."""
         return "/bin/bash"
 

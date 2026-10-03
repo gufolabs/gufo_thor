@@ -1,12 +1,12 @@
 # ---------------------------------------------------------------------
 # Gufo Thor: Secrets check
 # ---------------------------------------------------------------------
-# Copyright (C) 2022-25, Gufo Labs
+# Copyright (C) 2022-26, Gufo Labs
 # See LICENSE.md for details
 # ---------------------------------------------------------------------
 
 # Python modules
-from typing import Any, Dict, Optional, Set
+from typing import Any
 
 # Third-party modules
 import pytest
@@ -37,7 +37,7 @@ def test_set_secret() -> None:
 
 def test_generate_secret() -> None:
     with Secret(TEST_NAME) as secret:
-        seen: Set[str] = set()
+        seen: set[str] = set()
         for _ in range(10):
             s = secret.generate()
             assert len(s) == DEFAULT_SECRET_LEN
@@ -70,7 +70,7 @@ def test_iter_secrets() -> None:
     ],
 )
 def test_check_config(
-    config_path: Optional[str], data: Dict[str, Any], has_errors: bool
+    config_path: str | None, data: dict[str, Any], has_errors: bool
 ) -> None:
     with (
         Secret(TEST_NAME, config_path=config_path) as secret,

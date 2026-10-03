@@ -9,21 +9,15 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
 from typing import (
     Any,
-    DefaultDict,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
     Literal,
-    Optional,
     TypedDict,
-    Union,
     cast,
 )
 
@@ -45,7 +39,7 @@ DEFAULT_HTTPS_PORT = 443
 
 
 @dataclass
-class NocConfig(object):
+class NocConfig:
     """
     The `noc` section of the config.
 
@@ -66,17 +60,17 @@ class NocConfig(object):
     """
 
     tag: str = "master"
-    path: Optional[str] = None
-    ui_path: Optional[str] = None
-    custom: Optional[str] = None
+    path: str | None = None
+    ui_path: str | None = None
+    custom: str | None = None
     installation_name: str = "Unconfigured Installation"
     theme: Literal["noc", "gray"] = "noc"
     language: Literal["en", "ru"] = "en"
     migrate: bool = True
-    config: Optional[Dict[str, Any]] = None
+    config: dict[str, Any] | None = None
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> NocConfig:
+    def from_dict(data: dict[str, Any]) -> NocConfig:
         """
         Generate NocConfig instance from a dictionary.
 
@@ -106,7 +100,7 @@ class NocConfig(object):
 
 
 @dataclass
-class Listen(object):
+class Listen:
     """
     Listener configuration.
 
@@ -134,7 +128,7 @@ class Listen(object):
         return f"{self.address}:{self.port}"
 
     @staticmethod
-    def from_dict(data: Union[dict[str, Any], int, str]) -> Listen:
+    def from_dict(data: dict[str, Any] | int | str) -> Listen:
         """
         Generate listener from data.
 
@@ -177,7 +171,7 @@ class Listen(object):
 
 
 @dataclass
-class ExposeConfig(object):
+class ExposeConfig:
     """
     The `expose` section of the config.
 
@@ -192,14 +186,14 @@ class ExposeConfig(object):
     """
 
     domain_name: str = DEFAULT_DOMAIN
-    web: Optional[Listen] = None
-    mongo: Optional[Listen] = None
-    postgres: Optional[Listen] = None
+    web: Listen | None = None
+    mongo: Listen | None = None
+    postgres: Listen | None = None
     open_browser: bool = True
-    mtls_ca_cert: Optional[str] = None
+    mtls_ca_cert: str | None = None
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> ExposeConfig:
+    def from_dict(data: dict[str, Any]) -> ExposeConfig:
         """
         Generate ExposeConfig instance from a dictionary.
 
@@ -263,7 +257,7 @@ class ExposeConfig(object):
 
 
 @dataclass
-class PoolAddressConfig(object):
+class PoolAddressConfig:
     """
     Pool addresses configuration.
 
@@ -273,12 +267,12 @@ class PoolAddressConfig(object):
         trap: SNMP trap address.
     """
 
-    gw: Optional[IPv4Address] = None
-    syslog: Optional[IPv4Address] = None
-    trap: Optional[IPv4Address] = None
+    gw: IPv4Address | None = None
+    syslog: IPv4Address | None = None
+    trap: IPv4Address | None = None
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> PoolAddressConfig:
+    def from_dict(data: dict[str, Any]) -> PoolAddressConfig:
         """Get addresses config from dict."""
         with errors.context("address"):
             r = PoolAddressConfig(
@@ -287,7 +281,7 @@ class PoolAddressConfig(object):
                 trap=as_ipv4(data, "trap", required=False),
             )
             # Check for overlaps
-            used: DefaultDict[str, List[str]] = defaultdict(list)
+            used: defaultdict[str, list[str]] = defaultdict(list)
             if r.gw:
                 used[str(r.gw)].append("gw")
             if r.syslog:
@@ -315,7 +309,7 @@ class PoolAddressConfig(object):
 
 
 @dataclass
-class PoolConfig(object):
+class PoolConfig:
     """
     The `pools` section of config.
 
@@ -329,7 +323,7 @@ class PoolConfig(object):
     address: PoolAddressConfig
 
     @staticmethod
-    def from_dict(name: str, data: Dict[str, Any]) -> PoolConfig:
+    def from_dict(name: str, data: dict[str, Any]) -> PoolConfig:
         """
         Generate PoolConfig instance from a dictionary.
 
@@ -348,7 +342,7 @@ class PoolConfig(object):
 
 
 @dataclass
-class ServiceConfig(object):
+class ServiceConfig:
     """
     The `services` section of the config.
 
@@ -357,11 +351,11 @@ class ServiceConfig(object):
         scale: Number of concurrently running servers. 0 - disable.
     """
 
-    tag: Optional[str] = None
+    tag: str | None = None
     scale: int = 1
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> ServiceConfig:
+    def from_dict(data: dict[str, Any]) -> ServiceConfig:
         """
         Generate ServiceConfig instance from a dictionary.
 
@@ -380,7 +374,7 @@ class ServiceConfig(object):
 
 
 @dataclass
-class CliConfig(object):
+class CliConfig:
     """
     Config populated during runtime.
 
@@ -390,7 +384,7 @@ class CliConfig(object):
 
 
 @dataclass
-class LabNodeUserCredentials(object):
+class LabNodeUserCredentials:
     """
     User credentials.
 
@@ -403,7 +397,7 @@ class LabNodeUserCredentials(object):
     password: str
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> LabNodeUserCredentials:
+    def from_dict(data: dict[str, Any]) -> LabNodeUserCredentials:
         """Get user credentials from dict."""
         return LabNodeUserCredentials(
             user=as_str(data, "user", required=True),
@@ -423,19 +417,19 @@ LabNodeSnmpCredentials = LabNodeSnmpV2cCredentials
 
 
 @dataclass
-class LabNodeConfig(object):
+class LabNodeConfig:
     """The `labs.nodes` section of config."""
 
     name: str
     type: str
-    version: Optional[str] = None
-    router_id: Optional[IPv4Address] = None
+    version: str | None = None
+    router_id: IPv4Address | None = None
     pool_gw: bool = False
-    users: Optional[List[LabNodeUserCredentials]] = None
-    snmp: Optional[List[LabNodeSnmpCredentials]] = None
+    users: list[LabNodeUserCredentials] | None = None
+    snmp: list[LabNodeSnmpCredentials] | None = None
 
     @staticmethod
-    def from_dict(name: str, data: Dict[str, Optional[str]]) -> LabNodeConfig:
+    def from_dict(name: str, data: dict[str, str | None]) -> LabNodeConfig:
         """
         Generate LabNodeConfig from dict.
 
@@ -447,7 +441,7 @@ class LabNodeConfig(object):
             LabNodeConfig instance.
         """
         users_cfg = data.get("users")
-        users: List[LabNodeUserCredentials] = []
+        users: list[LabNodeUserCredentials] = []
         if users_cfg:
             with errors.context("users"):
                 if isinstance(users_cfg, list):
@@ -457,7 +451,7 @@ class LabNodeConfig(object):
                 else:
                     errors.error("must be list")
         # Snmp
-        snmp: List[LabNodeSnmpCredentials] = []
+        snmp: list[LabNodeSnmpCredentials] = []
         snmp_cfg = data.get("snmp")
         if snmp_cfg:
             with errors.context("snmp"):
@@ -492,13 +486,13 @@ class LabNodeConfig(object):
 
 
 @dataclass
-class IsisLinkProtocolConfig(object):
+class IsisLinkProtocolConfig:
     """ISIS protocol configuration for link."""
 
-    metric: Optional[int] = None
+    metric: int | None = None
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> IsisLinkProtocolConfig:
+    def from_dict(data: dict[str, Any]) -> IsisLinkProtocolConfig:
         """
         Generate IsisLinkProtocolConfig from dict.
 
@@ -520,7 +514,7 @@ class LinkProtocolConfig(TypedDict, total=False):
 
 
 @dataclass
-class LabLinkConfig(object):
+class LabLinkConfig:
     """Link item."""
 
     prefix: IPv4Prefix
@@ -529,7 +523,7 @@ class LabLinkConfig(object):
     protocols: LinkProtocolConfig
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> LabLinkConfig:
+    def from_dict(data: dict[str, Any]) -> LabLinkConfig:
         """Create link item from config."""
         # Build protocols
         protocols: LinkProtocolConfig = {}
@@ -550,7 +544,7 @@ class LabLinkConfig(object):
 
 
 @dataclass
-class LabConfig(object):
+class LabConfig:
     """
     The `labs` section of the config.
 
@@ -562,12 +556,12 @@ class LabConfig(object):
     """
 
     name: str
-    nodes: Dict[str, LabNodeConfig]
-    links: List[LabLinkConfig]
-    pool: Optional[str] = None
+    nodes: dict[str, LabNodeConfig]
+    links: list[LabLinkConfig]
+    pool: str | None = None
 
     @staticmethod
-    def from_dict(name: str, data: Dict[str, Any]) -> LabConfig:
+    def from_dict(name: str, data: dict[str, Any]) -> LabConfig:
         """
         Generate LabConfig instance from a dictionary.
 
@@ -581,7 +575,7 @@ class LabConfig(object):
         pool = as_str(data, "pool", required=False)
         with errors.context(name):
             # Process nodes
-            nodes: Dict[str, LabNodeConfig] = {}
+            nodes: dict[str, LabNodeConfig] = {}
             with errors.context("nodes"):
                 for x, y in data.get("nodes", {}).items():
                     node_name = str(x)
@@ -606,7 +600,7 @@ class LabConfig(object):
                                     f"multiple pool-gw set ({p_gw_list})"
                                 )
             # Process links
-            links: List[LabLinkConfig] = []
+            links: list[LabLinkConfig] = []
             with errors.context("links"):
                 for n_link, x in enumerate(data.get("links", [])):
                     with errors.context(str(n_link)):
@@ -622,7 +616,7 @@ class LabConfig(object):
         """Check config."""
         # Check router-id for uniqueness
         # collect
-        seen: DefaultDict[str, List[str]] = defaultdict(list)
+        seen: defaultdict[str, list[str]] = defaultdict(list)
         for node_name, node in self.nodes.items():
             if node.router_id:
                 seen[str(node.router_id)].append(node_name)
@@ -639,7 +633,7 @@ class LabConfig(object):
 
 
 @dataclass
-class Config(object):
+class Config:
     """
     The Gufo Thor config.
 
@@ -654,13 +648,13 @@ class Config(object):
         labs: The `labs` section of the config.
     """
 
-    project: Optional[str]
+    project: str | None
     noc: NocConfig
     expose: ExposeConfig
-    pools: Dict[str, PoolConfig]
-    services: Dict[str, ServiceConfig]
+    pools: dict[str, PoolConfig]
+    services: dict[str, ServiceConfig]
     cli: CliConfig
-    labs: Dict[str, LabConfig]
+    labs: dict[str, LabConfig]
 
     @property
     def local_backup_path(self) -> Path:
@@ -684,7 +678,7 @@ class Config(object):
         return "".join(parts)
 
     @staticmethod
-    def from_file(path: Union[Path, str]) -> Config:
+    def from_file(path: Path | str) -> Config:
         """
         Read file and return instance of the Config.
 
@@ -703,14 +697,14 @@ class Config(object):
             errors.die(f"Cannot read file {path}: {e}")
 
     @staticmethod
-    def _parse_yaml(data: str) -> Dict[str, Any]:
+    def _parse_yaml(data: str) -> dict[str, Any]:
         cfg = yaml.safe_load(data)
         if not isinstance(cfg, dict):
             errors.die("Config must be dict")
-        return cast(Dict[str, Any], cfg)
+        return cast(dict[str, Any], cfg)
 
     @staticmethod
-    def _parse_noc(data: Dict[str, Any]) -> NocConfig:
+    def _parse_noc(data: dict[str, Any]) -> NocConfig:
         with errors.context("noc"):
             cfg = data.get("noc")
             if cfg is None:
@@ -718,7 +712,7 @@ class Config(object):
             return NocConfig.from_dict(cfg)
 
     @staticmethod
-    def _parse_expose(data: Dict[str, Any]) -> ExposeConfig:
+    def _parse_expose(data: dict[str, Any]) -> ExposeConfig:
         with errors.context("expose"):
             cfg = data.get("expose")
             if cfg is None:
@@ -726,7 +720,7 @@ class Config(object):
             return ExposeConfig.from_dict(cfg)
 
     @staticmethod
-    def _parse_pools(data: Dict[str, Any]) -> Dict[str, PoolConfig]:
+    def _parse_pools(data: dict[str, Any]) -> dict[str, PoolConfig]:
         with errors.context("pools"):
             cfg = data.get("pools")
             if not cfg:
@@ -742,13 +736,13 @@ class Config(object):
             return r
 
     @staticmethod
-    def _parse_services(data: Dict[str, Any]) -> Dict[str, ServiceConfig]:
+    def _parse_services(data: dict[str, Any]) -> dict[str, ServiceConfig]:
         with errors.context("services"):
             cfg = data.get("services")
             if not cfg:
                 errors.error("must be set")
                 return {}
-            services: Dict[str, ServiceConfig]
+            services: dict[str, ServiceConfig]
             if isinstance(cfg, list):
                 services = {x: ServiceConfig.default() for x in cfg}
             elif isinstance(cfg, dict):
@@ -761,7 +755,7 @@ class Config(object):
             return services
 
     @staticmethod
-    def _parse_labs(data: Dict[str, Any]) -> Dict[str, LabConfig]:
+    def _parse_labs(data: dict[str, Any]) -> dict[str, LabConfig]:
         with errors.context("labs"):
             cfg = data.get("labs")
             if not cfg:
@@ -769,7 +763,7 @@ class Config(object):
             if not isinstance(cfg, dict):
                 errors.error("must be dict")
                 return {}
-            labs: Dict[str, LabConfig] = {}
+            labs: dict[str, LabConfig] = {}
             for x, y in cfg.items():
                 lab_name = str(x)
                 lab = LabConfig.from_dict(lab_name, y)

@@ -8,7 +8,7 @@
 import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Dict
+from typing import Any
 
 # Third party modules
 import pytest
@@ -94,7 +94,7 @@ def test_write_file_backup() -> None:
     ],
 )
 def test_merge_dict(
-    x: Dict[str, Any], y: Dict[str, Any], expected: Dict[str, Any]
+    x: dict[str, Any], y: dict[str, Any], expected: dict[str, Any]
 ) -> None:
     r = merge_dict(x, y)
     assert r == expected

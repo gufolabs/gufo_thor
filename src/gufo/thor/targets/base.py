@@ -12,7 +12,6 @@ Attributes:
 
 # Python modules
 from abc import ABC
-from typing import Type
 
 # Gufo Labs modules
 from gufo.loader import Loader
@@ -43,4 +42,4 @@ class BaseTarget(ABC):
         self.services = list(BaseService.resolve(config.services))
 
 
-loader = Loader[Type[BaseTarget]](base="gufo.thor.targets", exclude=("base",))
+loader = Loader[type[BaseTarget]](base="gufo.thor.targets", exclude=("base",))

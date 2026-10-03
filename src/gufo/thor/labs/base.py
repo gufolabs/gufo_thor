@@ -14,7 +14,7 @@ Attributes:
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Type, TypedDict, Union
+from typing import Any, TypedDict
 
 # Third-party modules
 import jinja2
@@ -32,7 +32,7 @@ from ..utils import write_file
 
 
 @dataclass
-class EthIfaceSettings(object):
+class EthIfaceSettings:
     """
     Ethernet interface settings.
 
@@ -48,7 +48,7 @@ class EthIfaceSettings(object):
     address: str
     description: str
     is_isis: bool = False
-    isis_metric: Optional[int] = None
+    isis_metric: int | None = None
 
 
 class ConfigCtx(TypedDict):
@@ -70,15 +70,15 @@ class ConfigCtx(TypedDict):
     has_protocols: bool
     has_isis: bool
     isis_net: str
-    eth_interfaces: List[EthIfaceSettings]
+    eth_interfaces: list[EthIfaceSettings]
     has_users: bool
-    users: List[LabNodeUserCredentials]
+    users: list[LabNodeUserCredentials]
     has_snmp: bool
-    snmp: List[LabNodeSnmpCredentials]
+    snmp: list[LabNodeSnmpCredentials]
 
 
 @dataclass
-class DockerConsoleArgs(object):
+class DockerConsoleArgs:
     """
     Console invocation arguments.
 
@@ -91,23 +91,23 @@ class DockerConsoleArgs(object):
         argv: Optional commands to run inside container.
     """
 
-    args: Optional[List[str]] = None
-    argv: Optional[List[str]] = None
+    args: list[str] | None = None
+    argv: list[str] | None = None
 
 
-class BaseLab(object):
+class BaseLab:
     """Router for lab."""
 
     name: str
     image: str
     default_version: str
-    docker_console_args: Optional[DockerConsoleArgs] = None
+    docker_console_args: DockerConsoleArgs | None = None
 
     def get_compose_config(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate service config for docker compose."""
-        r: Dict[str, Any] = {
+        r: dict[str, Any] = {
             "image": self.get_compose_image(config, lab_config, node_config),
             "restart": "no",
             "privileged": True,
@@ -133,9 +133,9 @@ class BaseLab(object):
 
     def get_compose_networks(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
-    ) -> Dict[str, Dict[str, Any]]:
+    ) -> dict[str, dict[str, Any]]:
         """Get volumes settings."""
-        r: Dict[str, Dict[str, Any]] = {}
+        r: dict[str, dict[str, Any]] = {}
         for n, link in enumerate(lab_config.links):
             if node_config.name in {link.node_a, link.node_z}:
                 delta = 1 if link.node_a == node_config.name else 2
@@ -154,7 +154,7 @@ class BaseLab(object):
 
     def get_compose_volumes(
         self, config: Config, lab_config: LabConfig, node_config: LabNodeConfig
-    ) -> List[str]:
+    ) -> list[str]:
         """Get service network settings."""
         return []
 
@@ -171,10 +171,10 @@ class BaseLab(object):
 
     @classmethod
     def render_file(
-        cls: Type["BaseLab"],
+        cls: type["BaseLab"],
         path: Path,
         tpl: str,
-        **kwargs: Union[str, int, List[Any]],
+        **kwargs: str | int | list[Any],
     ) -> None:
         """
         Apply a context to the template and write to file.
@@ -238,13 +238,13 @@ class BaseLab(object):
             if node_config.name in {link.node_a, link.node_z}
         ]
         # Get interfaces
-        eth_interfaces: List[EthIfaceSettings] = []
+        eth_interfaces: list[EthIfaceSettings] = []
         for link in my_links:
             n_eth = len(eth_interfaces)
             delta = 1 if link.node_a == node_config.name else 2
             addr = (link.prefix.network + delta).to_prefix(link.prefix.mask)
             is_isis = "isis" in link.protocols
-            isis_metric: Optional[int] = (
+            isis_metric: int | None = (
                 link.protocols["isis"].metric if is_isis else None
             )
             other_peer = (
@@ -276,7 +276,7 @@ class BaseLab(object):
                 )
             )
         # Get all protocols
-        protocols: Set[str] = set()
+        protocols: set[str] = set()
         for link in my_links:
             for proto in link.protocols:
                 protocols.add(proto)
@@ -304,9 +304,9 @@ class BaseLab(object):
         config: Config,
         lab_config: LabConfig,
         node_config: LabNodeConfig,
-    ) -> Optional[DockerConsoleArgs]:
+    ) -> DockerConsoleArgs | None:
         """Get effective docker console args."""
         return self.docker_console_args
 
 
-loader = Loader[Type[BaseLab]](base="gufo.thor.labs", exclude=("base"))
+loader = Loader[type[BaseLab]](base="gufo.thor.labs", exclude=("base"))

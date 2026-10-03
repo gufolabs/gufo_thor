@@ -7,19 +7,10 @@
 
 # Python modules
 import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Dict,
-    Iterator,
-    List,
-    Literal,
-    NoReturn,
-    Optional,
-    Union,
-    overload,
-)
+from typing import Any, Literal, NoReturn, overload
 
 # Gufo Thor modules
 from .ip import IPv4Address, IPv4Prefix
@@ -27,11 +18,11 @@ from .utils import is_test
 
 
 @dataclass
-class ErrorPoint(object):
+class ErrorPoint:
     """Error position."""
 
     message: str
-    path: Optional[List[str]] = None
+    path: list[str] | None = None
 
     def __str__(self) -> str:
         """str() implementation."""
@@ -40,7 +31,7 @@ class ErrorPoint(object):
         return self.message
 
 
-class ErrorContext(object):
+class ErrorContext:
     """
     Error reporting context.
 
@@ -57,8 +48,8 @@ class ErrorContext(object):
     """
 
     def __init__(self) -> None:
-        self._errors: List[ErrorPoint] = []
-        self._paths: List[List[str]] = []
+        self._errors: list[ErrorPoint] = []
+        self._paths: list[list[str]] = []
 
     def copy(self) -> "ErrorContext":
         """Create copy of ErrorContext."""
@@ -91,7 +82,7 @@ class ErrorContext(object):
         if self.has_errors():
             self.die()
 
-    def error(self, message: str, /, path: Optional[List[str]] = None) -> None:
+    def error(self, message: str, /, path: list[str] | None = None) -> None:
         """
         Register error.
 
@@ -107,7 +98,7 @@ class ErrorContext(object):
         self._errors.append(ErrorPoint(message=message, path=path))
 
     @contextmanager
-    def context(self, path: Union[str, List[str]]) -> Iterator[None]:
+    def context(self, path: str | list[str]) -> Iterator[None]:
         """
         Set current context.
 
@@ -136,7 +127,7 @@ class ErrorContext(object):
         yield
         self._paths.pop(-1)
 
-    def die(self, msg: Optional[str] = None) -> NoReturn:
+    def die(self, msg: str | None = None) -> NoReturn:
         """
         Dump errors and stop execution.
 
@@ -159,19 +150,19 @@ errors = ErrorContext()
 
 @overload
 def as_str(
-    data: Dict[str, Any], name: str, /, required: Literal[True]
+    data: dict[str, Any], name: str, /, required: Literal[True]
 ) -> str: ...
 
 
 @overload
 def as_str(
-    data: Dict[str, Any], name: str, /, required: Literal[False]
-) -> Optional[str]: ...
+    data: dict[str, Any], name: str, /, required: Literal[False]
+) -> str | None: ...
 
 
 def as_str(
-    data: Dict[str, Any], name: str, /, required: bool = True
-) -> Optional[str]:
+    data: dict[str, Any], name: str, /, required: bool = True
+) -> str | None:
     """
     Extract string from dict.
 
@@ -192,19 +183,19 @@ def as_str(
 
 @overload
 def as_int(
-    data: Dict[str, Any], name: str, /, required: Literal[True]
+    data: dict[str, Any], name: str, /, required: Literal[True]
 ) -> int: ...
 
 
 @overload
 def as_int(
-    data: Dict[str, Any], name: str, /, required: Literal[False]
-) -> Optional[int]: ...
+    data: dict[str, Any], name: str, /, required: Literal[False]
+) -> int | None: ...
 
 
 def as_int(
-    data: Dict[str, Any], name: str, /, required: bool = True
-) -> Optional[int]:
+    data: dict[str, Any], name: str, /, required: bool = True
+) -> int | None:
     """
     Extract int from dict.
 
@@ -233,19 +224,19 @@ def as_int(
 
 @overload
 def as_ipv4(
-    data: Dict[str, Any], name: str, /, required: Literal[True]
+    data: dict[str, Any], name: str, /, required: Literal[True]
 ) -> IPv4Address: ...
 
 
 @overload
 def as_ipv4(
-    data: Dict[str, Any], name: str, /, required: Literal[False]
-) -> Optional[IPv4Address]: ...
+    data: dict[str, Any], name: str, /, required: Literal[False]
+) -> IPv4Address | None: ...
 
 
 def as_ipv4(
-    data: Dict[str, Any], name: str, /, required: bool = True
-) -> Optional[IPv4Address]:
+    data: dict[str, Any], name: str, /, required: bool = True
+) -> IPv4Address | None:
     """
     Extract IPv4Address from dict.
 
@@ -274,19 +265,19 @@ def as_ipv4(
 
 @overload
 def as_ipv4_prefix(
-    data: Dict[str, Any], name: str, /, required: Literal[True]
+    data: dict[str, Any], name: str, /, required: Literal[True]
 ) -> IPv4Prefix: ...
 
 
 @overload
 def as_ipv4_prefix(
-    data: Dict[str, Any], name: str, /, required: Literal[False]
-) -> Optional[IPv4Prefix]: ...
+    data: dict[str, Any], name: str, /, required: Literal[False]
+) -> IPv4Prefix | None: ...
 
 
 def as_ipv4_prefix(
-    data: Dict[str, Any], name: str, /, required: bool = True
-) -> Optional[IPv4Prefix]:
+    data: dict[str, Any], name: str, /, required: bool = True
+) -> IPv4Prefix | None:
     """
     Extract IPv4Prefix from dict.
 

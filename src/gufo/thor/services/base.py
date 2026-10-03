@@ -14,9 +14,10 @@ Attributes:
 import copy
 import operator
 from abc import ABC
+from collections.abc import Iterable
 from enum import Enum
 from importlib import resources
-from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
+from typing import Any
 
 # Third-party modules
 import jinja2
@@ -137,35 +138,35 @@ class BaseService(ABC):
 
     name: str
     is_noc: bool = False
-    dependencies: Optional[Tuple["BaseService", ...]] = None
+    dependencies: tuple["BaseService", ...] | None = None
     compose_image: str
     compose_depends_condition: ComposeDependsCondition = (
         ComposeDependsCondition.STARTED
     )
-    compose_healthcheck: Optional[Dict[str, Any]] = None
-    compose_command: Optional[str] = None
-    compose_entrypoint: Optional[str] = None
-    compose_working_dir: Optional[str] = None
-    compose_volumes: Optional[List[str]] = None
-    compose_volumes_config: Optional[Dict[str, Dict[str, Any]]] = None
-    compose_environment: Optional[Dict[str, str]] = None
-    compose_labels: Optional[List[str]] = None
-    compose_secrets: Optional[List[Secret]] = None
-    compose_secrets_for_dependencies: Optional[List[Secret]] = None
-    compose_configs: Optional[List[Artefact]] = None
-    compose_extra: Optional[Dict[str, Any]] = None
+    compose_healthcheck: dict[str, Any] | None = None
+    compose_command: str | None = None
+    compose_entrypoint: str | None = None
+    compose_working_dir: str | None = None
+    compose_volumes: list[str] | None = None
+    compose_volumes_config: dict[str, dict[str, Any]] | None = None
+    compose_environment: dict[str, str] | None = None
+    compose_labels: list[str] | None = None
+    compose_secrets: list[Secret] | None = None
+    compose_secrets_for_dependencies: list[Secret] | None = None
+    compose_configs: list[Artefact] | None = None
+    compose_extra: dict[str, Any] | None = None
     allow_scale: bool = False
     require_slots: bool = False
-    expose_http_prefix: Optional[str] = None
+    expose_http_prefix: str | None = None
     require_http_auth: bool = False
-    rewrite_http_prefix: Optional[str] = None
-    service_port: Optional[int] = None
+    rewrite_http_prefix: str | None = None
+    service_port: int | None = None
     is_pooled: bool = False
     require_pool_network = False
     role: Role = Role.default()
 
     def __init__(self) -> None:
-        self._pool: Optional[str] = None
+        self._pool: str | None = None
 
     def get_compose_name(self) -> str:
         """Get service name for docker-compose."""
@@ -201,8 +202,8 @@ class BaseService(ABC):
                 yield svc
 
     def get_compose_config(
-        self, config: "Config", svc: Optional[ServiceConfig]
-    ) -> Dict[str, Any]:
+        self, config: "Config", svc: ServiceConfig | None
+    ) -> dict[str, Any]:
         """
         Generate config for docker-compose target.
 
@@ -234,16 +235,18 @@ class BaseService(ABC):
 
         def set_if(
             key: str,
-            value: Union[
-                None, str, List[str], Dict[str, Any], List[Dict[str, Any]]
-            ],
+            value: None
+            | str
+            | list[str]
+            | dict[str, Any]
+            | list[dict[str, Any]],
         ) -> None:
             """Set key to `r` if value is not empty."""
             if value:
                 r[key] = value
 
         # Basic settings
-        r: Dict[str, Any] = {
+        r: dict[str, Any] = {
             "image": self.get_compose_image(config, svc),
             "restart": "no",
         }
@@ -289,7 +292,7 @@ class BaseService(ABC):
         # configs
         configs = self.get_compose_configs(config, svc)
         if configs:
-            rr: List[Dict[str, Any]] = []
+            rr: list[dict[str, Any]] = []
             for cfg in configs:
                 for mount in cfg.iter_mounts():
                     rr.append(
@@ -307,7 +310,7 @@ class BaseService(ABC):
         return r
 
     def get_compose_depends_condition(
-        self, config: Config, svc: Optional[ServiceConfig]
+        self, config: Config, svc: ServiceConfig | None
     ) -> ComposeDependsCondition:
         """
         Get condition for all dependend services.
@@ -322,7 +325,7 @@ class BaseService(ABC):
         return self.compose_depends_condition
 
     def get_compose_image(
-        self, config: "Config", svc: Optional[ServiceConfig]
+        self, config: "Config", svc: ServiceConfig | None
     ) -> str:
         """
         Get docker-compose.yml `image` section.
@@ -341,8 +344,8 @@ class BaseService(ABC):
             raise NotImplementedError(msg) from e
 
     def get_compose_working_dir(
-        self, config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[str]:
+        self, config: "Config", svc: ServiceConfig | None
+    ) -> str | None:
         """
         Get docker-compose.yml `working_dir` section.
 
@@ -356,8 +359,8 @@ class BaseService(ABC):
         return self.compose_working_dir
 
     def get_compose_command(
-        self, config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[str]:
+        self, config: "Config", svc: ServiceConfig | None
+    ) -> str | None:
         """
         Get docker-compose.yml `command` section.
 
@@ -371,8 +374,8 @@ class BaseService(ABC):
         return self.compose_command
 
     def get_compose_entrypoint(
-        self, config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[str]:
+        self, config: "Config", svc: ServiceConfig | None
+    ) -> str | None:
         """
         Get docker-compose.yml `entrypoint` section.
 
@@ -386,8 +389,8 @@ class BaseService(ABC):
         return self.compose_entrypoint
 
     def get_compose_networks(
-        self, config: "Config", svc: Optional[ServiceConfig]
-    ) -> Dict[str, Any]:
+        self, config: "Config", svc: ServiceConfig | None
+    ) -> dict[str, Any]:
         """
         Get docker-compose.yml `networks` section.
 
@@ -398,7 +401,7 @@ class BaseService(ABC):
         Returns:
             Networks dict, if not empty
         """
-        r: Dict[str, Dict[str, Any]] = {"noc": {"interface_name": "eth0"}}
+        r: dict[str, dict[str, Any]] = {"noc": {"interface_name": "eth0"}}
         if self.is_pooled and self.require_pool_network:
             if not self._pool:
                 msg = f"Pooled service {self.name} is used without pool"
@@ -407,8 +410,8 @@ class BaseService(ABC):
         return r
 
     def get_compose_volumes(
-        self, config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
+        self, config: "Config", svc: ServiceConfig | None
+    ) -> list[str] | None:
         """
         Get docker-compose.yml `volumes` section.
 
@@ -422,8 +425,8 @@ class BaseService(ABC):
         return self.compose_volumes
 
     def get_compose_volumes_config(
-        self, config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, Dict[str, Any]]]:
+        self, config: "Config", svc: ServiceConfig | None
+    ) -> dict[str, dict[str, Any]] | None:
         """
         Get docker-compose.yml global `volumes` section.
 
@@ -437,8 +440,8 @@ class BaseService(ABC):
         return self.compose_volumes_config
 
     def get_compose_ports(
-        self, config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
+        self, config: "Config", svc: ServiceConfig | None
+    ) -> list[str] | None:
         """
         Get docker-compose.yml `ports` section.
 
@@ -452,8 +455,8 @@ class BaseService(ABC):
         return None
 
     def get_compose_environment(
-        self, config: "Config", svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, str]]:
+        self, config: "Config", svc: ServiceConfig | None
+    ) -> dict[str, str] | None:
         """
         Get docker-compose.yml `environment` section.
 
@@ -469,8 +472,8 @@ class BaseService(ABC):
         return None
 
     def get_compose_healthcheck(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, Any]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> dict[str, Any] | None:
         """
         Get docker-compose.yml `healthcheck` section.
 
@@ -486,8 +489,8 @@ class BaseService(ABC):
         return self.compose_healthcheck
 
     def get_compose_logging(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, Any]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> dict[str, Any] | None:
         """
         Get docker-compose.yml `logging` section.
 
@@ -503,8 +506,8 @@ class BaseService(ABC):
         return None
 
     def get_compose_labels(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> list[str] | None:
         """
         Get docker-compose.yml `labels` section.
 
@@ -523,8 +526,8 @@ class BaseService(ABC):
         return labels
 
     def get_compose_secrets(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[Secret]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> list[Secret] | None:
         """
         Get docker-compose.yml `secrets` section.
 
@@ -535,7 +538,7 @@ class BaseService(ABC):
         Returns:
             List of secrets, if not empty.
         """
-        r: List[Secret] = []
+        r: list[Secret] = []
         if self.compose_secrets:
             r += self.compose_secrets
         for rs in self.iter_dependencies():
@@ -544,8 +547,8 @@ class BaseService(ABC):
         return r or None
 
     def get_compose_configs(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[Artefact]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> list[Artefact] | None:
         """
         Get docker-compose.yml `configs` section.
 
@@ -561,8 +564,8 @@ class BaseService(ABC):
         return None
 
     def get_compose_extra(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[Dict[str, Any]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> dict[str, Any] | None:
         """
         Get dict to be merged with compose config/.
 
@@ -578,8 +581,8 @@ class BaseService(ABC):
     def prepare_compose_config(
         self,
         config: Config,
-        svc: Optional[ServiceConfig],
-        services: List["BaseService"],
+        svc: ServiceConfig | None,
+        services: list["BaseService"],
     ) -> None:
         """
         Prepare service configs.
@@ -592,8 +595,8 @@ class BaseService(ABC):
         return
 
     def get_expose_http_prefix(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[str]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> str | None:
         """
         Iterate over exposed http paths.
 
@@ -638,7 +641,7 @@ class BaseService(ABC):
         return svc
 
     @staticmethod
-    def resolve(services: Iterable[str]) -> List["BaseService"]:
+    def resolve(services: Iterable[str]) -> list["BaseService"]:
         """
         Resolve services to all dependencies.
 
@@ -648,7 +651,7 @@ class BaseService(ABC):
         Returns:
             Iterable of all basic services and their dependencies.
         """
-        resolved: Set[BaseService] = set()
+        resolved: set[BaseService] = set()
         wave = {BaseService.get(svc) for svc in services}
         while wave:
             current = wave.pop()
@@ -664,7 +667,7 @@ class BaseService(ABC):
         Returns:
             Dependencies graph.
         """
-        items: List[Tuple[str, str]] = []
+        items: list[tuple[str, str]] = []
         for svc in sorted(loader.values(), key=lambda x: x.name):
             svc_name = f"{svc.name}-default" if svc.is_pooled else svc.name
             service = BaseService.get(svc_name)
@@ -677,9 +680,9 @@ class BaseService(ABC):
 
     @classmethod
     def render(
-        cls: Type["BaseService"],
+        cls: type["BaseService"],
         tpl: str,
-        **kwargs: Union[str, int, None, List[Any]],
+        **kwargs: str | int | None | list[Any],
     ) -> str:
         """
         Apply a context to the template and write to file.
@@ -722,4 +725,4 @@ class BaseService(ABC):
 loader = Loader[BaseService](
     base="gufo.thor.services", exclude=("base", "noc", "db")
 )
-_services: Dict[str, BaseService] = {}
+_services: dict[str, BaseService] = {}

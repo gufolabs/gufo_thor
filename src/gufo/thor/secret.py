@@ -7,9 +7,10 @@
 
 # Python modules
 import secrets
+from collections.abc import Iterable
 from pathlib import Path
 from types import TracebackType
-from typing import Any, Dict, Iterable, Optional, Type
+from typing import Any
 
 # Gufo Thor modules
 from .utils import write_file
@@ -19,7 +20,7 @@ SECRETS_PREFIX = Path("etc", "noc", "secrets")
 DEFAULT_SECRETS_LENGTH = 32
 
 
-class Secret(object):
+class Secret:
     """
     Secret.
 
@@ -30,7 +31,7 @@ class Secret(object):
         config_path: Optional dot-separated path from NOC's config.
     """
 
-    def __init__(self, name: str, config_path: Optional[str] = None) -> None:
+    def __init__(self, name: str, config_path: str | None = None) -> None:
         self.name = name
         self._config_path = config_path
 
@@ -54,14 +55,14 @@ class Secret(object):
         """Set externally known secret."""
         write_file(self.path, secret)
 
-    def check_config(self, cfg: Dict[str, Any]) -> None:
+    def check_config(self, cfg: dict[str, Any]) -> None:
         """
         Check config.
 
         If secret is set in config, write to secret file and issue warning.
         """
 
-        def path_value(data: Dict[str, Any], path: str) -> Optional[str]:
+        def path_value(data: dict[str, Any], path: str) -> str | None:
             if "." not in path:
                 v = data.get(path)
                 if v is None:
@@ -99,10 +100,10 @@ class Secret(object):
 
     def __exit__(
         self,
-        type_: Optional[Type[BaseException]],
-        value: Optional[BaseException],
-        traceback: Optional[TracebackType],
-    ) -> Optional[bool]:
+        type_: type[BaseException] | None,
+        value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> bool | None:
         """Exit on context manager."""
         if self.path.exists():
             self.path.unlink()

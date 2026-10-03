@@ -11,7 +11,7 @@ Attributes:
 """
 
 # Python modules
-from typing import Any, Dict, Optional
+from typing import Any
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
@@ -33,8 +33,8 @@ class SyslogcollectorService(NocService):
     def get_compose_networks(
         self,
         config: Config,
-        svc: Optional[ServiceConfig],
-    ) -> Dict[str, Any]:
+        svc: ServiceConfig | None,
+    ) -> dict[str, Any]:
         """Generate docker-compose network."""
         r = super().get_compose_networks(config, svc)
         if not self._pool:
@@ -48,8 +48,8 @@ class SyslogcollectorService(NocService):
     def get_compose_environment(
         self,
         config: Config,
-        svc: Optional[ServiceConfig],
-    ) -> Optional[Dict[str, str]]:
+        svc: ServiceConfig | None,
+    ) -> dict[str, str] | None:
         """Set listen address."""
         env = super().get_compose_environment(config, svc) or {}
         if not self._pool:

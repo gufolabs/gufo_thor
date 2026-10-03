@@ -17,10 +17,11 @@ import os
 import shutil
 import subprocess
 import sys
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Iterable, Iterator, List, NoReturn, Optional
+from typing import NoReturn
 
 # Gufo Thor modules
 from .log import logger
@@ -28,7 +29,7 @@ from .utils import is_test
 
 
 @dataclass
-class DockerConfig(object):
+class DockerConfig:
     """
     Docker daemon configuration.
 
@@ -42,7 +43,7 @@ class DockerConfig(object):
 
 
 @dataclass
-class ComposeConfig(object):
+class ComposeConfig:
     """
     Effective docker compose config.
 
@@ -54,7 +55,7 @@ class ComposeConfig(object):
 
 
 @dataclass
-class ContainerStatus(object):
+class ContainerStatus:
     """
     Container status.
 
@@ -65,7 +66,7 @@ class ContainerStatus(object):
     name: str
 
 
-class Docker(object):
+class Docker:
     """Docker wrapper."""
 
     @staticmethod
@@ -149,7 +150,7 @@ class Docker(object):
         """
         return self._config.logging_driver
 
-    def _extend_docker_cmd(self, *args: str) -> List[str]:
+    def _extend_docker_cmd(self, *args: str) -> list[str]:
         """
         Get docker commands.
 
@@ -160,7 +161,7 @@ class Docker(object):
         cmd.extend(args)
         return cmd
 
-    def _extend_compose_cmd(self, *args: str) -> List[str]:
+    def _extend_compose_cmd(self, *args: str) -> list[str]:
         """
         Get docker compose commands.
 
@@ -171,7 +172,7 @@ class Docker(object):
         cmd.extend(args)
         return cmd
 
-    def _execvp(self, cmd: List[str]) -> bool:
+    def _execvp(self, cmd: list[str]) -> bool:
         """
         os.execvp() wrapper for tests.
 
@@ -181,7 +182,7 @@ class Docker(object):
         """
         return os.execvp(cmd[0], cmd)  # noqa: S606
 
-    def _capture_output(self, cmd: List[str]) -> str:
+    def _capture_output(self, cmd: list[str]) -> str:
         """subprocess.run() wrapper for tests."""
         try:
             r = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -189,7 +190,7 @@ class Docker(object):
             self.die(f"Failed to run {' '.join(cmd)}")
         return r.stdout
 
-    def _check_call(self, cmd: List[str]) -> bool:
+    def _check_call(self, cmd: list[str]) -> bool:
         """subprocess.check_call() wrapper for tests."""
         try:
             subprocess.check_call(cmd)
@@ -466,7 +467,7 @@ class Docker(object):
 
     @contextmanager
     def with_paused(
-        self, labels: Optional[Iterable[str]] = None
+        self, labels: Iterable[str] | None = None
     ) -> Iterator[None]:
         """Pause matching app containers for a context and resume them after.
 
@@ -483,7 +484,7 @@ class Docker(object):
         if labels is not None:
             flt.extend(f"label={label}" for label in labels)
         containers = [c.name for c in self._iter_containers(*flt)]
-        paused: List[str] = []
+        paused: list[str] = []
         try:
             for container in containers:
                 if not self._docker_command("pause", container):
@@ -492,7 +493,7 @@ class Docker(object):
                 paused.append(container)
             yield
         finally:
-            failed: List[str] = []
+            failed: list[str] = []
             for container in paused:
                 if not self._docker_command("unpause", container):
                     failed.append(container)
@@ -501,7 +502,7 @@ class Docker(object):
                 msg = f"Failed to unpause containers: {names}"
                 raise RuntimeError(msg)
 
-    def pause(self, labels: Optional[Iterable[str]] = None) -> bool:
+    def pause(self, labels: Iterable[str] | None = None) -> bool:
         """
         Pause all containers having given labels.
 
@@ -519,7 +520,7 @@ class Docker(object):
         cmd = ["pause"] + [c.name for c in self._iter_containers(*flt)]
         return self.docker_exec(*cmd)
 
-    def unpause(self, labels: Optional[Iterable[str]] = None) -> bool:
+    def unpause(self, labels: Iterable[str] | None = None) -> bool:
         """
         Resume all containers having given labels.
 

@@ -11,7 +11,6 @@ Attributes:
 """
 
 # Python modules
-from typing import List, Optional
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
@@ -50,8 +49,8 @@ class PostgresService(DBService):
     restore_script_template = "postgres_restore.sh.j2"
 
     def get_compose_ports(
-        self, config: Config, svc: Optional[ServiceConfig]
-    ) -> Optional[List[str]]:
+        self, config: Config, svc: ServiceConfig | None
+    ) -> list[str] | None:
         """Expose port."""
         r = super().get_compose_ports(config, svc) or []
         if config.expose.postgres:
