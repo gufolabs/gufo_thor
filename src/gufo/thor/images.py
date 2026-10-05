@@ -25,6 +25,8 @@ class VersionSettings:
         clickhouse_image: Docker image for ClickHouse.
         kafka_image: Docker image for Kafka.
         consul_image: Docker image for Consul.
+        target_mongo_fcv: Target mongo feature compatibility version,
+            expected for ``mongo_image``.
     """
 
     noc_image: str
@@ -33,6 +35,7 @@ class VersionSettings:
     clickhouse_image: str
     kafka_image: str
     consul_image: str
+    target_mongo_fcv: str
 
 
 # Docker image settings indexed by NOC version.
@@ -44,6 +47,7 @@ NOC_VERSION_SETTINGS = {
         clickhouse_image="clickhouse/clickhouse-server:23",
         kafka_image="bitnamilegacy/kafka:3.6.2",
         consul_image="consul:1.15",
+        target_mongo_fcv="4.4",
     )
 }
 
@@ -75,3 +79,18 @@ def get_image(name: str) -> str:
         msg = f"Cannot get image for {name}"
         raise RuntimeError(msg)
     return cast(str, img)
+
+
+def get_version_settings() -> VersionSettings:
+    """Get settings for the configured NOC version.
+
+    Returns:
+        Version settings for the configured NOC version.
+
+    Raises:
+        RuntimeError: If the configured NOC version is not supported.
+    """
+    if config.noc.version not in NOC_VERSION_SETTINGS:
+        msg = f"Unsupported NOC version: {config.noc.version}"
+        raise RuntimeError(msg)
+    return NOC_VERSION_SETTINGS[config.noc.version]

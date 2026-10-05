@@ -18,7 +18,9 @@ from gufo.thor import __version__
 
 from ..artefact import ArtefactMountPoint
 from ..config import config
+from ..images import get_version_settings
 from ..labs.base import BaseLab
+from ..state import state
 from ..utils import ensure_directory, write_file
 from .base import BaseTarget
 
@@ -202,9 +204,39 @@ class ComposeTarget(BaseTarget):
         from ..services.noc import noc_settings
 
         first_install = not noc_settings.local_path.exists()
+        self.process_mongo_fcv(first_install)
         if not first_install:
-            # Migrate default postgres password
-            from ..secret import postgres_password
+            self.migrate_postgres_password()
 
-            if not postgres_password.path.exists():
-                postgres_password.set_secret(LEGACY_PG_PASSWORD)
+    def migrate_postgres_password(self) -> None:
+        """Migrate default postgres password."""
+        from ..secret import postgres_password
+
+        if not postgres_password.path.exists():
+            postgres_password.set_secret(LEGACY_PG_PASSWORD)
+
+    def process_mongo_fcv(self, first_install: bool) -> None:
+        """Initializes the stored MongoDB FCV for new and legacy installations.
+
+        For existing installations, raises an error if the stored FCV does not
+        match the FCV expected by the configured NOC version.
+
+        Args:
+            first_install: Whether this is the first installation of Thor.
+
+        Raises:
+            RuntimeError: If the stored MongoDB FCV does not match the FCV
+                expected by the configured NOC version.
+        """
+        vs = get_version_settings()
+        if state.mongo_fcv is None:
+            state.mongo_fcv = vs.target_mongo_fcv if first_install else "4.4"
+            state.save()
+            return
+        if state.mongo_fcv != vs.target_mongo_fcv:
+            msg = (
+                "Mongo FCV mismatch. "
+                f"Expected {vs.target_mongo_fcv}, got {state.mongo_fcv}. "
+                "Run gufo-thor migrate-mongo to fix."
+            )
+            raise RuntimeError(msg)
