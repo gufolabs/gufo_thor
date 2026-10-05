@@ -106,7 +106,7 @@ The thor.yml structure:
 # Gufo Thor configuration
 version: "1.0"
 noc:
-  tag: master
+  version: "26-dev"
   installation_name: Unconfigured Installation
 expose:
   domain_name: go.getnoc.com

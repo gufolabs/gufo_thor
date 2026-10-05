@@ -14,6 +14,7 @@ Attributes:
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from ..images import get_image
 from .base import ComposeDependsCondition
 from .db import DBService
 
@@ -22,7 +23,6 @@ class MongoService(DBService):
     """mongo service."""
 
     name = "mongo"
-    compose_image = "mongo:4.4"
     compose_depends_condition = ComposeDependsCondition.HEALTHY
     compose_healthcheck = {
         "test": ["CMD", "mongo", "--eval", "db.runCommand({ ping: 1 })"],
@@ -37,6 +37,20 @@ class MongoService(DBService):
     service_port = 27017
     backup_script_template = "mongo_backup.sh.j2"
     restore_script_template = "mongo_restore.sh.j2"
+
+    def get_compose_image(
+        self, config: Config, svc: ServiceConfig | None
+    ) -> str:
+        """Get docker-compose.yml `image` section.
+
+        Args:
+            config: Gufo Thor config instance.
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Image name.
+        """
+        return get_image(config, self.name)
 
     def get_compose_ports(
         self, config: Config, svc: ServiceConfig | None

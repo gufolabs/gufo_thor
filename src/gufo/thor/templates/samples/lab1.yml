@@ -1,7 +1,7 @@
 # Gufo Thor configuration
 version: "1.0"
 noc:
-  tag: master
+  version: "26-dev"
   installation_name: Unconfigured Installation
   theme: noc
 expose:

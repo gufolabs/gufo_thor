@@ -16,6 +16,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 * Database backup and restore commands, including `gufo-thor backup rm` for removing backups.
 * Discord server.
+* Add the `noc.version` configuration parameter to select Docker images for the NOC version.
 
 ### Changed
 

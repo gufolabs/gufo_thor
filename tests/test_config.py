@@ -14,6 +14,7 @@ import pytest
 
 # Gufo Thor modules
 from gufo.thor.config import (
+    DEFAULT_NOC_VERSION,
     Config,
     ExposeConfig,
     IsisLinkProtocolConfig,
@@ -40,7 +41,8 @@ from .utils import isolated_errors
 def test_simple() -> None:
     sample = get_sample("simple")
     cfg = Config.from_yaml(sample)
-    assert cfg.noc.tag == "master"
+    assert cfg.noc.version == DEFAULT_NOC_VERSION
+    assert cfg.noc.tag is None
     assert cfg.noc.installation_name == "Unconfigured Installation"
     assert cfg.noc.path is None
     assert cfg.noc.custom is None
@@ -78,7 +80,8 @@ def test_from_file() -> None:
         with open(path, "w") as fp:
             fp.write(sample)
         cfg = Config.from_file(path)
-        assert cfg.noc.tag == "master"
+        assert cfg.noc.version == DEFAULT_NOC_VERSION
+        assert cfg.noc.tag is None
         assert cfg.noc.installation_name == "Unconfigured Installation"
         assert not errors.has_errors()
 

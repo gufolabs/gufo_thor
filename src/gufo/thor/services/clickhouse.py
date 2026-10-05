@@ -15,6 +15,7 @@ from pathlib import Path
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from ..images import get_image
 from ..utils import write_file
 from .base import BaseService, ComposeDependsCondition
 from .db import DBService
@@ -24,7 +25,6 @@ class ClickhouseService(DBService):
     """clickhouse service."""
 
     name = "clickhouse"
-    compose_image = "clickhouse/clickhouse-server:23"
     compose_depends_condition = ComposeDependsCondition.HEALTHY
     compose_healthcheck = {
         "test": ["CMD", "clickhouse-client", "--query", "SELECT 1"],
@@ -57,6 +57,20 @@ class ClickhouseService(DBService):
     backup_script_template = "clickhouse_backup.sh.j2"
     restore_script_template = "clickhouse_restore.sh.j2"
     backup_file_name = "clickhouse.zip"
+
+    def get_compose_image(
+        self, config: Config, svc: ServiceConfig | None
+    ) -> str:
+        """Get docker-compose.yml `image` section.
+
+        Args:
+            config: Gufo Thor config instance.
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Image name.
+        """
+        return get_image(config, self.name)
 
     def prepare_compose_config(
         self,
