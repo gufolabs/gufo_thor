@@ -23,7 +23,6 @@ from gufo.thor.services.kafka import kafka
 from gufo.thor.services.login import login
 from gufo.thor.services.migrate import migrate
 from gufo.thor.services.mongo import mongo
-from gufo.thor.services.noc import NOC_IMAGE_BASE
 from gufo.thor.services.postgres import postgres
 from gufo.thor.services.scheduler import scheduler
 from gufo.thor.services.static import static
@@ -31,6 +30,7 @@ from gufo.thor.services.web import web
 from gufo.thor.services.worker import worker
 from gufo.thor.validator import IPv4Prefix
 
+NOC_IMAGE_BASE = "ghcr.io/gufolabs/noc"
 ALL_SERVICES = sorted(set(loader.keys()))
 ALL_SERVICES_WITH_POOL = sorted(
     s.name + "-default" if s.is_pooled else s.name for s in loader.values()

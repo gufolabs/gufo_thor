@@ -73,6 +73,6 @@ def get_image(config: Config, name: str) -> str:
         raise RuntimeError(msg)
     img = getattr(vs, f"{name}_image", SENTINEL)
     if img is SENTINEL:
-        msg = "Cannot get image for {name}"
+        msg = f"Cannot get image for {name}"
         raise RuntimeError(msg)
     return cast(str, img)

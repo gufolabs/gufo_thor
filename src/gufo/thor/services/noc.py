@@ -20,7 +20,6 @@ from ..utils import ensure_directory, merge_dict
 from .base import BaseService, ComposeDependsCondition, Role
 
 noc_settings = Artefact("settings", Path("etc", "noc", "settings.yml"))
-NOC_IMAGE_BASE = "ghcr.io/gufolabs/noc"
 
 
 class NocService(BaseService):
