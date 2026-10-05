@@ -52,15 +52,14 @@ def write_file(
 
 def ensure_directory(path: Path) -> None:
     """
-    Check directory is exists and create, if necessary.
+    Ensure that the directory exists.
 
     Args:
         path: Directory path.
     """
-    if os.path.exists(path):
-        return
-    logger.warning("Creating directory %s", path)
-    os.makedirs(path)
+    if not path.exists():
+        logger.warning("Creating directory %s", path)
+    path.mkdir(parents=True, exist_ok=True)
 
 
 def merge_dict(x: dict[str, Any], y: dict[str, Any]) -> dict[str, Any]:
