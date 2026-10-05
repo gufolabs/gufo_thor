@@ -25,7 +25,7 @@ from gufo.loader import Loader
 
 # Gufo Thor modules
 from ..artefact import Artefact
-from ..config import Config, ServiceConfig
+from ..config import ServiceConfig
 from ..docker import docker
 from ..secret import Secret
 
@@ -202,7 +202,7 @@ class BaseService(ABC):
                 yield svc
 
     def get_compose_config(
-        self, config: "Config", svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, Any]:
         """
         Generate config for docker-compose target.
@@ -226,7 +226,6 @@ class BaseService(ABC):
         * `get_compose_logging` - to build `logging` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -247,7 +246,7 @@ class BaseService(ABC):
 
         # Basic settings
         r: dict[str, Any] = {
-            "image": self.get_compose_image(config, svc),
+            "image": self.get_compose_image(svc),
             "restart": "no",
         }
         # scale
@@ -258,39 +257,37 @@ class BaseService(ABC):
             "depends_on",
             {
                 dep.get_compose_name(): {
-                    "condition": dep.get_compose_depends_condition(
-                        config, svc
-                    ).value
+                    "condition": dep.get_compose_depends_condition(svc).value
                 }
                 for dep in self.iter_dependencies()
             },
         )
         # working_dir
-        set_if("working_dir", self.get_compose_working_dir(config, svc))
+        set_if("working_dir", self.get_compose_working_dir(svc))
         # command
-        set_if("command", self.get_compose_command(config, svc))
+        set_if("command", self.get_compose_command(svc))
         # entrypoint
-        set_if("entrypoint", self.get_compose_entrypoint(config, svc))
+        set_if("entrypoint", self.get_compose_entrypoint(svc))
         # volumes
-        set_if("volumes", self.get_compose_volumes(config, svc))
+        set_if("volumes", self.get_compose_volumes(svc))
         # networks
-        set_if("networks", self.get_compose_networks(config, svc))
+        set_if("networks", self.get_compose_networks(svc))
         # ports
-        set_if("ports", self.get_compose_ports(config, svc))
+        set_if("ports", self.get_compose_ports(svc))
         # environment
-        set_if("environment", self.get_compose_environment(config, svc))
+        set_if("environment", self.get_compose_environment(svc))
         # healthcheck
-        set_if("healthcheck", self.get_compose_healthcheck(config, svc))
+        set_if("healthcheck", self.get_compose_healthcheck(svc))
         # logging
-        set_if("logging", self.get_compose_logging(config, svc))
+        set_if("logging", self.get_compose_logging(svc))
         # labels
-        set_if("labels", self.get_compose_labels(config, svc))
+        set_if("labels", self.get_compose_labels(svc))
         # secrets
-        secrets = self.get_compose_secrets(config, svc)
+        secrets = self.get_compose_secrets(svc)
         if secrets:
             set_if("secrets", [x.name for x in secrets])
         # configs
-        configs = self.get_compose_configs(config, svc)
+        configs = self.get_compose_configs(svc)
         if configs:
             rr: list[dict[str, Any]] = []
             for cfg in configs:
@@ -303,20 +300,19 @@ class BaseService(ABC):
                     )
             set_if("configs", sorted(rr, key=operator.itemgetter("source")))
         # extra
-        extra = self.get_compose_extra(config, svc)
+        extra = self.get_compose_extra(svc)
         if extra:
             r.update(extra)
         # done
         return r
 
     def get_compose_depends_condition(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> ComposeDependsCondition:
         """
         Get condition for all dependend services.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -324,14 +320,11 @@ class BaseService(ABC):
         """
         return self.compose_depends_condition
 
-    def get_compose_image(
-        self, config: "Config", svc: ServiceConfig | None
-    ) -> str:
+    def get_compose_image(self, svc: ServiceConfig | None = None) -> str:
         """
         Get docker-compose.yml `image` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -344,13 +337,12 @@ class BaseService(ABC):
             raise NotImplementedError(msg) from e
 
     def get_compose_working_dir(
-        self, config: "Config", svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> str | None:
         """
         Get docker-compose.yml `working_dir` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -359,13 +351,12 @@ class BaseService(ABC):
         return self.compose_working_dir
 
     def get_compose_command(
-        self, config: "Config", svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> str | None:
         """
         Get docker-compose.yml `command` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -374,14 +365,13 @@ class BaseService(ABC):
         return self.compose_command
 
     def get_compose_entrypoint(
-        self, config: "Config", svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> str | None:
         """
         Get docker-compose.yml `entrypoint` section.
 
         Args:
-        config: Gufo Thor config instance
-        svc: Service's config from `services` part, if any.
+            svc: Service's config from `services` part, if any.
 
         Returns:
         Entrypoint, if not empty
@@ -389,13 +379,12 @@ class BaseService(ABC):
         return self.compose_entrypoint
 
     def get_compose_networks(
-        self, config: "Config", svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, Any]:
         """
         Get docker-compose.yml `networks` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -410,13 +399,12 @@ class BaseService(ABC):
         return r
 
     def get_compose_volumes(
-        self, config: "Config", svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[str] | None:
         """
         Get docker-compose.yml `volumes` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -425,13 +413,12 @@ class BaseService(ABC):
         return self.compose_volumes
 
     def get_compose_volumes_config(
-        self, config: "Config", svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, dict[str, Any]] | None:
         """
         Get docker-compose.yml global `volumes` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -440,14 +427,13 @@ class BaseService(ABC):
         return self.compose_volumes_config
 
     def get_compose_ports(
-        self, config: "Config", svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[str] | None:
         """
         Get docker-compose.yml `ports` section.
 
         Args:
-        config: Gufo Thor config instance
-        svc: Service's config from `services` part, if any.
+            svc: Service's config from `services` part, if any.
 
         Returns:
         List of ports config, if not empty
@@ -455,13 +441,12 @@ class BaseService(ABC):
         return None
 
     def get_compose_environment(
-        self, config: "Config", svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, str] | None:
         """
         Get docker-compose.yml `environment` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -472,13 +457,12 @@ class BaseService(ABC):
         return None
 
     def get_compose_healthcheck(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, Any] | None:
         """
         Get docker-compose.yml `healthcheck` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -489,13 +473,12 @@ class BaseService(ABC):
         return self.compose_healthcheck
 
     def get_compose_logging(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, Any] | None:
         """
         Get docker-compose.yml `logging` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -506,13 +489,12 @@ class BaseService(ABC):
         return None
 
     def get_compose_labels(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[str] | None:
         """
         Get docker-compose.yml `labels` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -526,13 +508,12 @@ class BaseService(ABC):
         return labels
 
     def get_compose_secrets(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[Secret] | None:
         """
         Get docker-compose.yml `secrets` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -547,13 +528,12 @@ class BaseService(ABC):
         return r or None
 
     def get_compose_configs(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[Artefact] | None:
         """
         Get docker-compose.yml `configs` section.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -564,13 +544,12 @@ class BaseService(ABC):
         return None
 
     def get_compose_extra(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, Any] | None:
         """
         Get dict to be merged with compose config/.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
 
         Returns:
@@ -580,28 +559,26 @@ class BaseService(ABC):
 
     def prepare_compose_config(
         self,
-        config: Config,
-        svc: ServiceConfig | None,
+        svc: ServiceConfig | None = None,
+        *,
         services: list["BaseService"],
     ) -> None:
         """
         Prepare service configs.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
             services: List of all services.
         """
         return
 
     def get_expose_http_prefix(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> str | None:
         """
         Iterate over exposed http paths.
 
         Args:
-            config: Gufo Thor config instance
             svc: Service's config from `services` part, if any.
         """
         return self.expose_http_prefix

@@ -13,7 +13,7 @@ Attributes:
 # Python modules
 
 # Gufo Thor modules
-from ..config import Config, ServiceConfig
+from ..config import ServiceConfig, config
 from .base import ComposeDependsCondition, Role
 from .clickhouse import clickhouse
 from .consul import consul
@@ -41,7 +41,7 @@ class MigrateService(NocService):
     role = Role.UTILS
 
     def get_compose_command(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> str | None:
         """
         Get compose command.
@@ -53,14 +53,14 @@ class MigrateService(NocService):
         return "/bin/true"
 
     def get_compose_environment(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, str] | None:
         """
         Environment settings for container.
 
         Additionally set NOC_MIGRATE_SLOTS_PATH.
         """
-        r = super().get_compose_environment(config, svc) or {}
+        r = super().get_compose_environment(svc) or {}
         # Calculate pools
         for pool_name in config.pools:
             r[f"NOC_MIGRATE_POOL_{pool_name}"] = pool_name

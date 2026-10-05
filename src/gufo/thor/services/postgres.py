@@ -13,7 +13,7 @@ Attributes:
 # Python modules
 
 # Gufo Thor modules
-from ..config import Config, ServiceConfig
+from ..config import ServiceConfig, config
 from ..images import get_image
 from ..secret import postgres_password
 from .base import ComposeDependsCondition
@@ -48,25 +48,22 @@ class PostgresService(DBService):
     backup_script_template = "postgres_backup.sh.j2"
     restore_script_template = "postgres_restore.sh.j2"
 
-    def get_compose_image(
-        self, config: Config, svc: ServiceConfig | None
-    ) -> str:
+    def get_compose_image(self, svc: ServiceConfig | None = None) -> str:
         """Get docker-compose.yml `image` section.
 
         Args:
-            config: Gufo Thor config instance.
             svc: Service's config from `services` part, if any.
 
         Returns:
             Image name.
         """
-        return get_image(config, self.name)
+        return get_image(self.name)
 
     def get_compose_ports(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[str] | None:
         """Expose port."""
-        r = super().get_compose_ports(config, svc) or []
+        r = super().get_compose_ports(svc) or []
         if config.expose.postgres:
             r.append(config.expose.postgres.docker_compose_port(5432))
         return r if r else None

@@ -12,7 +12,7 @@ Attributes:
 
 # Gufo Thor modules
 
-from gufo.thor.config import Config, ServiceConfig
+from gufo.thor.config import ServiceConfig
 
 from .clickhouse import clickhouse
 from .mongo import mongo
@@ -29,7 +29,7 @@ class ShellService(NocService):
     compose_extra = {"scale": 0}
 
     def get_compose_command(
-        self: NocService, config: Config, svc: ServiceConfig | None
+        self: NocService, svc: ServiceConfig | None = None
     ) -> str | None:
         """Override to bash."""
         return "/bin/bash"

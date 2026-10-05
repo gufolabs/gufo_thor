@@ -17,7 +17,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from gufo.thor.config import Config, ServiceConfig
+from gufo.thor.config import ServiceConfig
 
 # Gufo Thor modules
 from ..artefact import Artefact
@@ -46,29 +46,26 @@ class ConsulService(BaseService):
     ]
     compose_volumes_config = {"consul_data": {}}
 
-    def get_compose_image(
-        self, config: Config, svc: ServiceConfig | None
-    ) -> str:
+    def get_compose_image(self, svc: ServiceConfig | None = None) -> str:
         """Get docker-compose.yml `image` section.
 
         Args:
-            config: Gufo Thor config instance.
             svc: Service's config from `services` part, if any.
 
         Returns:
             Image name.
         """
-        return get_image(config, self.name)
+        return get_image(self.name)
 
     def __init__(self) -> None:
         super().__init__()
         self.discovered_services: list[Artefact] = []
 
     def get_compose_configs(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[Artefact] | None:
         """Add configs for discovered services."""
-        r = super().get_compose_configs(config, svc) or []
+        r = super().get_compose_configs(svc) or []
         r += self.discovered_services
         return r or None
 

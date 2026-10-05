@@ -14,7 +14,7 @@ Attributes:
 from typing import Any
 
 # Gufo Thor modules
-from ..config import Config, ServiceConfig
+from ..config import ServiceConfig, config
 from .datastream import datastream
 from .kafka import kafka
 from .migrate import migrate
@@ -31,11 +31,10 @@ class TrapcollectorService(NocService):
 
     def get_compose_networks(
         self,
-        config: Config,
-        svc: ServiceConfig | None,
+        svc: ServiceConfig | None = None,
     ) -> dict[str, Any]:
         """Generate docker-compose network."""
-        r = super().get_compose_networks(config, svc)
+        r = super().get_compose_networks(svc)
         if not self._pool:
             msg = f"Cannot use pooled service {self.name} without pool"
             raise ValueError(msg)
@@ -46,11 +45,10 @@ class TrapcollectorService(NocService):
 
     def get_compose_environment(
         self,
-        config: Config,
-        svc: ServiceConfig | None,
+        svc: ServiceConfig | None = None,
     ) -> dict[str, str] | None:
         """Set listen address."""
-        env = super().get_compose_environment(config, svc) or {}
+        env = super().get_compose_environment(svc) or {}
         if not self._pool:
             msg = f"Cannot use pooled service {self.name} without pool"
             raise ValueError(msg)

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import cast
 
 # Gufo Thor modules
-from .config import Config
+from .config import config
 
 
 @dataclass
@@ -51,12 +51,11 @@ NOC_VERSION_SETTINGS = {
 SENTINEL = object()
 
 
-def get_image(config: Config, name: str) -> str:
+def get_image(name: str) -> str:
     """
     Get the Docker image for a service.
 
     Args:
-        config: Thor configuration.
         name: Service name.
 
     Returns:
