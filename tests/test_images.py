@@ -8,7 +8,7 @@
 import pytest
 
 # Gufo Thor modules
-from gufo.thor.config import Config
+from gufo.thor.config import Config, with_config
 from gufo.thor.images import get_image
 
 
@@ -27,20 +27,24 @@ def test_get_image(service: str, expected: str) -> None:
     config = Config.default()
     config.noc.version = "26-dev"
 
-    assert get_image(config, service) == expected
+    with with_config(config):
+        assert get_image(service) == expected
 
 
 def test_get_image_unsupported_version() -> None:
     config = Config.default()
     config.noc.version = "unsupported"
 
-    with pytest.raises(RuntimeError, match="NOC unsupported is not supported"):
-        get_image(config, "noc")
+    with (
+        pytest.raises(RuntimeError, match="NOC unsupported is not supported"),
+        with_config(config),
+    ):
+        get_image("noc")
 
 
 def test_get_image_unsupported_service() -> None:
     config = Config.default()
     config.noc.version = "26-dev"
 
-    with pytest.raises(RuntimeError):
-        get_image(config, "unsupported")
+    with pytest.raises(RuntimeError), with_config(config):
+        get_image("unsupported")

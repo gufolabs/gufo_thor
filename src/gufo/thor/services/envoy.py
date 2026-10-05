@@ -23,7 +23,7 @@ import certifi
 
 # Gufo Thor modules
 from ..artefact import Artefact
-from ..config import Config, ServiceConfig
+from ..config import ServiceConfig, config
 from ..error import CancelExecution
 from ..log import logger
 from ..utils import is_test, write_file
@@ -118,17 +118,17 @@ class EnvoyService(BaseService):
     CERT_DAYS = 3650
 
     def get_compose_networks(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, Any]:
         """Get networks section."""
-        r = super().get_compose_networks(config, svc)
+        r = super().get_compose_networks(svc)
         if "noc" not in r:
             r["noc"] = {}
         r["noc"]["aliases"] = ["envoy", config.expose.domain_name]
         return r
 
     def get_compose_ports(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[str] | None:
         """Get ports section."""
         if config.expose.web:
@@ -137,8 +137,8 @@ class EnvoyService(BaseService):
 
     def prepare_compose_config(
         self,
-        config: Config,
-        svc: ServiceConfig | None,
+        svc: ServiceConfig | None = None,
+        *,
         services: list["BaseService"],
     ) -> None:
         """Generate config."""
@@ -153,7 +153,7 @@ class EnvoyService(BaseService):
         routes: list[Route] = []
         web_routes: list[Route] = []
         for s in services:
-            prefix = s.get_expose_http_prefix(config, None)
+            prefix = s.get_expose_http_prefix()
             if not prefix:
                 continue
             if s.name == "web":
@@ -228,22 +228,22 @@ class EnvoyService(BaseService):
             )
         )
         # Prepare TLS certificates
-        if self._to_rebuild_certificate(config):
-            self._rebuild_certificate(config)
+        if self._to_rebuild_certificate():
+            self._rebuild_certificate()
         # Update mTLS CA
         if config.expose.mtls_ca_cert:
             envoy_ca_cert.copy_from(
                 Path("assets") / config.expose.mtls_ca_cert
             )
 
-    def _to_rebuild_certificate(self, config: Config) -> bool:
+    def _to_rebuild_certificate(self) -> bool:
         """Check if SSL certificate must be rebuilt."""
         if not os.path.exists(self.SUBJ_PATH):
             return True
         with open(self.SUBJ_PATH) as fp:
-            return fp.read() != self.get_cert_subj(config)
+            return fp.read() != self.get_cert_subj()
 
-    def get_cert_subj(self, config: Config) -> str:
+    def get_cert_subj(self) -> str:
         """Get certificate subj."""
         return f"CN={config.expose.domain_name}"
 
@@ -289,7 +289,7 @@ class EnvoyService(BaseService):
             csr, private_key, validity_days=3560
         )
 
-    def _rebuild_certificate(self, config: Config) -> None:
+    def _rebuild_certificate(self) -> None:
         """Rebuild SSL certificates."""
         from gufo.acme.clients.base import AcmeClient
 
@@ -324,13 +324,13 @@ class EnvoyService(BaseService):
             cert = self._get_self_signed_certificate(csr, private_key)
         envoy_cert.write(cert.decode())
         # Write subj
-        write_file(self.SUBJ_PATH, self.get_cert_subj(config))
+        write_file(self.SUBJ_PATH, self.get_cert_subj())
 
     def get_compose_configs(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[Artefact] | None:
         """Generate configs."""
-        r = super().get_compose_configs(config, svc) or []
+        r = super().get_compose_configs(svc) or []
         if config.expose.mtls_ca_cert:
             r.append(
                 envoy_ca_cert.at(Path("/", "etc", "envoy", "ssl", "ca.crt"))

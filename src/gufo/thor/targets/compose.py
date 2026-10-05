@@ -51,7 +51,7 @@ class ComposeTarget(BaseTarget):
                 svc_cfg = config.services.get(svc.get_compose_name())
                 if svc.service_port:
                     consul.register_service(svc.name, svc.service_port)
-                svc.prepare_compose_config(config, svc_cfg, self.services)
+                svc.prepare_compose_config(svc_cfg, services=self.services)
         # Generate docker-compose.yml
         write_file(Path("docker-compose.yml"), self.render_config())
         # Generate .env
@@ -93,7 +93,7 @@ class ComposeTarget(BaseTarget):
         # Resolve services
         return {
             svc.get_compose_name(): svc.get_compose_config(
-                config, config.services.get(svc.get_compose_name())
+                config.services.get(svc.get_compose_name())
             )
             for svc in self.services
         }
@@ -126,9 +126,7 @@ class ComposeTarget(BaseTarget):
         """Build volumes section of config."""
         r: dict[str, dict[str, Any]] = {}
         for svc in self.services:
-            vc = svc.get_compose_volumes_config(
-                config, config.services.get(svc.name)
-            )
+            vc = svc.get_compose_volumes_config(config.services.get(svc.name))
             if not vc:
                 continue
             for n, c in vc.items():
@@ -142,9 +140,7 @@ class ComposeTarget(BaseTarget):
         """Build secrets section of config."""
         r: dict[str, dict[str, Any]] = {}
         for svc in self.services:
-            secrets = svc.get_compose_secrets(
-                config, config.services.get(svc.name)
-            )
+            secrets = svc.get_compose_secrets(config.services.get(svc.name))
             if not secrets:
                 continue
             for s in secrets:
@@ -156,9 +152,7 @@ class ComposeTarget(BaseTarget):
         """Build configs section of config."""
         mounts: set[ArtefactMountPoint] = set()
         for svc in self.services:
-            configs = svc.get_compose_configs(
-                config, config.services.get(svc.name)
-            )
+            configs = svc.get_compose_configs(config.services.get(svc.name))
             if not configs:
                 continue
             for cfg in configs:

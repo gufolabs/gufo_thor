@@ -8,7 +8,7 @@
 import pytest
 
 # Gufo Thor modules
-from gufo.thor.config import Config, PoolAddressConfig, PoolConfig
+from gufo.thor.config import Config, PoolAddressConfig, PoolConfig, with_config
 from gufo.thor.services.auth import auth
 from gufo.thor.services.base import (
     BaseService,
@@ -91,27 +91,26 @@ def test_compose_config(svc: str) -> None:
         address=PoolAddressConfig(),
     )
     service = BaseService.get(svc)
-    s = service.get_compose_config(config, None)
+    with with_config(config):
+        s = service.get_compose_config()
     assert s
 
 
 @pytest.mark.parametrize("svc", ALL_SERVICES)
 def test_compose_healthcheck(svc: str) -> None:
-    config = Config.default()
     service = loader[svc]
-    cond = service.get_compose_depends_condition(config, None)
+    cond = service.get_compose_depends_condition()
     if cond != ComposeDependsCondition.HEALTHY:
         pytest.skip("No healthcheck configured")
-    healthcheck = service.get_compose_healthcheck(config, None)
+    healthcheck = service.get_compose_healthcheck()
     assert healthcheck
     assert isinstance(healthcheck, dict)
 
 
 @pytest.mark.parametrize("svc", ALL_SERVICES)
 def test_envoy_deps(svc: str) -> None:
-    config = Config.default()
     service = loader[svc]
-    path = service.get_expose_http_prefix(config, None)
+    path = service.get_expose_http_prefix()
     if path:
         assert service.dependencies
         assert envoy in service.dependencies, (
@@ -147,9 +146,8 @@ def test_migrate_deps(svc: str) -> None:
 
 @pytest.mark.parametrize("svc", ALL_SERVICES)
 def test_envoy_http_auth(svc: str) -> None:
-    config = Config.default()
     service = loader[svc]
-    path = service.get_expose_http_prefix(config, None)
+    path = service.get_expose_http_prefix()
     if service.require_http_auth:
         assert path, (
             "`require_http_auth` must be used only with `expose_http_prefix`"
@@ -310,7 +308,8 @@ def test_service_image(
     service: BaseService, conf: str | None, expected: str
 ) -> None:
     config = Config.from_yaml(conf) if conf else Config.default()
-    img = service.get_compose_image(config, None)
+    with with_config(config):
+        img = service.get_compose_image()
     assert img == expected
 
 
@@ -341,7 +340,8 @@ def test_service_volumes(
     service: BaseService, conf: str | None, expected: list[str] | None
 ) -> None:
     config = Config.from_yaml(conf) if conf else Config.default()
-    volumes = service.get_compose_volumes(config, None)
+    with with_config(config):
+        volumes = service.get_compose_volumes()
     if not expected:
         assert volumes is None
     else:
@@ -365,7 +365,8 @@ services: [web]
 )
 def test_service_custom_config(conf: str, expected: bool) -> None:
     config = Config.from_yaml(conf)
-    cfg = web.get_noc_settings(config)
+    with with_config(config):
+        cfg = web.get_noc_settings()
     if expected:
         assert "path" in cfg
         assert "custom_path" in cfg["path"]

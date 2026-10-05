@@ -14,7 +14,7 @@ import yaml
 
 # Gufo Thor modules
 from ..artefact import Artefact
-from ..config import Config, ServiceConfig
+from ..config import ServiceConfig, config
 from ..images import get_image
 from ..utils import ensure_directory, merge_dict
 from .base import BaseService, ComposeDependsCondition, Role
@@ -36,28 +36,25 @@ class NocService(BaseService):
         noc_settings.at(Path("/", "etc", "noc", "settings.yml"))
     ]
 
-    def get_compose_image(
-        self, config: Config, svc: ServiceConfig | None
-    ) -> str:
+    def get_compose_image(self, svc: ServiceConfig | None = None) -> str:
         """Get docker-compose.yml `image` section.
 
         Use a service-specific or global NOC tag when configured.
 
         Args:
-            config: Gufo Thor config instance.
             svc: Service's config from `services` part, if any.
 
         Returns:
             Image name.
         """
-        image = get_image(config, "noc")
+        image = get_image("noc")
         tag = svc.tag if svc and svc.tag else config.noc.tag
         if tag:
             image = f"{image.rsplit(':', 1)[0]}:{tag}"
         return image
 
     def get_compose_command(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> str | None:
         """Get command section."""
         if self.compose_command:
@@ -83,7 +80,7 @@ class NocService(BaseService):
         return cmd
 
     def get_compose_volumes(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[str] | None:
         """
         Get volumes section.
@@ -101,10 +98,10 @@ class NocService(BaseService):
         return r if r else None
 
     def get_compose_environment(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, str] | None:
         """Get environment section."""
-        r: dict[str, str] = super().get_compose_environment(config, svc) or {}
+        r: dict[str, str] = super().get_compose_environment(svc) or {}
         if self.is_pooled:
             if not self._pool:
                 msg = f"Cannot use pooled service {self.name} without pool"
@@ -114,8 +111,8 @@ class NocService(BaseService):
 
     def prepare_compose_config(
         self,
-        config: Config,
-        svc: ServiceConfig | None,
+        svc: ServiceConfig | None = None,
+        *,
         services: list["BaseService"],
     ) -> None:
         """
@@ -127,18 +124,15 @@ class NocService(BaseService):
         if not _prepared_flags.may_process_config():
             return  # Already configured from other subclass
         # Write
-        cfg = self.get_noc_settings(config)
+        cfg = self.get_noc_settings()
         noc_settings.write(yaml.dump(cfg))
         # Ensure directories
         ensure_directory(Path("data", "crashinfo"))
         ensure_directory(config.local_backup_path)
 
-    def get_noc_settings(self, config: Config) -> dict[str, Any]:
+    def get_noc_settings(self) -> dict[str, Any]:
         """
         Get data for settings.yml.
-
-        Args:
-            config: Thor's config.
 
         Returns:
             Data which can be serialized to settings.yml.
@@ -169,7 +163,7 @@ class NocService(BaseService):
         return cfg
 
     def get_compose_volumes_config(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, dict[str, Any]] | None:
         """Generate crashinfo and backup volume."""
         if not _prepared_flags.may_process_volumes():
@@ -194,10 +188,10 @@ class NocService(BaseService):
         }
 
     def get_compose_extra(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> dict[str, Any] | None:
         """Set caps."""
-        r = super().get_compose_extra(config, svc) or {}
+        r = super().get_compose_extra(svc) or {}
         if (
             self.is_pooled
             and self.require_pool_network

@@ -13,7 +13,7 @@ Attributes:
 # NOC modules
 
 # Gufo Thor modules
-from gufo.thor.config import Config, ServiceConfig
+from gufo.thor.config import ServiceConfig, config
 
 from ..images import get_image
 from .base import BaseService, ComposeDependsCondition, Role
@@ -41,28 +41,25 @@ class StaticService(BaseService):
     rewrite_http_prefix = "/"
     role = Role.ASSET
 
-    def get_compose_image(
-        self, config: Config, svc: ServiceConfig | None
-    ) -> str:
+    def get_compose_image(self, svc: ServiceConfig | None = None) -> str:
         """Get docker-compose.yml `image` section.
 
         Use a service-specific or global NOC tag when configured.
 
         Args:
-            config: Gufo Thor config instance.
             svc: Service's config from `services` part, if any.
 
         Returns:
             Image name.
         """
-        image = get_image(config, "noc")
+        image = get_image("noc")
         tag = svc.tag if svc and svc.tag else config.noc.tag
         if tag:
             image = f"{image.rsplit(':', 1)[0]}:{tag}"
         return image
 
     def get_compose_volumes(
-        self, config: Config, svc: ServiceConfig | None
+        self, svc: ServiceConfig | None = None
     ) -> list[str] | None:
         """
         Get volumes section.
