@@ -21,6 +21,7 @@ from gufo.thor.config import Config, ServiceConfig
 
 # Gufo Thor modules
 from ..artefact import Artefact
+from ..images import get_image
 from .base import BaseService, ComposeDependsCondition
 
 
@@ -28,7 +29,6 @@ class ConsulService(BaseService):
     """consul service."""
 
     name = "consul"
-    compose_image = "consul:1.15"
     compose_depends_condition = ComposeDependsCondition.HEALTHY
     compose_healthcheck = {
         "test": [
@@ -45,6 +45,20 @@ class ConsulService(BaseService):
         "consul_data:/consul/data",
     ]
     compose_volumes_config = {"consul_data": {}}
+
+    def get_compose_image(
+        self, config: Config, svc: ServiceConfig | None
+    ) -> str:
+        """Get docker-compose.yml `image` section.
+
+        Args:
+            config: Gufo Thor config instance.
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Image name.
+        """
+        return get_image(config, self.name)
 
     def __init__(self) -> None:
         super().__init__()

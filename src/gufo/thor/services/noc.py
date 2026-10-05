@@ -15,11 +15,11 @@ import yaml
 # Gufo Thor modules
 from ..artefact import Artefact
 from ..config import Config, ServiceConfig
+from ..images import get_image
 from ..utils import ensure_directory, merge_dict
 from .base import BaseService, ComposeDependsCondition, Role
 
 noc_settings = Artefact("settings", Path("etc", "noc", "settings.yml"))
-NOC_IMAGE_BASE = "ghcr.io/gufolabs/noc"
 
 
 class NocService(BaseService):
@@ -39,16 +39,22 @@ class NocService(BaseService):
     def get_compose_image(
         self, config: Config, svc: ServiceConfig | None
     ) -> str:
-        """
-        Get image name.
+        """Get docker-compose.yml `image` section.
 
-        Use tag from service's config, if any. Otherwise use tag
-        from global config.
+        Use a service-specific or global NOC tag when configured.
+
+        Args:
+            config: Gufo Thor config instance.
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Image name.
         """
-        tag = config.noc.tag
-        if svc and svc.tag:
-            tag = svc.tag
-        return f"{NOC_IMAGE_BASE}:{tag}"
+        image = get_image(config, "noc")
+        tag = svc.tag if svc and svc.tag else config.noc.tag
+        if tag:
+            image = f"{image.rsplit(':', 1)[0]}:{tag}"
+        return image
 
     def get_compose_command(
         self, config: Config, svc: ServiceConfig | None

@@ -11,6 +11,9 @@ Attributes:
 """
 
 # Gufo Thor modules
+from gufo.thor.config import Config, ServiceConfig
+
+from ..images import get_image
 from .base import BaseService
 
 
@@ -18,7 +21,6 @@ class KafkaService(BaseService):
     """kafka service."""
 
     name = "kafka"
-    compose_image = "bitnamilegacy/kafka:3.6.2"
     compose_volumes = [
         "kafka_data:/bitnami/kafka/",
     ]
@@ -39,6 +41,20 @@ class KafkaService(BaseService):
         "KAFKA_CFG_LOG_FLUSH_INTERVAL_MS": "1000",
         "KAFKA_CFG_LOG_FLUSH_SCHEDULER_INTERVAL_MS": "1000",
     }
+
+    def get_compose_image(
+        self, config: Config, svc: ServiceConfig | None
+    ) -> str:
+        """Get docker-compose.yml `image` section.
+
+        Args:
+            config: Gufo Thor config instance.
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Image name.
+        """
+        return get_image(config, self.name)
 
 
 kafka = KafkaService()

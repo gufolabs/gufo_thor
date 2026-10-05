@@ -32,6 +32,7 @@ from .secret import Secret
 from .validator import as_int, as_ipv4, as_ipv4_prefix, as_str, errors
 
 DEFAULT_DOMAIN = "go.getnoc.com"
+DEFAULT_NOC_VERSION = "26-dev"
 LOCALHOST = "127.0.0.1"
 WILDCARD = "0.0.0.0"  # noqa:S104
 DEFAULT_WEB_PORT = 32777
@@ -44,7 +45,8 @@ class NocConfig:
     The `noc` section of the config.
 
     Attributes:
-        tag: NOC image tag
+        version: NOC version.
+        tag: Optional NOC image tag
         path: An optional path to the NOC source code. If not empty,
             image's `/opt/noc` will be replaced with.
         ui_path: An optional path to the compiled UI. If not empty,
@@ -59,7 +61,8 @@ class NocConfig:
         config: User-defined config.
     """
 
-    tag: str = "master"
+    version: str = DEFAULT_NOC_VERSION
+    tag: str | None = None
     path: str | None = None
     ui_path: str | None = None
     custom: str | None = None

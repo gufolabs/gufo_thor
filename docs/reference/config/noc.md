@@ -2,13 +2,23 @@
 
 Defines common noc configuration.
 
-## tag { #tag }
+## version { #version }
 
-Defines docker image tag. Default value is `master`.
+Selects the NOC release and the matching Docker images for NOC and its infrastructure services. The default and currently supported value is `26-dev`.
 
 ``` yaml
 noc:
-    tag: "24.1"
+    version: "26-dev"
+```
+
+## tag { #tag }
+
+Optional Docker image tag override for NOC application services. Normally, leave this unset and select the release with `version`; use `tag` mainly for development. When set, it replaces the tag in the NOC image selected by `version`. A service-specific tag takes precedence over this setting.
+
+``` yaml
+noc:
+    version: "26-dev"
+    tag: "my-feature-branch"
 ```
 
 ## path { #path }

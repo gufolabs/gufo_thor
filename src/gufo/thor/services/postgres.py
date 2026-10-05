@@ -14,6 +14,7 @@ Attributes:
 
 # Gufo Thor modules
 from ..config import Config, ServiceConfig
+from ..images import get_image
 from ..secret import postgres_password
 from .base import ComposeDependsCondition
 from .db import DBService
@@ -23,7 +24,6 @@ class PostgresService(DBService):
     """postgres service."""
 
     name = "postgres"
-    compose_image = "postgres:16"
     compose_depends_condition = ComposeDependsCondition.HEALTHY
     compose_healthcheck = {
         "test": ["CMD", "pg_isready", "-d", "noc"],
@@ -47,6 +47,20 @@ class PostgresService(DBService):
     compose_secrets_for_dependencies = [postgres_password]
     backup_script_template = "postgres_backup.sh.j2"
     restore_script_template = "postgres_restore.sh.j2"
+
+    def get_compose_image(
+        self, config: Config, svc: ServiceConfig | None
+    ) -> str:
+        """Get docker-compose.yml `image` section.
+
+        Args:
+            config: Gufo Thor config instance.
+            svc: Service's config from `services` part, if any.
+
+        Returns:
+            Image name.
+        """
+        return get_image(config, self.name)
 
     def get_compose_ports(
         self, config: Config, svc: ServiceConfig | None

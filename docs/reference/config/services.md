@@ -17,12 +17,12 @@ This section contains a list of services to start. Services can be specified as
 
 ## tag { #tag }
 
-Docker image tag to override global [tag](noc.md#tag) section for given service.
+For NOC application services, optionally override the image tag selected by [NOC version](noc.md#version) and global [NOC tag](noc.md#tag). Use this setting mainly for development; it takes precedence over `noc.tag`.
 
 ``` yaml
 services:
     web:
-        tag: "stable"
+        tag: "my-feature-branch"
 ```
 
 

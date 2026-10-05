@@ -37,11 +37,11 @@ Typically, a new NOC installation comes up in 1-2 minutes.
 
 ### Is Thor production-ready?
     
-Currently, Thor only supports the master branch. Official support for Thor will begin with the NOC 26 release.
+Thor currently supports only the `26-dev` image set, which uses a development build. Consider its stability before using it in production.
 
 ### What NOC versions does Thor support?
 
-Thor will officially support NOC starting with the upcoming NOC 26 release.
+Thor currently supports the `26-dev` image set. Set `noc.version` in `thor.yml` to select a supported version and its matching infrastructure images; use `noc.tag` only when you need a development image override.
 
 ### Can I use Thor with an existing NOC installation?
 
