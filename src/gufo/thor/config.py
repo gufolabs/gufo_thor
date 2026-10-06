@@ -865,7 +865,6 @@ class Config:
             config_file.write_text(get_sample("simple"))
         cfg = Config.from_file(config_file)
         self.apply(cfg)
-        err.setup(catch_all=True, format="extend")
 
 
 def get_sample(name: str) -> str:
@@ -914,3 +913,4 @@ def with_config(cfg: Config) -> Iterator[Config]:
 
 
 config = Config.default()
+err.setup(catch_all=True, format="extend")
