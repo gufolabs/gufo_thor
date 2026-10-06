@@ -10,6 +10,7 @@ Man pages for the `gufo-thor` command-line interface.
 | [`gufo-thor console`](console.md) | Run a lab node console. |
 | [`gufo-thor destroy`](destroy.md) | Destroy the installation. |
 | [`gufo-thor logs`](logs.md) | Show service logs. |
+| [`gufo-thor migrate-mongo`](migrate-mongo.md) | Migrate MongoDB FCV. |
 | [`gufo-thor pause`](pause.md) | Pause service containers. |
 | [`gufo-thor prepare`](prepare.md) | Prepare services configuration. |
 | [`gufo-thor restart`](restart.md) | Restart services. |

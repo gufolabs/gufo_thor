@@ -49,11 +49,11 @@ NOC_VERSION_SETTINGS = {
     "26-dev": VersionSettings(
         noc_image="ghcr.io/gufolabs/noc:master",
         postgres_image="postgres:16",
-        mongo_image="mongo:4.4",
+        mongo_image="mongo:9.0",
         clickhouse_image="clickhouse/clickhouse-server:23",
         kafka_image="bitnamilegacy/kafka:3.6.2",
         consul_image="consul:1.15",
-        target_mongo_fcv=LEGACY_MONGO_FCV,
+        target_mongo_fcv="9.0",
     )
 }
 

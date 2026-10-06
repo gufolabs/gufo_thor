@@ -268,6 +268,17 @@ class Docker:
         cmd = self._extend_docker_cmd(*args)
         return self._check_call(cmd)
 
+    def run(self, *args: str) -> bool:
+        """Run a Docker container and wait for it to exit.
+
+        Args:
+            *args: Arguments passed after ``docker run``.
+
+        Returns:
+            True if the container exits successfully, otherwise False.
+        """
+        return self._docker_command("run", *args)
+
     def _compose_output(self, *args: str) -> str:
         """
         Run compose command and capture output.
