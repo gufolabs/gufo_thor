@@ -12,6 +12,12 @@ from typing import cast
 # Gufo Thor modules
 from .config import config
 
+# Default MongoDB FCV if not present in the state.
+# We assume that only early NOC 26-dev installations can be
+# encountered, which use FCV 4.4.
+# Fresh installations use the FCV from the current NOC version.
+LEGACY_MONGO_FCV = "4.4"
+
 
 @dataclass
 class VersionSettings:
@@ -25,6 +31,8 @@ class VersionSettings:
         clickhouse_image: Docker image for ClickHouse.
         kafka_image: Docker image for Kafka.
         consul_image: Docker image for Consul.
+        target_mongo_fcv: Target mongo feature compatibility version,
+            expected for ``mongo_image``.
     """
 
     noc_image: str
@@ -33,6 +41,7 @@ class VersionSettings:
     clickhouse_image: str
     kafka_image: str
     consul_image: str
+    target_mongo_fcv: str
 
 
 # Docker image settings indexed by NOC version.
@@ -44,11 +53,28 @@ NOC_VERSION_SETTINGS = {
         clickhouse_image="clickhouse/clickhouse-server:23",
         kafka_image="bitnamilegacy/kafka:3.6.2",
         consul_image="consul:1.15",
+        target_mongo_fcv=LEGACY_MONGO_FCV,
     )
 }
 
 # Sentinel object used to indicate a missing value.
 SENTINEL = object()
+
+
+def get_version_settings() -> VersionSettings:
+    """Get settings for the configured NOC version.
+
+    Returns:
+        Version settings for the configured NOC version.
+
+    Raises:
+        RuntimeError: If the configured NOC version is not supported.
+    """
+    nv = config.noc.version
+    if nv not in NOC_VERSION_SETTINGS:
+        msg = f"NOC {nv} is not supported"
+        raise RuntimeError(msg)
+    return NOC_VERSION_SETTINGS[nv]
 
 
 def get_image(name: str) -> str:
@@ -65,11 +91,7 @@ def get_image(name: str) -> str:
         RuntimeError: If the configured NOC version is not supported or
             the requested service image is not defined.
     """
-    nv = config.noc.version
-    vs = NOC_VERSION_SETTINGS.get(nv, SENTINEL)
-    if vs is SENTINEL:
-        msg = f"NOC {nv} is not supported"
-        raise RuntimeError(msg)
+    vs = get_version_settings()
     img = getattr(vs, f"{name}_image", SENTINEL)
     if img is SENTINEL:
         msg = f"Cannot get image for {name}"
