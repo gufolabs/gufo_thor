@@ -13,8 +13,11 @@ Attributes:
 from __future__ import annotations
 
 import json
+from collections.abc import Generator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 # Gufo Thor modules
 from .utils import ensure_directory
@@ -86,6 +89,44 @@ class State:
                 indent=2,
             )
         tmp.replace(STATE_FILE)
+
+    def apply(self, other: State) -> None:
+        """Apply values from another state.
+
+        Args:
+            other: State to copy values from.
+        """
+        self.mongo_fcv = other.mongo_fcv
+        self.noc_version = other.noc_version
+
+
+@contextmanager
+def with_state(new_state: State | None = None) -> Generator[State]:
+    """Temporarily replace the global installation state.
+
+    Changes to the global state and state file are isolated to the context.
+    The original state and state file path are restored when leaving the
+    context, including when an exception is raised.
+
+    Args:
+        new_state: State to use inside the context. If not specified, an
+            empty state is used.
+
+    Yields:
+        The temporary installation state.
+    """
+    global STATE_FILE  # noqa: PLW0603
+    prev_state = State()
+    prev_state.apply(state)
+    prev_path = STATE_FILE
+    state.apply(new_state or State())
+    with TemporaryDirectory() as tmp:
+        STATE_FILE = Path(tmp, "state.json")
+        try:
+            yield state
+        finally:
+            STATE_FILE = prev_path
+            state.apply(prev_state)
 
 
 state = State.from_file(STATE_FILE)
