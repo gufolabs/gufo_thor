@@ -21,13 +21,14 @@ from typing import (
     cast,
 )
 
-# Third-party modules
 import yaml
 
-from .ip import IPv4Address, IPv4Prefix
-from .log import logger
+# Third-party modules
+from gufo.err import err
 
 # Gufo Thor modules
+from .ip import IPv4Address, IPv4Prefix
+from .log import logger
 from .secret import Secret
 from .validator import as_int, as_ipv4, as_ipv4_prefix, as_str, errors
 
@@ -912,3 +913,4 @@ def with_config(cfg: Config) -> Iterator[Config]:
 
 
 config = Config.default()
+err.setup(catch_all=True, format="extend")
