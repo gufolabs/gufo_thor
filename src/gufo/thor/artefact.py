@@ -60,8 +60,7 @@ class Artefact:
     def __init__(self, name: str, local_path: Path) -> None:
         self.name = name
         if is_test() and self._local_base is DEFAULT_LOCAL_BASE:
-            msg = "_set_local_base() must be called for tests"
-            raise RuntimeError(msg)
+            raise RuntimeError("_set_local_base() must be called for tests")
         self.local_path = self._local_base / local_path
         self._container_path: Path | None = None
 
@@ -117,14 +116,14 @@ class Artefact:
             ValueError: on misconfigurations.
         """
         if not self._container_path:
-            msg = "Artefact {self.name} is not mounted"
-            raise ValueError(msg)
+            raise ValueError("Artefact {self.name} is not mounted")
         if not self.local_path.exists():
             msg = f"Artefact {self.name}: file {self.local_path} is not exists"
             raise ValueError(msg)
         if self._has_symlinks(self.local_path):
-            msg = f"Artefact {self.name}: must be file or directory"
-            raise ValueError(msg)
+            raise ValueError(
+                f"Artefact {self.name}: must be file or directory"
+            )
         if self.local_path.is_file():
             yield ArtefactMountPoint(
                 name=self.name,
@@ -178,6 +177,7 @@ class Artefact:
             path: New local base.
         """
         if not is_test():
-            msg = "_set_local_base must be called under the tests"
-            raise RuntimeError(msg)
+            raise RuntimeError(
+                "_set_local_base must be called under the tests"
+            )
         cls._local_base = path or DEFAULT_LOCAL_BASE

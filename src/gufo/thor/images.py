@@ -72,8 +72,7 @@ def get_version_settings() -> VersionSettings:
     """
     nv = config.noc.version
     if nv not in NOC_VERSION_SETTINGS:
-        msg = f"NOC {nv} is not supported"
-        raise RuntimeError(msg)
+        raise RuntimeError(f"NOC {nv} is not supported")
     return NOC_VERSION_SETTINGS[nv]
 
 
@@ -94,6 +93,5 @@ def get_image(name: str) -> str:
     vs = get_version_settings()
     img = getattr(vs, f"{name}_image", SENTINEL)
     if img is SENTINEL:
-        msg = f"Cannot get image for {name}"
-        raise RuntimeError(msg)
+        raise RuntimeError(f"Cannot get image for {name}")
     return cast(str, img)

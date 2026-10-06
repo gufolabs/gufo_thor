@@ -36,8 +36,9 @@ class TrapcollectorService(NocService):
         """Generate docker-compose network."""
         r = super().get_compose_networks(svc)
         if not self._pool:
-            msg = f"Cannot use pooled service {self.name} without pool"
-            raise ValueError(msg)
+            raise ValueError(
+                f"Cannot use pooled service {self.name} without pool"
+            )
         addr = config.pools[self._pool].address.trap
         if addr:
             r[f"pool-{self._pool}"]["ipv4_address"] = str(addr)
@@ -50,8 +51,9 @@ class TrapcollectorService(NocService):
         """Set listen address."""
         env = super().get_compose_environment(svc) or {}
         if not self._pool:
-            msg = f"Cannot use pooled service {self.name} without pool"
-            raise ValueError(msg)
+            raise ValueError(
+                f"Cannot use pooled service {self.name} without pool"
+            )
         addr = config.pools[self._pool].address.trap
         if addr:
             env["NOC_TRAPCOLLECTOR_LISTEN"] = f"{addr}:162"

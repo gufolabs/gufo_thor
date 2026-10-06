@@ -31,6 +31,5 @@ def remove_backup(name: str) -> None:
         raise ValueError(msg)
     backup_path = config.local_backup_path / name
     if backup_path.is_symlink() or not backup_path.is_dir():
-        msg = f"Backup {name} does not exist"
-        raise ValueError(msg)
+        raise ValueError(f"Backup {name} does not exist")
     shutil.rmtree(backup_path)

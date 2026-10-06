@@ -93,8 +93,7 @@ class Entrypoint:
     def __init__(self, fn: click.Command) -> None:
         self.fn = fn
         if fn.callback is None:
-            message = "CLI entrypoint must have a command callback"
-            raise TypeError(message)
+            raise TypeError("CLI entrypoint must have a command callback")
         self.__module__ = fn.callback.__module__
 
     def get_command(self) -> click.Command:

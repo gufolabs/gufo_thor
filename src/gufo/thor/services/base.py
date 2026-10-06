@@ -171,8 +171,7 @@ class BaseService(ABC):
     def get_compose_name(self) -> str:
         """Get service name for docker-compose."""
         if self.is_pooled and not self._pool:
-            msg = f"Cannot use service {self.name} without pool"
-            raise ValueError(msg)
+            raise ValueError(f"Cannot use service {self.name} without pool")
         if self.is_pooled:
             return f"{self.name}-{self._pool}"
         return self.name
@@ -195,8 +194,9 @@ class BaseService(ABC):
                     )
                     raise ValueError(msg)
                 if not self._pool:
-                    msg = f"Cannot use unbound pooled service {self.name}"
-                    raise ValueError(msg)
+                    raise ValueError(
+                        f"Cannot use unbound pooled service {self.name}"
+                    )
                 yield svc.as_pooled(self._pool)
             else:
                 yield svc
@@ -333,8 +333,7 @@ class BaseService(ABC):
         try:
             return self.compose_image
         except AttributeError as e:
-            msg = "compose_image is not defined"
-            raise NotImplementedError(msg) from e
+            raise NotImplementedError("compose_image is not defined") from e
 
     def get_compose_working_dir(
         self, svc: ServiceConfig | None = None
@@ -393,8 +392,9 @@ class BaseService(ABC):
         r: dict[str, dict[str, Any]] = {"noc": {"interface_name": "eth0"}}
         if self.is_pooled and self.require_pool_network:
             if not self._pool:
-                msg = f"Pooled service {self.name} is used without pool"
-                raise ValueError(msg)
+                raise ValueError(
+                    f"Pooled service {self.name} is used without pool"
+                )
             r[f"pool-{self._pool}"] = {"interface_name": "eth1"}
         return r
 
@@ -612,8 +612,9 @@ class BaseService(ABC):
         else:
             svc = loader[name]
             if svc.is_pooled:
-                msg = f"Cannot use pooled service `{name}` without pool"
-                raise ValueError(msg)
+                raise ValueError(
+                    f"Cannot use pooled service `{name}` without pool"
+                )
         _services[name] = svc
         return svc
 

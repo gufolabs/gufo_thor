@@ -30,8 +30,9 @@ def _get_backup_mount_path(service: DBService) -> str:
         parts = volume.split(":")
         if parts[0] == "backup" and len(parts) > 1:
             return parts[1]
-    msg = f"Service {service.name} does not mount the backup volume"
-    raise ValueError(msg)
+    raise ValueError(
+        f"Service {service.name} does not mount the backup volume"
+    )
 
 
 def _run_restore(
@@ -55,8 +56,7 @@ def _run_restore(
         service.get_compose_name(),
         f"./{service.get_restore_script_name()}",
     ):
-        msg = f"Restore failed for service {service.name}"
-        raise RuntimeError(msg)
+        raise RuntimeError(f"Restore failed for service {service.name}")
 
 
 def restore(name: str, items: list[str] | None = None) -> None:
@@ -79,12 +79,10 @@ def restore(name: str, items: list[str] | None = None) -> None:
     unsupported = selected - BACKUP_SERVICES
     if unsupported:
         names = ", ".join(sorted(unsupported))
-        msg = f"Restore is not supported for services: {names}"
-        raise ValueError(msg)
+        raise ValueError(f"Restore is not supported for services: {names}")
     backup_path = config.local_backup_path / name
     if not backup_path.is_dir():
-        msg = f"Backup {name} does not exist"
-        raise ValueError(msg)
+        raise ValueError(f"Backup {name} does not exist")
     services = [
         cast(DBService, loader[service_name])
         for service_name in sorted(selected)
@@ -102,11 +100,9 @@ def restore(name: str, items: list[str] | None = None) -> None:
     ]
     if missing:
         names = ", ".join(missing)
-        msg = f"Backup {name} does not contain dumps for: {names}"
-        raise ValueError(msg)
+        raise ValueError(f"Backup {name} does not contain dumps for: {names}")
     if not services:
-        msg = f"Backup {name} does not contain database dumps"
-        raise ValueError(msg)
+        raise ValueError(f"Backup {name} does not contain database dumps")
     compose_names = [service.get_compose_name() for service in services]
     with docker.with_started(compose_names), docker.with_paused():
         for service in services:

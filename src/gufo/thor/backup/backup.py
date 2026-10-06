@@ -37,8 +37,9 @@ def _get_backup_mount_path(service: DBService) -> str:
         parts = volume.split(":")
         if parts[0] == "backup" and len(parts) > 1:
             return parts[1]
-    msg = f"Service {service.name} does not mount the backup volume"
-    raise ValueError(msg)
+    raise ValueError(
+        f"Service {service.name} does not mount the backup volume"
+    )
 
 
 def _write_scripts(service: DBService, root: Path) -> None:
@@ -72,8 +73,7 @@ def _run_backup(service: DBService, backup_name: str) -> None:
         service.get_compose_name(),
         f"./{service.get_backup_script_name()}",
     ):
-        msg = f"Backup failed for service {service.name}"
-        raise RuntimeError(msg)
+        raise RuntimeError(f"Backup failed for service {service.name}")
 
 
 def backup(
@@ -92,8 +92,7 @@ def backup(
     unsupported = selected - BACKUP_SERVICES
     if unsupported:
         names = ", ".join(sorted(unsupported))
-        msg = f"Backup is not supported for services: {names}"
-        raise ValueError(msg)
+        raise ValueError(f"Backup is not supported for services: {names}")
     if name is None:
         backup_name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     elif not BACKUP_NAME_RE.fullmatch(name):

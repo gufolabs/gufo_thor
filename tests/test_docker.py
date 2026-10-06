@@ -349,8 +349,7 @@ def test_with_started_raises_if_started_service_cannot_be_stopped() -> None:
 def test_with_started_stops_service_after_body_error() -> None:
     def raise_with_started() -> None:
         with docker.with_started(["postgres"]):
-            msg = "backup failed"
-            raise ValueError(msg)
+            raise ValueError("backup failed")
 
     docker = MockDocker()
     docker.feed_output("")
@@ -400,8 +399,7 @@ def test_with_paused_reports_failed_unpauses() -> None:
 def test_with_paused_unpauses_containers_after_body_error() -> None:
     def raise_in_pause() -> None:
         with docker.with_paused():
-            msg = "restore failed"
-            raise ValueError(msg)
+            raise ValueError("restore failed")
 
     docker = MockDocker()
     docker.feed_output(COMPOSE_CONFIG)
