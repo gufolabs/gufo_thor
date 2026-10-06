@@ -55,6 +55,22 @@ NOC_VERSION_SETTINGS = {
 SENTINEL = object()
 
 
+def get_version_settings() -> VersionSettings:
+    """Get settings for the configured NOC version.
+
+    Returns:
+        Version settings for the configured NOC version.
+
+    Raises:
+        RuntimeError: If the configured NOC version is not supported.
+    """
+    nv = config.noc.version
+    if nv not in NOC_VERSION_SETTINGS:
+        msg = f"NOC {nv} is not supported"
+        raise RuntimeError(msg)
+    return NOC_VERSION_SETTINGS[nv]
+
+
 def get_image(name: str) -> str:
     """
     Get the Docker image for a service.
@@ -69,28 +85,9 @@ def get_image(name: str) -> str:
         RuntimeError: If the configured NOC version is not supported or
             the requested service image is not defined.
     """
-    nv = config.noc.version
-    vs = NOC_VERSION_SETTINGS.get(nv, SENTINEL)
-    if vs is SENTINEL:
-        msg = f"NOC {nv} is not supported"
-        raise RuntimeError(msg)
+    vs = get_version_settings()
     img = getattr(vs, f"{name}_image", SENTINEL)
     if img is SENTINEL:
         msg = f"Cannot get image for {name}"
         raise RuntimeError(msg)
     return cast(str, img)
-
-
-def get_version_settings() -> VersionSettings:
-    """Get settings for the configured NOC version.
-
-    Returns:
-        Version settings for the configured NOC version.
-
-    Raises:
-        RuntimeError: If the configured NOC version is not supported.
-    """
-    if config.noc.version not in NOC_VERSION_SETTINGS:
-        msg = f"Unsupported NOC version: {config.noc.version}"
-        raise RuntimeError(msg)
-    return NOC_VERSION_SETTINGS[config.noc.version]
