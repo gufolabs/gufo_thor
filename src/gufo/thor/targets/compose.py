@@ -18,7 +18,7 @@ from gufo.thor import __version__
 
 from ..artefact import ArtefactMountPoint
 from ..config import config
-from ..images import get_version_settings
+from ..images import LEGACY_MONGO_FCV, get_version_settings
 from ..labs.base import BaseLab
 from ..state import state
 from ..utils import ensure_directory, write_file
@@ -230,7 +230,9 @@ class ComposeTarget(BaseTarget):
         """
         vs = get_version_settings()
         if state.mongo_fcv is None:
-            state.mongo_fcv = vs.target_mongo_fcv if first_install else "4.4"
+            state.mongo_fcv = (
+                vs.target_mongo_fcv if first_install else LEGACY_MONGO_FCV
+            )
             state.save()
             return
         if state.mongo_fcv != vs.target_mongo_fcv:

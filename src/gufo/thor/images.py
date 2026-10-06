@@ -12,6 +12,12 @@ from typing import cast
 # Gufo Thor modules
 from .config import config
 
+# Default MongoDB FCV if not present in the state.
+# We assume that only early NOC 26-dev installations can be
+# encountered, which use FCV 4.4.
+# Fresh installations use the FCV from the current NOC version.
+LEGACY_MONGO_FCV = "4.4"
+
 
 @dataclass
 class VersionSettings:
@@ -47,7 +53,7 @@ NOC_VERSION_SETTINGS = {
         clickhouse_image="clickhouse/clickhouse-server:23",
         kafka_image="bitnamilegacy/kafka:3.6.2",
         consul_image="consul:1.15",
-        target_mongo_fcv="4.4",
+        target_mongo_fcv=LEGACY_MONGO_FCV,
     )
 }
 
