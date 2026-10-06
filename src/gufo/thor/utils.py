@@ -16,6 +16,18 @@ from typing import Any
 from .log import logger
 
 
+def split_version(v: str) -> tuple[int, ...]:
+    """Parse a version string into comparable integer components.
+
+    Args:
+        v: Dot-separated version string.
+
+    Returns:
+        Version components as a tuple of integers.
+    """
+    return tuple(int(x) for x in v.split("."))
+
+
 def write_file(
     path: Path, content: str | bytes, backup_path: Path | None = None
 ) -> bool:

@@ -163,6 +163,16 @@ gufo-thor upgrade
 
 The command pulls all images in the Compose project, including NOC services, databases, and other infrastructure components.
 
+## Migrating MongoDB FCV
+
+To migrate MongoDB's Feature Compatibility Version (FCV) to the version required by the configured NOC release, one supported FCV at a time, use:
+
+```shell
+gufo-thor migrate-mongo
+```
+
+The command records each completed FCV in the Thor state file and prints the total migration time.
+
 ## Destroying Installation
 
 To destroy installation and free resources:

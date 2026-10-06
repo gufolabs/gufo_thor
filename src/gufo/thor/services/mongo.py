@@ -25,7 +25,13 @@ class MongoService(DBService):
     name = "mongo"
     compose_depends_condition = ComposeDependsCondition.HEALTHY
     compose_healthcheck = {
-        "test": ["CMD", "mongo", "--eval", "db.runCommand({ ping: 1 })"],
+        "test": [
+            "CMD",
+            "mongosh",
+            "--quiet",
+            "--eval",
+            "db.runCommand({ ping: 1 })",
+        ],
         "interval": "3s",
         "timeout": "3s",
         "start_period": "1s",

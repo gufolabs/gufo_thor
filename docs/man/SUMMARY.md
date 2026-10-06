@@ -3,6 +3,7 @@
 * [gufo-thor console](console.md)
 * [gufo-thor destroy](destroy.md)
 * [gufo-thor logs](logs.md)
+* [gufo-thor migrate-mongo](migrate-mongo.md)
 * [gufo-thor pause](pause.md)
 * [gufo-thor prepare](prepare.md)
 * [gufo-thor restart](restart.md)

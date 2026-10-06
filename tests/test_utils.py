@@ -20,6 +20,7 @@ from gufo.thor.utils import (
     humanize_time,
     is_test,
     merge_dict,
+    split_version,
     write_file,
 )
 
@@ -29,6 +30,18 @@ from .utils import suppress_is_test
 def read_file(path: Path) -> str:
     with open(path) as fp:
         return fp.read()
+
+
+@pytest.mark.parametrize(
+    ("version", "expected"),
+    [
+        ("4.4", (4, 4)),
+        ("8.2", (8, 2)),
+        ("10.12.3", (10, 12, 3)),
+    ],
+)
+def test_split_version(version: str, expected: tuple[int, ...]) -> None:
+    assert split_version(version) == expected
 
 
 @pytest.mark.parametrize("path", [Path("a"), Path("b", "c"), Path("d", "e")])

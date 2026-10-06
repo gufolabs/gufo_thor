@@ -17,7 +17,7 @@ from gufo.thor.images import get_image
     [
         ("noc", "ghcr.io/gufolabs/noc:master"),
         ("postgres", "postgres:16"),
-        ("mongo", "mongo:4.4"),
+        ("mongo", "mongo:9.0"),
         ("clickhouse", "clickhouse/clickhouse-server:23"),
         ("kafka", "bitnamilegacy/kafka:3.6.2"),
         ("consul", "consul:1.15"),
