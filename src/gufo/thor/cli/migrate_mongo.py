@@ -31,7 +31,8 @@ def migrate_mongo(ctx: Context) -> None:
     """
     if docker.is_service_running("mongo"):
         ctx.die(
-            "MongoDB container is running. Stop it before migrating MongoDB FCV."
+            "MongoDB container is running. "
+            "Stop it before migrating MongoDB FCV."
         )
     started_at = time.monotonic()
     current_fcv = state.mongo_fcv or LEGACY_MONGO_FCV

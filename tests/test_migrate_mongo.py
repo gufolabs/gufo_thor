@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import pytest
 
 # Gufo Thor modules
-import gufo.thor.migrate.mongo as mongo
+from gufo.thor.migrate import mongo
 
 
 @pytest.mark.parametrize(
