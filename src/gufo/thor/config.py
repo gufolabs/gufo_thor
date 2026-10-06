@@ -21,13 +21,14 @@ from typing import (
     cast,
 )
 
-# Third-party modules
 import yaml
 
-from .ip import IPv4Address, IPv4Prefix
-from .log import logger
+# Third-party modules
+from gufo.err import err
 
 # Gufo Thor modules
+from .ip import IPv4Address, IPv4Prefix
+from .log import logger
 from .secret import Secret
 from .validator import as_int, as_ipv4, as_ipv4_prefix, as_str, errors
 
@@ -864,6 +865,7 @@ class Config:
             config_file.write_text(get_sample("simple"))
         cfg = Config.from_file(config_file)
         self.apply(cfg)
+        err.setup(catch_all=True, format="extend")
 
 
 def get_sample(name: str) -> str:
