@@ -104,8 +104,9 @@ class NocService(BaseService):
         r: dict[str, str] = super().get_compose_environment(svc) or {}
         if self.is_pooled:
             if not self._pool:
-                msg = f"Cannot use pooled service {self.name} without pool"
-                raise ValueError(msg)
+                raise ValueError(
+                    f"Cannot use pooled service {self.name} without pool"
+                )
             r["NOC_POOL"] = self._pool
         return r if r else None
 

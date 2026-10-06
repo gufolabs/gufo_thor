@@ -58,20 +58,16 @@ class State:
             try:
                 data = json.load(fp)
             except json.JSONDecodeError as e:
-                msg = f"Broken JSON: {e}"
-                raise RuntimeError(msg) from e
+                raise RuntimeError(f"Broken JSON: {e}") from e
         if not isinstance(data, dict):
-            msg = "Broken state"
-            raise RuntimeError(msg)
+            raise RuntimeError("Broken state")
         if (noc_version := data.get("noc_version")) is not None:
             if not isinstance(noc_version, str):
-                msg = "Invalid noc_version"
-                raise RuntimeError(msg)
+                raise RuntimeError("Invalid noc_version")
             state.noc_version = noc_version
         if (mongo_fcv := data.get("mongo_fcv")) is not None:
             if not isinstance(mongo_fcv, str):
-                msg = "Invalid mongo_fcv"
-                raise RuntimeError(msg)
+                raise RuntimeError("Invalid mongo_fcv")
             state.mongo_fcv = mongo_fcv
         return state
 

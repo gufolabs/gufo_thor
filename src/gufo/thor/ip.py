@@ -19,8 +19,7 @@ class IPv4Address:
     def __init__(self, v: str) -> None:
         parts = [int(x) for x in v.split(".")]
         if len(parts) != 4:  # noqa: PLR2004
-            msg = "invalid address"
-            raise ValueError(msg)
+            raise ValueError("invalid address")
         self._addr = ".".join(str(x) for x in parts)
 
     def __str__(self) -> str:
@@ -103,13 +102,11 @@ class IPv4Prefix:
         try:
             n, m = v.split("/")
         except ValueError as e:
-            msg = "invalid prefix"
-            raise ValueError(msg) from e
+            raise ValueError("invalid prefix") from e
         self._addr = IPv4Address(n)
         mask = int(m)
         if mask < 0 or mask > MAX_IPV4_MASK:
-            msg = "invalid mask"
-            raise ValueError(msg)
+            raise ValueError("invalid mask")
         self._mask = mask
 
     def __str__(self) -> str:

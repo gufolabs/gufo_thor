@@ -447,12 +447,14 @@ class Docker:
                 "up", "-d", "--no-deps", *stopped
             ):
                 names = ", ".join(stopped)
-                msg = f"Failed to start database services: {names}"
-                raise RuntimeError(msg)
+                raise RuntimeError(
+                    f"Failed to start database services: {names}"
+                )
             for service in selected:
                 if not self.is_service_running(service):
-                    msg = f"Database service {service} is not running"
-                    raise RuntimeError(msg)
+                    raise RuntimeError(
+                        f"Database service {service} is not running"
+                    )
             yield
         finally:
             running = [
@@ -462,8 +464,9 @@ class Docker:
             ]
             if running and not self._compose_command("stop", *running):
                 names = ", ".join(running)
-                msg = f"Failed to stop database services: {names}"
-                raise RuntimeError(msg)
+                raise RuntimeError(
+                    f"Failed to stop database services: {names}"
+                )
 
     @contextmanager
     def with_paused(
@@ -488,8 +491,9 @@ class Docker:
         try:
             for container in containers:
                 if not self._docker_command("pause", container):
-                    msg = f"Failed to pause container {container}"
-                    raise RuntimeError(msg)
+                    raise RuntimeError(
+                        f"Failed to pause container {container}"
+                    )
                 paused.append(container)
             yield
         finally:
@@ -499,8 +503,7 @@ class Docker:
                     failed.append(container)
             if failed:
                 names = ", ".join(failed)
-                msg = f"Failed to unpause containers: {names}"
-                raise RuntimeError(msg)
+                raise RuntimeError(f"Failed to unpause containers: {names}")
 
     def pause(self, labels: Iterable[str] | None = None) -> bool:
         """
