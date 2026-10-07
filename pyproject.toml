@@ -173,6 +173,7 @@ gufo-thor = "gufo.thor.cli.base:main"
 [project.urls]
 "Bug Tracker" = "https://github.com/gufolabs/gufo_thor/issues"
 Changelog = "https://github.com/gufolabs/gufo_thor/blob/master/CHANGELOG.md"
+Discord = "https://discord.gg/fqpfDJ3Et"
 Documentation = "https://docs.gufolabs.com/gufo_thor/"
 Homepage = "https://github.com/gufolabs/gufo_thor/"
 "Source Code" = "https://github.com/gufolabs/gufo_thor/"
