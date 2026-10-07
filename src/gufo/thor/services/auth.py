@@ -26,9 +26,7 @@ class AuthService(NocHcService):
     dependencies = (envoy, kafka, migrate, mongo)
     allow_scale = True
     expose_http_prefix = "/api/auth/"
-    compose_command = (
-        "/usr/local/bin/python3 /opt/noc/services/login/service.py"
-    )
+    compose_command = "/usr/local/bin/python3 -m noc.services.login"
     compose_secrets = [secret_key]
 
 

@@ -47,11 +47,9 @@ class NocService(BaseService):
         Returns:
             Image name.
         """
-        image = get_image("noc")
         tag = svc.tag if svc and svc.tag else config.noc.tag
-        if tag:
-            image = f"{image.rsplit(':', 1)[0]}:{tag}"
-        return image
+        image = get_image("noc")
+        return f"{image.rsplit(':', 1)[0]}:{tag}" if tag else image
 
     def get_compose_command(
         self, svc: ServiceConfig | None = None
@@ -59,9 +57,7 @@ class NocService(BaseService):
         """Get command section."""
         if self.compose_command:
             return self.compose_command
-        cmd = (
-            f"/usr/local/bin/python3 /opt/noc/services/{self.name}/service.py"
-        )
+        cmd = f"/usr/local/bin/python3 -m noc.services.{self.name}"
         if (
             self.is_pooled
             and self.require_pool_network
