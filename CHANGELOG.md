@@ -21,6 +21,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 ### Changed
 
 * Split CLI commands into separate modules, use `die()` for errors, and add command man pages.
+* NOC services are now started via `python -m noc.services.xxx`.
 
 ### Removed
 
