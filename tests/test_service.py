@@ -298,8 +298,8 @@ services: [web,static]
 @pytest.mark.parametrize(
     ("service", "conf", "expected"),
     [
-        (web, None, f"{NOC_IMAGE_BASE}:master"),
-        (static, None, f"{NOC_IMAGE_BASE}:master"),
+        (web, None, f"{NOC_IMAGE_BASE}:26-dev"),
+        (static, None, f"{NOC_IMAGE_BASE}:26-dev"),
         (web, CONF_NOC_TAG, f"{NOC_IMAGE_BASE}:{ALTER_RELEASE_TAG}"),
         (static, CONF_NOC_TAG, f"{NOC_IMAGE_BASE}:{ALTER_RELEASE_TAG}"),
     ],
