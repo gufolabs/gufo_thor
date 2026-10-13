@@ -18,14 +18,13 @@ from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
 from .postgres import postgres
-from .static import static
 
 
 class UiService(NocService):
     """ui service."""
 
     name = "ui"
-    dependencies = (auth, envoy, login, migrate, mongo, postgres, static)
+    dependencies = (auth, envoy, login, migrate, mongo, postgres)
     expose_http_prefix = "/api/ui/"
 
 
