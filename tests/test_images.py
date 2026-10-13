@@ -15,7 +15,7 @@ from gufo.thor.images import get_image
 @pytest.mark.parametrize(
     ("service", "expected"),
     [
-        ("noc", "ghcr.io/gufolabs/noc:master"),
+        ("noc", "ghcr.io/gufolabs/noc:26-dev"),
         ("postgres", "postgres:16"),
         ("mongo", "mongo:9.0"),
         ("clickhouse", "clickhouse/clickhouse-server:23"),
