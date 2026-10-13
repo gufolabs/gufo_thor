@@ -27,6 +27,7 @@ static_resources:
                           upstream_host: "%UPSTREAM_HOST%"
                           duration: "%DURATION%"
                           user_agent: "%REQ(USER-AGENT)%"
+                          compression_status: "%RESP(X-ENVOY-COMPRESSION-STATUS)%"
                 route_config:
                   name: route
                   virtual_hosts:
@@ -88,6 +89,7 @@ static_resources:
                             - application/json
                             - application/javascript
                         disable_on_etag_header: true
+                        status_header_enabled: true
                       request_direction_config:
                         common_config:
                           enabled:
