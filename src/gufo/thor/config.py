@@ -51,7 +51,7 @@ class NocConfig:
         path: An optional path to the NOC source code. If not empty,
             image's `/opt/noc` will be replaced with.
         ui_path: An optional path to the compiled UI. If not empty,
-            static image's `/www` will be replaced with.
+            web image's `/opt/noc/src/noc/ui` will be replaced with.
         custom: Optional path to the custom, will be mounted
             in the `/opt/noc_custom` directory.
         installation_name: The installation name which will be shown
