@@ -47,7 +47,7 @@ class VersionSettings:
 # Docker image settings indexed by NOC version.
 NOC_VERSION_SETTINGS = {
     "26-dev": VersionSettings(
-        noc_image="ghcr.io/gufolabs/noc:master",
+        noc_image="ghcr.io/gufolabs/noc:26-dev",
         postgres_image="postgres:16",
         mongo_image="mongo:9.0",
         clickhouse_image="clickhouse/clickhouse-server:23",
