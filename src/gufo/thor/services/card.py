@@ -19,7 +19,6 @@ from .migrate import migrate
 from .mongo import mongo
 from .noc import NocService
 from .postgres import postgres
-from .static import static
 from .web import web
 
 
@@ -35,7 +34,6 @@ class CardService(NocService):
         migrate,
         mongo,
         postgres,
-        static,
         web,
     )
     expose_http_prefix = "/api/card/"

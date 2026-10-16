@@ -27,6 +27,7 @@ from gufo.loader import Loader
 from ..artefact import Artefact
 from ..config import ServiceConfig
 from ..docker import docker
+from ..route import Route
 from ..secret import Secret
 
 LABEL_NS = "com.gufolabs"
@@ -572,16 +573,20 @@ class BaseService(ABC):
         """
         return
 
-    def get_expose_http_prefix(
-        self, svc: ServiceConfig | None = None
-    ) -> str | None:
+    def iter_routes(self, svc: ServiceConfig | None = None) -> Iterable[Route]:
         """
-        Iterate over exposed http paths.
+        Iterate over the service's HTTP routes.
 
         Args:
             svc: Service's config from `services` part, if any.
         """
-        return self.expose_http_prefix
+        if prefix := self.expose_http_prefix:
+            yield Route(
+                name=self.name,
+                prefix=prefix,
+                disable_auth=not self.require_http_auth,
+                prefix_rewrite=self.rewrite_http_prefix,
+            )
 
     @staticmethod
     def get(name: str) -> "BaseService":

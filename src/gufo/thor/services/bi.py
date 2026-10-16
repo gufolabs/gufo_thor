@@ -17,7 +17,6 @@ from .envoy import envoy
 from .login import login
 from .migrate import migrate
 from .noc import NocService
-from .static import static
 from .web import web
 
 
@@ -25,7 +24,7 @@ class BiService(NocService):
     """bi service."""
 
     name = "bi"
-    dependencies = (auth, clickhouse, envoy, login, migrate, static, web)
+    dependencies = (auth, clickhouse, envoy, login, migrate, web)
     expose_http_prefix = "/api/bi/"
 
 

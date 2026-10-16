@@ -12,7 +12,6 @@ Attributes:
 
 # Python modules
 import http.client
-import os
 import ssl
 from dataclasses import dataclass
 from pathlib import Path
@@ -65,42 +64,11 @@ DOMAINS = {
 }
 
 
-@dataclass
-class Route:
-    """
-    routes part of config.
-
-    Attributes:
-        name: Service name.
-        prefix: HTTP prefix.
-        disable_auth: Disable external authorization.
-        prefix_rewite: Rewrite prefix, if set.
-        redirect_to: Redirect to path, if matched.
-        no_cache: Add headers which disable caching.
-        is_service: Expose to `clusters` section.
-    """
-
-    name: str
-    prefix: str
-    disable_auth: bool
-    prefix_rewrite: str | None = None
-    redirect_to: str | None = None
-    no_cache: bool = False
-    is_service: bool = True
-
-    @property
-    def cluster(self) -> str:
-        """Get cluster name."""
-        if self.name == "/index.html":
-            return "static_cluster"
-        return f"{self.name}_cluster"
-
-
 class EnvoyService(BaseService):
     """envoy service."""
 
     name = "envoy"
-    compose_image = "envoyproxy/envoy:v1.39.0"
+    compose_image = "envoyproxy/envoy:v1.39.3"
     # compose_depends_condition = ComposeDependsCondition.HEALTHY
     # compose_healthcheck = {
     #     "test": ["CMD", "envoy", "healthcheck", "--ping"],
@@ -150,72 +118,13 @@ class EnvoyService(BaseService):
                 f"{config.expose.domain_name}:{config.expose.web.port}"
             )
         # Generate routes
-        routes: list[Route] = []
-        web_routes: list[Route] = []
-        for s in services:
-            prefix = s.get_expose_http_prefix()
-            if not prefix:
-                continue
-            if s.name == "web":
-                # Add redirect from legacy desktop
-                web_routes.append(
-                    Route(
-                        name="Redirect /main/desktop/ -> /index.html",
-                        prefix="/main/desktop/",
-                        disable_auth=True,
-                        redirect_to="/index.html",
-                        is_service=False,
-                    )
-                )
-                # Add redirect to desktop
-                web_routes.append(
-                    Route(
-                        name="Redirect / -> /index.html",
-                        prefix="/",
-                        disable_auth=True,
-                        redirect_to="/index.html",
-                        is_service=False,
-                    )
-                )
-                index_html = (
-                    f"/index.{config.noc.theme}.{config.noc.language}.html"
-                )
-                # Route to proper index
-                web_routes.append(
-                    Route(
-                        name="/index.html",
-                        prefix="/index.html",
-                        prefix_rewrite=index_html,
-                        disable_auth=True,
-                        no_cache=True,
-                        is_service=False,
-                    )
-                )
-                web_routes.append(
-                    Route(
-                        name=s.name,
-                        prefix=prefix,
-                        disable_auth=not s.require_http_auth,
-                        prefix_rewrite=s.rewrite_http_prefix,
-                    )
-                )
-            else:
-                routes.append(
-                    Route(
-                        name=s.name,
-                        prefix=prefix,
-                        disable_auth=not s.require_http_auth,
-                        prefix_rewrite=s.rewrite_http_prefix,
-                    )
-                )
-
+        routes = [route for s in services for route in s.iter_routes()]
         routes = sorted(
             routes,
             key=lambda x: "---".join(
                 y if y else "zzzzzzzz" for y in x.prefix.split("/")
             ),
         )
-        routes.extend(web_routes)
         # Add desktop redirect, if necessary
         envoy_settings.write(
             self.render(
@@ -238,10 +147,9 @@ class EnvoyService(BaseService):
 
     def _to_rebuild_certificate(self) -> bool:
         """Check if SSL certificate must be rebuilt."""
-        if not os.path.exists(self.SUBJ_PATH):
+        if not self.SUBJ_PATH.exists():
             return True
-        with open(self.SUBJ_PATH) as fp:
-            return fp.read() != self.get_cert_subj()
+        return self.SUBJ_PATH.read_text() != self.get_cert_subj()
 
     def get_cert_subj(self) -> str:
         """Get certificate subj."""

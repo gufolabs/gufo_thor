@@ -25,7 +25,6 @@ from gufo.thor.services.migrate import migrate
 from gufo.thor.services.mongo import mongo
 from gufo.thor.services.postgres import postgres
 from gufo.thor.services.scheduler import scheduler
-from gufo.thor.services.static import static
 from gufo.thor.services.web import web
 from gufo.thor.services.worker import worker
 from gufo.thor.validator import IPv4Prefix
@@ -63,7 +62,6 @@ def test_depends_sorted(svc: str) -> None:
                 mongo,
                 postgres,
                 scheduler,
-                static,
                 web,
                 worker,
             ],
@@ -110,8 +108,8 @@ def test_compose_healthcheck(svc: str) -> None:
 @pytest.mark.parametrize("svc", ALL_SERVICES)
 def test_envoy_deps(svc: str) -> None:
     service = loader[svc]
-    path = service.get_expose_http_prefix()
-    if path:
+    routes = list(service.iter_routes())
+    if routes:
         assert service.dependencies
         assert envoy in service.dependencies, (
             "Exposes http prefix, must have `envoy` dependency"
@@ -147,9 +145,9 @@ def test_migrate_deps(svc: str) -> None:
 @pytest.mark.parametrize("svc", ALL_SERVICES)
 def test_envoy_http_auth(svc: str) -> None:
     service = loader[svc]
-    path = service.get_expose_http_prefix()
+    routes = list(service.iter_routes())
     if service.require_http_auth:
-        assert path, (
+        assert routes, (
             "`require_http_auth` must be used only with `expose_http_prefix`"
         )
         assert service.dependencies, "Requires auth, must depend on `auth`"
@@ -176,7 +174,6 @@ DEPS_DOT = """digraph {
   envoy -> bi
   login -> bi
   migrate -> bi
-  static -> bi
   web -> bi
   auth -> card
   clickhouse -> card
@@ -185,7 +182,6 @@ DEPS_DOT = """digraph {
   migrate -> card
   mongo -> card
   postgres -> card
-  static -> card
   web -> card
   clickhouse -> chwriter
   kafka -> chwriter
@@ -212,7 +208,6 @@ DEPS_DOT = """digraph {
   migrate -> login
   mongo -> login
   postgres -> login
-  static -> login
   chwriter -> metrics
   kafka -> metrics
   migrate -> metrics
@@ -245,7 +240,6 @@ DEPS_DOT = """digraph {
   mongo -> shell
   postgres -> shell
   worker -> shell
-  envoy -> static
   chwriter -> syslogcollector-default
   datastream -> syslogcollector-default
   kafka -> syslogcollector-default
@@ -262,7 +256,6 @@ DEPS_DOT = """digraph {
   migrate -> ui
   mongo -> ui
   postgres -> ui
-  static -> ui
   auth -> web
   clickhouse -> web
   envoy -> web
@@ -271,7 +264,6 @@ DEPS_DOT = """digraph {
   mongo -> web
   postgres -> web
   scheduler -> web
-  static -> web
   worker -> web
   datastream -> worker
   kafka -> worker
@@ -291,7 +283,7 @@ ALTER_RELEASE_TAG = "release-25.2"
 CONF_NOC_TAG = f"""
 noc:
   tag: "{ALTER_RELEASE_TAG}"
-services: [web,static]
+services: [web]
 """
 
 
@@ -299,9 +291,7 @@ services: [web,static]
     ("service", "conf", "expected"),
     [
         (web, None, f"{NOC_IMAGE_BASE}:26-dev"),
-        (static, None, f"{NOC_IMAGE_BASE}:26-dev"),
         (web, CONF_NOC_TAG, f"{NOC_IMAGE_BASE}:{ALTER_RELEASE_TAG}"),
-        (static, CONF_NOC_TAG, f"{NOC_IMAGE_BASE}:{ALTER_RELEASE_TAG}"),
     ],
 )
 def test_service_image(
@@ -316,8 +306,7 @@ def test_service_image(
 CONF_NOC_PATH = """
 noc:
   path: /home/joe/noc
-  ui_path: /home/joe/noc-ui
-services: [static, web]
+services: [web]
 """
 
 
@@ -332,7 +321,6 @@ services: [static, web]
                 "crashinfo:/var/lib/noc/cp/crashinfo/new",
             ],
         ),
-        (static, CONF_NOC_PATH, ["/home/joe/noc-ui:/www:cached"]),
         (envoy, CONF_NOC_PATH, None),
     ],
 )
