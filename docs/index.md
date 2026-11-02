@@ -106,7 +106,7 @@ noc:
 expose:
   domain_name: go.getnoc.com
   port: 32777
-services: [web, card]
+services: [web]
 ```
 
 Adapt the file to your needs and start NOC:

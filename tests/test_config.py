@@ -49,9 +49,8 @@ def test_simple() -> None:
     assert cfg.expose.domain_name == "go.getnoc.com"
     assert cfg.expose.web
     assert cfg.expose.web.port == 32777
-    assert len(cfg.services) == 3
+    assert len(cfg.services) == 2
     assert "web" in cfg.services
-    assert "card" in cfg.services
     assert not errors.has_errors()
 
 

@@ -17,7 +17,6 @@ pools:
       trap: 10.0.2.11
 services:
   - web
-  - card
   - scheduler
   - chwriter
   - classifier-vyos

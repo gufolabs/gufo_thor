@@ -4,15 +4,13 @@ This section contains a list of services to start. Services can be specified as
 
 * list of service names.
   ``` yaml
-  services: [web, card]
+  services: [web]
   ```
 * mapping of service configuration items.
   ``` yaml
   services:
     web:
       scale: 4
-    card:
-      scale: 2
   ```
 
 ## tag { #tag }
