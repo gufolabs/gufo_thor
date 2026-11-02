@@ -110,8 +110,8 @@ static_resources:
                       transport_api_version: V3
                       http_service:
                         server_uri:
-                          uri: "http://login:1200/api/auth/auth/"
-                          cluster: login_cluster
+                          uri: "http://auth:1200/api/auth/auth/"
+                          cluster: auth_cluster
                           timeout: 0.5s
                         path_prefix: /api/auth/auth/?uri=
                         authorization_request:
@@ -189,7 +189,8 @@ static_resources:
         envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
           "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
           explicit_http_config:
-            http_protocol_options: {}
+            http2_protocol_options:
+              max_concurrent_streams: 256
       load_assignment:
         cluster_name: "{{ svc }}_cluster"
         endpoints:
