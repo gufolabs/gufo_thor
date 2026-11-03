@@ -175,14 +175,6 @@ DEPS_DOT = """digraph {
   login -> bi
   migrate -> bi
   web -> bi
-  auth -> card
-  clickhouse -> card
-  envoy -> card
-  login -> card
-  migrate -> card
-  mongo -> card
-  postgres -> card
-  web -> card
   clickhouse -> chwriter
   kafka -> chwriter
   migrate -> chwriter

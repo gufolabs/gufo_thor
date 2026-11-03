@@ -16,6 +16,10 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 
 - Enable HTTP/2 for NOC services clusters.
 
+### Removed
+
+- card service.
+
 ## 0.15.0 - 2027-10-26
 
 ### Added

@@ -9,4 +9,4 @@ expose:
   web:
     port: 32777
   open_browser: true
-services: [web, card, shell]
+services: [web, shell]
