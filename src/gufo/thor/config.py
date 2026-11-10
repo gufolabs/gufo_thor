@@ -57,7 +57,6 @@ class NocConfig:
         installation_name: The installation name which will be shown
             in the interface.
         theme: Web interface theme. One of: `noc`, `gray`.
-        language: Web interface language.
         migrate: Run migrations on start
         config: User-defined config.
     """
@@ -69,7 +68,6 @@ class NocConfig:
     custom: str | None = None
     installation_name: str = "Unconfigured Installation"
     theme: Literal["noc", "gray"] = "noc"
-    language: Literal["en", "ru"] = "en"
     migrate: bool = True
     config: dict[str, Any] | None = None
 

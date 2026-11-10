@@ -138,7 +138,6 @@ class NocService(BaseService):
         cfg: dict[str, Any] = {
             "installation_name": config.noc.installation_name,
             "clickhouse": {"ro_user": "default"},
-            "language": config.noc.language,
             "pg": {
                 "db": "noc",
                 "user": "noc",
