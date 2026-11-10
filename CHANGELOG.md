@@ -15,6 +15,7 @@ To see unreleased changes, please see the [CHANGELOG on the master branch](https
 ### Changed
 
 - Enable HTTP/2 for NOC services clusters.
+- config: `noc.language` moved to `noc.config.language`.
 
 ### Removed
 
