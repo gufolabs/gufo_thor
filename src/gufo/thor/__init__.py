@@ -10,4 +10,4 @@ Attributes:
     __version__: Gufo Thor version
 """
 
-__version__: str = "0.15.0"
+__version__: str = "0.16.0"
